@@ -1,3 +1,2 @@
-OpenShift Content
+Openshift Content
 =================
-

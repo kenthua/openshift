@@ -1,0 +1,14 @@
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "example-route"
+      },
+      "spec": {
+        "host": "example-route.cloudapps.example.com",
+        "to": {
+          "name": "name-of-exposed-service"
+        }
+      }
+}
+

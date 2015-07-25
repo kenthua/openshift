@@ -1,0 +1,19 @@
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "name-of-exposed-service"
+      },
+      "spec": {
+        "selector": {
+          "name": "name-of-pod-for-service"
+        },
+        "ports": [
+          {
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ]
+      }
+    }
