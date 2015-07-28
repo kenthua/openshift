@@ -1,6 +1,28 @@
+# Login to RHPDS
+
+Provision Image
+
+	https://rhpds.redhat.com
+
+Catalogs -> Middleware Solution Demos -> OpenShift Enterprise 3.0 Dev Demo -> Order
+
+Your Desktop:
+
+	ssh khua-redhat.com@osework-4971.rhpds.opentlc.com
+	sudo su - user
+
+Click here for console (osework)
+
+	https://ose-aio.example.com:8443/
+	Username: alice
+	Password: anything
+
 # Login to OpenShift 
 
 	oc login https://ose-aio.example.com:8443 --certificate-authority=ca.crt
+	
+	Username: alice
+	Password: anything
 
 # Docker project with WAR
 b6m
@@ -54,37 +76,77 @@ URL
 
 	http://kitchensink-war.k-war.cloudapps.example.com	
 
+# Ruby hello-world with db different project
 
-# Kitchensink standalone S2I - H2 database - builder image
-b6m
+Browser - Create (Home View)
 
-	oc new-project kitchensink
+	data	
 
-Browser - Create (Project View)
+Browser - Create (Project View) - browse all templates 
 
-	https://github.com/kenthua/kitchensink.git
-	EAP:latest or eap6-basic
+	mysql-ephemeral
 
-or command line
+Edit Deployment Configuration - Create
 
-	oc new-app --template=eap6-basic-sti --param=GIT_URI=https://github.com/kenthua/kitchensink.git --param=GIT_REF=master --param=GIT_CONTEXT_DIR="" --param=APPLICATION_NAME=kitchensink
+	DATABASE_SERVICE_NAME=mysql
+	MYSQL_USER=root
+	MYSQL_PASSWORD=redhat
+	MYSQL_DATABASE=mydb
 
-Watch the build when it starts
+Verify mysql-1 pod is running
 
-	oc get build -w
-	NAME            TYPE      STATUS    POD
-	kitchensink-1   Source    New       kitchensink-1-build
-	kitchensink-1   Source    Pending   kitchensink-1-build
-	kitchensink-1   Source    Running   kitchensink-1-build
+	oc project data
+	
+	oc get pod
+	NAME            READY     REASON    RESTARTS   AGE
+	mysql-1-dppdz   1/1       Running   0          1m
+	
+	oc get service
+	NAME      LABELS                              SELECTOR     IP(S)           PORT(S)
+	mysql     template=mysql-ephemeral-template   name=mysql   172.30.237.51   3306/TCP
+	
+	curl 172.30.237.51:3306
+	5.5.41exO_r>}{��qHP9j.DK,9yxmysql_native_password!��#08S01Got packets out of order	
 
-Watch builds from the build option or builder pod (pom.xml in src, maven build is exected)
+Browser - Create (Home View)
 
-	oc build-logs kitchensink-1
-	oc logs -f kitchensink-1-build
+	frontend	
 
-Browser
+Browser - Create (Project View) 
 
-	http://kitchensink.kitchensink.cloudapps.example.com
+	http://github.com/kenthua/ruby-hello-world.git
+	ruby:2.0
+
+Edit Deployment Configuration by adding some environment variables
+
+	DATABASE_SERVICE_HOST=mysql.data.svc.cluster.local
+	DATABASE_SERVICE_PORT=3306
+	MYSQL_USER=root
+	MYSQL_PASSWORD=redhat
+	MYSQL_DATABASE=mydb
+
+Check that the frontend pod is running
+
+	oc project frontend
+	
+	oc get pod 
+	NAME                       READY     REASON       RESTARTS   AGE
+	ruby-hello-world-1-build   0/1       ExitCode:0   0          2m
+	ruby-hello-world-1-trpn3   1/1       Running      0          1m
+
+Browser - Navigate to:
+
+	http://ruby-hello-world.frontend.cloudapps.example.com
+
+# PHP Upload Application - Instant App
+
+	oc new-project newapp-test
+	oc new-app php-upload.json
+	oc start-build php-upload
+
+Browser - navigate to:
+
+	http://php-upload.newapp-test.cloudapps.example.com/form.html
 
 
 # Kitchensink S2I - postgres - builder image
@@ -142,6 +204,42 @@ Let's manually scale
 	Session Affinity:	None
 	No events.
 	
+
+=======
+
+# Kitchensink standalone S2I - H2 database - builder image
+b6m
+
+	oc new-project kitchensink
+
+Browser - Create (Project View)
+
+	https://github.com/kenthua/kitchensink.git
+	EAP:latest or eap6-basic
+
+or command line
+
+	oc new-app --template=eap6-basic-sti --param=GIT_URI=https://github.com/kenthua/kitchensink.git --param=GIT_REF=master --param=GIT_CONTEXT_DIR="" --param=APPLICATION_NAME=kitchensink
+
+Watch the build when it starts
+
+	oc get build -w
+	NAME            TYPE      STATUS    POD
+	kitchensink-1   Source    New       kitchensink-1-build
+	kitchensink-1   Source    Pending   kitchensink-1-build
+	kitchensink-1   Source    Running   kitchensink-1-build
+
+Watch builds from the build option or builder pod (pom.xml in src, maven build is exected)
+
+	oc build-logs kitchensink-1
+	oc logs -f kitchensink-1-build
+
+Browser
+
+	http://kitchensink.kitchensink.cloudapps.example.com
+
+
+
 # Ruby hello-world 
 (b6m) / 25m
 
@@ -326,67 +424,7 @@ ose-aio machine
 	openshift-php-upload-2-53f4z
 	curl http://172.30.117.104:8080/test.php 
 
-# Ruby hello-world with db different project
 
-Browser - Create (Home View)
-
-	data	
-
-Browser - Create (Project View) - browse all templates 
-
-	mysql-ephemeral
-
-Edit Deployment Configuration - Create
-
-	DATABASE_SERVICE_NAME=mysql
-	MYSQL_USER=root
-	MYSQL_PASSWORD=redhat
-	MYSQL_DATABASE=mydb
-
-Verify mysql-1 pod is running
-
-	oc project data
-	
-	oc get pod
-	NAME            READY     REASON    RESTARTS   AGE
-	mysql-1-dppdz   1/1       Running   0          1m
-	
-	oc get service
-	NAME      LABELS                              SELECTOR     IP(S)           PORT(S)
-	mysql     template=mysql-ephemeral-template   name=mysql   172.30.237.51   3306/TCP
-	
-	curl 172.30.237.51:3306
-	5.5.41exO_r>}{��qHP9j.DK,9yxmysql_native_password!��#08S01Got packets out of order	
-
-Browser - Create (Home View)
-
-	frontend	
-
-Browser - Create (Project View) 
-
-	http://github.com/kenthua/ruby-hello-world.git
-	ruby:2.0
-
-Edit Deployment Configuration by adding some environment variables
-
-	DATABASE_SERVICE_HOST=mysql.data.svc.cluster.local
-	DATABASE_SERVICE_PORT=3306
-	MYSQL_USER=root
-	MYSQL_PASSWORD=redhat
-	MYSQL_DATABASE=mydb
-
-Check that the frontend pod is running
-
-	oc project frontend
-	
-	oc get pod 
-	NAME                       READY     REASON       RESTARTS   AGE
-	ruby-hello-world-1-build   0/1       ExitCode:0   0          2m
-	ruby-hello-world-1-trpn3   1/1       Running      0          1m
-
-Browser - Navigate to:
-
-	http://ruby-hello-world.frontend.cloudapps.example.com
 
 # PHP Upload Application Template - Instant App
 
@@ -408,15 +446,7 @@ Browser - navigate to:
 
 	http://php-upload.template-test.cloudapps.example.com/form.html	
 
-# PHP Upload Application - Instant App
 
-	oc new-project newapp-test
-	oc new-app php-upload.json
-	oc start-build php-upload
-
-Browser - navigate to:
-
-	http://php-upload.newapp-test.cloudapps.example.com/form.html
 
 
 
