@@ -6,7 +6,7 @@ Provision Image
 
 Catalogs -> Middleware Solution Demos -> OpenShift Enterprise 3.0 Dev Demo -> Order
 
-Your Desktop:
+Your Desktop (if you want to work the client in a local terminal):
 
 	ssh khua-redhat.com@osework-4971.rhpds.opentlc.com
 	sudo su - user
@@ -15,14 +15,14 @@ Click here for console (osework)
 
 	https://ose-aio.example.com:8443/
 	Username: alice
-	Password: anything
+	Password: redhat
 
-# Login to OpenShift 
+# Login to OpenShift
 
 	oc login https://ose-aio.example.com:8443 --certificate-authority=ca.crt
-	
+
 	Username: alice
-	Password: anything
+	Password: redhat
 
 # Docker project with WAR
 b6m
@@ -40,14 +40,14 @@ You will get an error like this because the image hasn't been pulled down yet
 Watch the docker build
 
 	oc logs -f kitchensink-docker-1-build
-	
-	I0717 18:11:44.001404       1 docker.go:91] Successfully pushed 172.30.56.67:5000/k-docker/kitchensink-docker	
+
+	I0717 18:11:44.001404       1 docker.go:91] Successfully pushed 172.30.56.67:5000/k-docker/kitchensink-docker
 
 Expose the service
 
 	oc get service
 	oc expose service kitchensink-docker
-	browser (http://kitchensink-docker.k-docker.cloudapps.example.com)	
+	browser (http://kitchensink-docker.k-docker.cloudapps.example.com)
 
 # Kitchensink with just WAR file
 b5m
@@ -74,15 +74,15 @@ OR command line
 
 URL
 
-	http://kitchensink-war.k-war.cloudapps.example.com	
+	http://kitchensink-war.k-war.cloudapps.example.com
 
 # Ruby hello-world with db different project
 
 Browser - Create (Home View)
 
-	data	
+	data
 
-Browser - Create (Project View) - browse all templates 
+Browser - Create (Project View) - browse all templates
 
 	mysql-ephemeral
 
@@ -96,23 +96,23 @@ Edit Deployment Configuration - Create
 Verify mysql-1 pod is running
 
 	oc project data
-	
+
 	oc get pod
 	NAME            READY     REASON    RESTARTS   AGE
 	mysql-1-dppdz   1/1       Running   0          1m
-	
+
 	oc get service
 	NAME      LABELS                              SELECTOR     IP(S)           PORT(S)
 	mysql     template=mysql-ephemeral-template   name=mysql   172.30.237.51   3306/TCP
-	
+
 	curl 172.30.237.51:3306
-	5.5.41exO_r>}{��qHP9j.DK,9yxmysql_native_password!��#08S01Got packets out of order	
+	5.5.41exO_r>}{��qHP9j.DK,9yxmysql_native_password!��#08S01Got packets out of order
 
 Browser - Create (Home View)
 
-	frontend	
+	frontend
 
-Browser - Create (Project View) 
+Browser - Create (Project View)
 
 	http://github.com/kenthua/ruby-hello-world.git
 	ruby:2.0
@@ -128,8 +128,8 @@ Edit Deployment Configuration by adding some environment variables
 Check that the frontend pod is running
 
 	oc project frontend
-	
-	oc get pod 
+
+	oc get pod
 	NAME                       READY     REASON       RESTARTS   AGE
 	ruby-hello-world-1-build   0/1       ExitCode:0   0          2m
 	ruby-hello-world-1-trpn3   1/1       Running      0          1m
@@ -160,7 +160,7 @@ Add EAP keystore secret
 
 	oc project k-postgres
 	oc create -f eap-app-secret.json
- 
+
 Browser - Create (Project View)-> Browse all templates -> eap6-postgresql-sti -> Select template -> edit parameters
 
 	GIT_URI=https://github.com/kenthua/kitchensink-postgres.git
@@ -181,18 +181,18 @@ Let's manually scale
 	CONTROLLER             CONTAINER(S)         IMAGE(S)                                                                                                       SELECTOR                                                                                                  REPLICAS
 	eap-app-1              eap-app              172.30.56.67:5000/k-postgres/eap-app@sha256:b9830468ff16d7c6a880bc50da2b6890ff05732c1bc5e5833f687be5c010c6d3   deployment=eap-app-1,deploymentConfig=eap-app,deploymentconfig=eap-app                                    1
 	eap-app-postgresql-1   eap-app-postgresql   registry.access.redhat.com/openshift3/postgresql-92-rhel7:latest                                               deployment=eap-app-postgresql-1,deploymentConfig=eap-app-postgresql,deploymentconfig=eap-app-postgresql   1
-	
+
 	oc scale --replicas=2 rc/eap-app-1
-	
+
 	oc get pod
 	NAME                         READY     REASON       RESTARTS   AGE
 	eap-app-1-build              0/1       ExitCode:0   0          26m
 	eap-app-1-ig8y1              1/1       Running      0          1m
 	eap-app-1-iwwe0              1/1       Running      0          19m
 	eap-app-postgresql-1-8wzae   1/1       Running      0          26m
-	
+
 	oc get service eap-app
-	
+
 	oc describe service eap-app
 	Name:			eap-app
 	Labels:			application=eap-app,template=eap6-postgresql-sti
@@ -203,7 +203,7 @@ Let's manually scale
 	Endpoints:		10.1.0.22:8080,10.1.0.25:8080
 	Session Affinity:	None
 	No events.
-	
+
 
 =======
 
@@ -240,14 +240,14 @@ Browser
 
 
 
-# Ruby hello-world 
+# Ruby hello-world
 (b6m) / 25m
 
 Browser - Create (Home View)
 
-	ruby	
+	ruby
 
-Browser - Create (Project View) 
+Browser - Create (Project View)
 
 	https://github.com/kenthua/ruby-hello-world.git
 	ruby:2.0
@@ -294,7 +294,7 @@ Make a change to the application
 Now we need to get the generic webhook url
 
 	oc describe bc ruby-hello-world
-	
+
 	Name:			ruby-hello-world
 	...
 	Webhook Generic:	https://ose-aio.example.com:8443/oapi/v1/namespaces/ruby/buildconfigs/ruby-hello-world/webhooks/1f4a60ac41f59d9b/generic
@@ -302,13 +302,13 @@ Now we need to get the generic webhook url
 	Builds:
 	  Name			Status		Duration	Creation Time
 	  ruby-hello-world-1 	complete 	6m6s 		2015-07-17 19:20:23 -0400 EDT
-	 
+
 Trigger a new build manually via webhook
 
 	curl -i -H "Accept: application/json" \
 	-H "X-HTTP-Method-Override: PUT" -X POST -k \
 	https://ose-aio.example.com:8443/oapi/v1/namespaces/ruby/buildconfigs/ruby-hello-world/webhooks/1f4a60ac41f59d9b/generic
-	
+
 	HTTP/1.1 200 OK
 	Cache-Control: no-store
 	Date: Fri, 17 Jul 2015 23:40:50 GMT
@@ -325,13 +325,13 @@ Check out a new build
 Once ready, check out the new changes
 
 Rollback to the original
-	
+
 	oc rollback ruby-hello-world-1
-	
+
 Rollback to the changes if desired
 
 	oc rollback ruby-hello-world-2
-	
+
 Check out how many rc's we have
 
 	oc get rc
@@ -342,7 +342,7 @@ Check out how many rc's we have
 	ruby-hello-world-3   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:84b3c3a091f9bc7fb5530c126add792df93a29b779fb7abcc26291ba79a339d9   deployment=ruby-hello-world-3,deploymentconfig=ruby-hello-world   0
 	ruby-hello-world-4   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:a6a81a82cd4305e9b50cb189875d4cc7f1dd5a9c42c6b956db36726a14bd8e5a   deployment=ruby-hello-world-4,deploymentconfig=ruby-hello-world   1
 
-# PHP, persistent volumes 
+# PHP, persistent volumes
 (b4m) / 20m
 
 If you don't have a persistent volume already created by root, reference this repo for a quick NFS & PV setup:  
@@ -357,7 +357,7 @@ Browser - Create (Project view)
 	https://github.com/kenthua/openshift-php-upload-demo.git
 	php:5.5
 	Name: openshift-php-upload
-	
+
 Create a claim on a volume
 
 	oc create -f pvc.json
@@ -393,9 +393,9 @@ Scale the php upload app
 	CONTROLLER               CONTAINER(S)           IMAGE(S)                                                                                                             SELECTOR                                                                  REPLICAS
 	openshift-php-upload-1   openshift-php-upload   172.30.56.67:5000/php/openshift-php-upload@sha256:cf64adfa53b74a3548ad9fd6104fdf481015c9d74316d7da75625640dbc7fa7f   deployment=openshift-php-upload-1,deploymentconfig=openshift-php-upload   0
 	openshift-php-upload-2   openshift-php-upload   172.30.56.67:5000/php/openshift-php-upload@sha256:cf64adfa53b74a3548ad9fd6104fdf481015c9d74316d7da75625640dbc7fa7f   deployment=openshift-php-upload-2,deploymentconfig=openshift-php-upload   1
-	
+
 	oc scale --replicas=3 rc/openshift-php-upload-2
-	
+
 	oc get pod
 	NAME                           READY     REASON       RESTARTS   AGE
 	openshift-php-upload-1-build   0/1       ExitCode:0   0          24m
@@ -404,12 +404,12 @@ Scale the php upload app
 	openshift-php-upload-2-oc0g5   1/1       Running      0          24s
 
 Check for persistent volume saving, also round robin service
-ose-aio machine 
-	
+ose-aio machine
+
 	ls /var/export/vol1
-	
+
 	oc get service -n php
-	
+
 	curl http://172.30.117.104:8080/test.php
 	openshift-php-upload-2-oc0g5
 	curl http://172.30.117.104:8080/test.php
@@ -422,7 +422,7 @@ ose-aio machine
 	openshift-php-upload-2-31eng
 	curl http://172.30.117.104:8080/test.php
 	openshift-php-upload-2-53f4z
-	curl http://172.30.117.104:8080/test.php 
+	curl http://172.30.117.104:8080/test.php
 
 
 
@@ -444,9 +444,4 @@ Browser - Browse -> Builds -> Start build
 
 Browser - navigate to:
 
-	http://php-upload.template-test.cloudapps.example.com/form.html	
-
-
-
-
-
+	http://php-upload.template-test.cloudapps.example.com/form.html
