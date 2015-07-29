@@ -46,7 +46,7 @@ Watch the docker build
 Expose the service
 
 	oc get service
-	oc expose service kithensink-docker
+	oc expose service kitchensink-docker
 	browser (http://kitchensink-docker.k-docker.cloudapps.example.com)	
 
 # Kitchensink with just WAR file
