@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # $1 hostname
 # $2 domain
 
@@ -12,7 +14,7 @@ subscription-manager repos \
     --enable="rhel-7-server-ose-3.0-rpms"
 
 # setup prereq
-yum -y remove NetworkManager 
+yum -y remove NetworkManager
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils deltarpm
 yum -y update
 
@@ -38,4 +40,3 @@ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 
 for host in $1.$2; do ssh-copy-id -i ~/.ssh/id_rsa.pub -o "StrictHostKeyChecking=no" $host; done
-

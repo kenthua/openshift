@@ -1,7 +1,7 @@
-disk= "./disk2.vdi"
-hostname= "ose-aio"
-domain= "rhose.org"
-dns= "true"
+disk="./disk2.vdi"
+hostname="ose-aio"
+domain="rhose.org"
+dns="true"
 dns_server="10.211.55.45"
 ip_master="192.168.150.2"
 
@@ -21,7 +21,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "private_network", ip: ip_master
 
   #config.vm.provision "file", source: "scripts/hosts", destination: "~"
-  
+
   config.vm.provision "shell", name: "Output shell environment variables", args: [disk, hostname, domain, ip_master, dns, dns_server], inline: <<-SHELL
     echo "disk: $1"
     echo "hostname: $2"
@@ -30,7 +30,7 @@ Vagrant.configure(2) do |config|
     echo "dns: $5"
     echo "dns_server: $6"
   SHELL
-  
+
   config.vm.provision "shell", name: "Create new etc hosts file", args: [hostname, domain, ip_master], inline: <<-SHELL
     echo "127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4" > /etc/hosts
     echo "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6" >> /etc/hosts
