@@ -1,0 +1,93 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Make sure we have the hostmanager plugin
+unless Vagrant.has_plugin?("vagrant-hostmanager")
+  rails 'vagrant-hostmanager plugin is required'
+end
+
+Vagrant.configure(2) do |config|
+  #config.vm.synced_folder '.', '/vagrant', disabled: true
+  deployment_type = ENV['OPENSHIFT_DEPLOYMENT_TYPE'] || 'enterprise'
+  num_nodes = (ENV['OPENSHIFT_NUM_NODES'] || 2).to_i
+
+  config.registration.skip=true
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.include_offline = true
+  config.ssh.insert_key = false
+  config.vm.provider "virtualbox" do |vbox, override|
+    override.vm.box = "ose-3-base"
+    vbox.memory = 1024
+    vbox.cpus = 2
+    vbox.customize ["modifyvm", :id, "--ioapic", "on"]
+  end
+  # may need to move to each instance
+  config.vm.synced_folder ".", "/home/vagrant/sync", type: "rsync"
+
+  config.vm.define "ose3-dns.example.com" do |helper|
+    config.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "512"]
+      vb.customize ["modifyvm", :id, "--cpus", "1"]
+    end
+
+    helper.vm.hostname = "ose3-dns.example.com"
+    helper.hostmanager.aliases = %W(ose3-dns.example.com)
+    helper.vm.network :private_network, ip: "192.168.100.150"
+    helper.vm.provision "fix-hostmanager-bug", type: "shell", run: "always" do |s|
+      s.inline = <<-EOT
+        sudo restorecon /etc/hosts
+        sudo chown root:root /etc/hosts
+        EOT
+    end
+    helper.vm.provision "shell", path: "ose3-dns/install_script.sh"
+  end
+
+  num_nodes.times do |n|
+    node_index = n+1
+    config.vm.define "ose3-node#{node_index}.example.com" do |node|
+      config.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--memory", "1024"]
+        vb.customize ["modifyvm", :id, "--cpus", "2"]
+      end
+      node.vm.hostname = "ose3-node#{node_index}.example.com"
+      node.hostmanager.aliases = %W(ose3-node#{node_index}.example.com)
+      node.vm.network :private_network, ip: "192.168.100.#{200 + n}"
+      node.vm.provision "fix-hostmanager-bug", type: "shell", run: "always" do |s|
+        s.inline = <<-EOT
+          sudo restorecon /etc/hosts
+          sudo chown root:root /etc/hosts
+          EOT
+      end
+      node.vm.provision "shell", path: "ose3-node#{node_index}/install_script.sh"
+      node.vm.provision "shell", path: "all.sh"
+    end
+  end
+
+  config.vm.define "ose3-master.example.com" do |master|
+    config.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+      vb.customize ["modifyvm", :id, "--cpus", "2"]
+    end
+    master.vm.hostname = "ose3-master.example.com"
+    master.hostmanager.aliases = %W(ose3-master.example.com)
+    master.vm.network :private_network, ip: "192.168.100.100"
+    master.vm.network :forwarded_port, guest: 8443, host: 8443
+    master.vm.provision "shell", path: "ose3-master/install_script.sh"
+    master.vm.provision "shell", path: "all.sh"
+    master.vm.provision "fix-hostmanager-bug", type: "shell", run: "always" do |s|
+      s.inline = <<-EOT
+        sudo restorecon /etc/hosts
+        sudo chown root:root /etc/hosts
+        EOT
+    end
+    master.vm.provision "shell", path: "ose3-master/ose_install_script.sh"
+    #master.vm.provision "ansible" do |ansible|
+    #  ansible.limit = 'all'
+    #  ansible.inventory_path = 'ansible-hosts'
+    #  ansible.playbook = "projects/openshift-ansible/playbooks/byo/config.yml"
+    #end
+    master.vm.provision "shell", path: "ose3-master/post_install.sh"
+  end
+
+end
