@@ -3,7 +3,7 @@
 # label the nodes because the ansible installer script doesn't work
 oc label --overwrite node ose3-master.example.com region=infra zone=default
 oc label --overwrite node ose3-node1.example.com region=primary zone=east
-oc label --overwrite node ose3-node1.example.com region=primary zone=west
+oc label --overwrite node ose3-node2.example.com region=primary zone=west
 
 # setup service account for docker-registry
 echo \
@@ -22,7 +22,7 @@ oadm registry --service-account=registry \
 --config=/etc/openshift/master/admin.kubeconfig \
 --credentials=/etc/openshift/master/openshift-registry.kubeconfig \
 --mount-host=/mnt/docker \
---selector="region=infra" \
+--selector='region=infra' \
 --images='registry.access.redhat.com/openshift3/ose-${component}:${version}'
 
 
@@ -52,7 +52,9 @@ oadm router router --replicas=1 \
     --credentials='/etc/openshift/master/openshift-router.kubeconfig' \
     --images='registry.access.redhat.com/openshift3/ose-${component}:${version}' \
     --default-cert=cloudapps.router.pem \
-    --selector="region=infra" \
+    --selector='region=infra' \
+    --stats-user='admin' \
+    --stats-password='redhat' \
     --service-account=router
 
 # add routing config so new projects wil leverage specified subdomain

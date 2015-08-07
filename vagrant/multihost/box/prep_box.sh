@@ -20,9 +20,6 @@ yum -y update
 # setup docker
 yum -y install docker
 
-# need this back for nmcli for vagrant/virtualbox
-yum -y install NetworkManager
-
 # install ansible
 yum -y install \
     http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
