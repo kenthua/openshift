@@ -26,6 +26,10 @@ vagrant / vagrant
 ### Add the vagrant user
 vagrant ALL=(ALL) NOPASSWD: ALL
 
+## Login as vagrant user
+
+    su - vagrant
+    ./vagrant_user.sh
 
 # Package your box
 ## automated

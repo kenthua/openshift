@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # setup subscription
-
 subscription-manager register --username $RHSM_USERNAME --password $RHSM_PASSWORD
 subscription-manager attach --pool=$RHSM_POOLID
 
@@ -26,14 +25,9 @@ yum -y install \
 sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
 yum -y --enablerepo=epel install ansible
 
+# clean repo
+yum -y clean all
+
 # Modify sshd config
 sed -i -e '/^#UseDNS/a UseDNS no' /etc/ssh/sshd_config
 
-# setup vagrant public key
-su - vagrant
-mkdir .ssh
-chmod -R 0600 .ssh
-cd .ssh
-curl https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub > authorized_keys
-chmod -R 0700 authorized_keys
-exit
