@@ -21,13 +21,13 @@ openshift_master_identity_providers=[{'name': 'any_password', 'login': 'true', '
 
 # host group for masters
 [masters]
-ose3-master.example.com  openshift_ip=192.168.100.100 openshift_public_ip=192.168.100.100 openshift_hostname=ose3-master.example.com openshift_public_hostname=ose3-master.example.com
+ose3-master.example.com 
 
 # host group for nodes, includes region info
 [nodes]
-ose3-node2.example.com  openshift_ip=192.168.100.201 openshift_public_ip=192.168.100.201 openshift_hostname=ose3-node2.example.com openshift_public_hostname=ose3-node2.example.com
-ose3-node1.example.com  openshift_ip=192.168.100.200 openshift_public_ip=192.168.100.200 openshift_hostname=ose3-node1.example.com openshift_public_hostname=ose3-node1.example.com
-ose3-master.example.com  openshift_ip=192.168.100.100 openshift_public_ip=192.168.100.100 openshift_hostname=ose3-master.example.com openshift_public_hostname=ose3-master.example.com openshift_scheduleable=True
+ose3-node2.example.com
+ose3-node1.example.com 
+ose3-master.example.com 
 " > /etc/ansible/hosts
 
 cd ~
