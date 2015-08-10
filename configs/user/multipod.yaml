@@ -1,0 +1,16 @@
+id: "multicontainerpod"
+kind: "Pod"
+apiVersion: "v1beta3"
+metadata:
+  name: test-multi-pod
+spec:
+    containers:
+      - name: "pod-t1"
+        image: "gcr.io/google_containers/busybox"
+        command: [ "/bin/sh", "-c", "ping 8.8.8.8" ]
+      - name: "pod-t2"
+        image: "gcr.io/google_containers/busybox"
+        command: [ "/bin/sh", "-c", "ping 8.8.8.8" ]
+labels:
+  name: "test-multi-pod"
+
