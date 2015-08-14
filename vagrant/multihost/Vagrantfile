@@ -40,7 +40,7 @@ Vagrant.configure(2) do |config|
         sudo chown root:root /etc/hosts
         EOT
     end
-    helper.vm.provision "shell", path: "ose3-dns/install_script.sh"
+    helper.vm.provision "shell", name: "DNS Install Script", path: "ose3-dns/install_script.sh"
   end
 
   num_nodes.times do |n|
@@ -50,6 +50,13 @@ Vagrant.configure(2) do |config|
         vb.customize ["modifyvm", :id, "--memory", "1024"]
         vb.customize ["modifyvm", :id, "--cpus", "2"]
       end
+      # clear out existing hosts entry
+      node.vm.provision "shell", name: "Create new etc hosts file", inline: <<-SHELL
+        echo "127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4" > /etc/hosts
+        echo "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6" >> /etc/hosts
+        echo "" >> /etc/hosts
+      SHELL
+            
       node.vm.hostname = "ose3-node#{node_index}.example.com"
       node.hostmanager.aliases = %W(ose3-node#{node_index}.example.com)
       node.vm.network :private_network, ip: "192.168.100.#{200 + n}"
@@ -59,8 +66,8 @@ Vagrant.configure(2) do |config|
           sudo chown root:root /etc/hosts
           EOT
       end
-      node.vm.provision "shell", path: "ose3-node#{node_index}/install_script.sh"
-      node.vm.provision "shell", path: "all.sh"
+      node.vm.provision "shell", name: "Node Install Script", path: "ose3-node#{node_index}/install_script.sh"
+      node.vm.provision "shell", name: "All Script", path: "all.sh"
     end
   end
 
@@ -69,25 +76,33 @@ Vagrant.configure(2) do |config|
       vb.customize ["modifyvm", :id, "--memory", "1024"]
       vb.customize ["modifyvm", :id, "--cpus", "2"]
     end
+
+    # - clear out existing hosts entry
+    # - otherwise the install script has the master node assigned at 127.0.0.1 
+    # resulting in lbr0 having issues communicating
+    # - lbr0 - can't ping across master & nodeX on 10.x.x.x IP 
+    # - original is 127.0.0.1 ose3-master.example.com ose3-master localhost ....
+    # - this can probably be fixed by not allowing vagrant to update hosts file - networkconfig-scripts somewhere
+    master.vm.provision "shell", name: "Create new etc hosts file", inline: <<-SHELL
+      echo "127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4" > /etc/hosts
+      echo "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6" >> /etc/hosts
+      echo "" >> /etc/hosts
+    SHELL
+    
     master.vm.hostname = "ose3-master.example.com"
     master.hostmanager.aliases = %W(ose3-master.example.com)
     master.vm.network :private_network, ip: "192.168.100.100"
     master.vm.network :forwarded_port, guest: 8443, host: 8443
-    master.vm.provision "shell", path: "ose3-master/install_script.sh"
-    master.vm.provision "shell", path: "all.sh"
+    master.vm.provision "shell", name: "Master Install Script", path: "ose3-master/install_script.sh"
+    master.vm.provision "shell", name: "All Script", path: "all.sh"
     master.vm.provision "fix-hostmanager-bug", type: "shell", run: "always" do |s|
       s.inline = <<-EOT
         sudo restorecon /etc/hosts
         sudo chown root:root /etc/hosts
         EOT
     end
-    master.vm.provision "shell", path: "ose3-master/ose_install_script.sh"
-    #master.vm.provision "ansible" do |ansible|
-    #  ansible.limit = 'all'
-    #  ansible.inventory_path = 'ansible-hosts'
-    #  ansible.playbook = "projects/openshift-ansible/playbooks/byo/config.yml"
-    #end
-    master.vm.provision "shell", path: "ose3-master/post_install.sh"
+    master.vm.provision "shell", name: "Master OSE Install Script", path: "ose3-master/ose_install_script.sh"
+    master.vm.provision "shell", name: "Master OSE Post Install Script", path: "ose3-master/post_install.sh"
   end
 
 end

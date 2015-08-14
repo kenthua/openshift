@@ -15,6 +15,12 @@ ansible_ssh_user=root
 # To deploy origin, change deployment_type to origin
 deployment_type=enterprise
 
+# if you want the POD network to be on a different IP network range - (PODS  normally 10.1.0.0)
+#osm_cluster_network_cidr=192.168.128.0/17
+
+# if you want the kube network to be on a different IP network range - (Services normally 172.30.0.0)
+#openshift_master_portal_net = 192.168.0.0/16
+
 # enable htpasswd authentication
 # openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/openshift-passwd'}]
 openshift_master_identity_providers=[{'name': 'any_password', 'login': 'true', 'challenge': 'true','kind': 'AllowAllPasswordIdentityProvider'}]
