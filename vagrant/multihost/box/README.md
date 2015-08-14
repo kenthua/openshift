@@ -1,7 +1,7 @@
 # Vagrant requirements
-Networking Interface #1 must be NAT 
-root / vagrant #ideal 
-vagrant / vagrant 
+Networking Interface #1 must be NAT  
+root / vagrant #ideal  
+vagrant / vagrant  
 
 
 # Inside your VM
