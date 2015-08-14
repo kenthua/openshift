@@ -1,20 +1,15 @@
 # OpenShift Enterprise 3 Vagrant Setup
 
+Status:  
+AIO - Working  
+Multihost - Working 
+
 credits to Brian Ashburn for the reference point
 https://github.com/bashburn/ose3-vagrant
 
 This project contains a Vagrant file creating multiple VMs for running and demoing OpenShift Enterprise v3.
 The demo environment consists of one VM running dnsmasq as the DNS server, one OpenShift master, and two OpenShift
 nodes.
-
-## Table of Contents
-
-[Architecture](#architecture)
-
-[Preparation](#preparation)
-
-[Running the System](#running-the-system)
-
 
 ## Architecture
 
@@ -27,7 +22,15 @@ The demo environment setup contains the following VMs:
 
 Vagrant 1.7.4+ (NetworkManager not required anymore)
 
+## Box Creation
+
+The box folder contains instructions for creating your very own box.  
+
+Scripts and commands provided
+
 ## Issues Observed
+
+* Vagrant 1.7.3 and earlier required nmcli, which required NetworkManager
 
 * Master Node to NodeX communication issues 
 
@@ -41,5 +44,5 @@ Vagrant 1.7.4+ (NetworkManager not required anymore)
     
     - Install script has the master node assigned at 127.0.0.1, resulting in lbr0 having issues communicating across master/nodes
     - lbr0 - can't ping across master & nodeX on 10.x.x.x IP 
-    - Based on current box image, original ``/etc/hosts` is `127.0.0.1 ose3-master.example.com ose3-master localhost ....`
+    - Based on current box image, original `/etc/hosts` is `127.0.0.1 ose3-master.example.com ose3-master localhost ....`
     - This can probably be fixed by not allowing vagrant to update hosts file - `/etc/sysconfig/network-scripts` somewhere

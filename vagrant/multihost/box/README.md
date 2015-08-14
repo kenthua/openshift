@@ -6,6 +6,8 @@ vagrant / vagrant
 
 # Inside your VM
 
+- As root
+
 - Set your environment variables
 
     export RHSM_USERNAME=
@@ -30,7 +32,7 @@ vagrant / vagrant
 
     vagrant ALL=(ALL) NOPASSWD: ALL
 
-- Login as vagrant user
+- As vagrant user
 
 
     su - vagrant
