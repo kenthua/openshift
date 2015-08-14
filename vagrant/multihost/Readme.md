@@ -1,7 +1,5 @@
 # OpenShift Enterprise 3 Vagrant Setup
 
-Still a work in progress, issues with pod to pod communication across nodes 
-
 credits to Brian Ashburn for the reference point
 https://github.com/bashburn/ose3-vagrant
 
@@ -25,6 +23,23 @@ The demo environment setup contains the following VMs:
 - ose3-node[1|2].example.com - These are the nodes supporting the system.
 - ose3-dns.example.com - The dnsmasq server with a wildcard DNS entry for cloudapps.example.com
 
-## requirements
+## Requirements
 
 Vagrant 1.7.4+ (NetworkManager not required anymore)
+
+## Issues Observed
+
+* Master Node to NodeX communication issues 
+
+    Why did this happen?  Likely because my base vagrant box is doing something when vagrant messes with networking.
+
+    Resolution for now: 
+
+    - Clear out existing hosts entry 
+    
+    Why?
+    
+    - Install script has the master node assigned at 127.0.0.1, resulting in lbr0 having issues communicating across master/nodes
+    - lbr0 - can't ping across master & nodeX on 10.x.x.x IP 
+    - Based on current box image, original ``/etc/hosts` is `127.0.0.1 ose3-master.example.com ose3-master localhost ....`
+    - This can probably be fixed by not allowing vagrant to update hosts file - `/etc/sysconfig/network-scripts` somewhere
