@@ -326,6 +326,67 @@ ose-aio machine
 	openshift-php-upload-2-53f4z
 	curl http://172.30.117.104:8080/test.php 
 
+
+# Ruby hello-world with db different project - Ruby Instant App
+
+Browser - Create (Home View)
+
+	data	
+
+Browser - Create (Project View) - browse all templates 
+
+	mysql-ephemeral
+
+Edit Deployment Configuration - Create
+
+	DATABASE_SERVICE_NAME=mysql
+	MYSQL_USER=root
+	MYSQL_PASSWORD=redhat
+	MYSQL_DATABASE=mydb
+
+Verify mysql-1 pod is running
+
+	oc project data
+	
+	oc get pod
+	NAME            READY     REASON    RESTARTS   AGE
+	mysql-1-dppdz   1/1       Running   0          1m
+	
+	oc get service
+	NAME      LABELS                              SELECTOR     IP(S)           PORT(S)
+	mysql     template=mysql-ephemeral-template   name=mysql   172.30.237.51   3306/TCP
+	
+	curl 172.30.237.51:3306
+	5.5.41exO_r>}{��qHP9j.DK,9yxmysql_native_password!��#08S01Got packets out of order	
+
+Add Instant App (as system:admin - root user)
+
+	oc create -f ruby-hello-world-template.json -n openshift
+
+Browser - Create (Home View)
+
+	frontend	
+
+Browser - Create (Project View) - Create Using a Template 
+
+	ruby-hello-world-template
+
+Click Create - (note parameters already entered) 
+
+Check that the frontend pod is running
+
+	oc project frontend
+	
+	oc get pod 
+	NAME                       READY     REASON       RESTARTS   AGE
+	ruby-hello-world-1-build   0/1       ExitCode:0   0          2m
+	ruby-hello-world-1-trpn3   1/1       Running      0          1m
+
+Browser - Navigate to:
+
+	http://ruby-hello-world.frontend.cloudapps.example.com
+
+
 # Ruby hello-world with db different project
 
 Browser - Create (Home View)
