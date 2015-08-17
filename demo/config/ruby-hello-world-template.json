@@ -1,0 +1,271 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "ruby-hello-world-template",
+        "creationTimestamp": null,
+        "annotations": {
+            "description": "Sample ruby application environment variables",
+            "iconClass": "icon-ruby",
+            "tags": "instant-app,ruby"
+        }
+    },
+    "objects": [
+
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "ruby-hello-world",
+                "creationTimestamp": null
+            },
+            "spec": {
+                "ports": [{
+                    "name": "web",
+                    "protocol": "TCP",
+                    "port": 8080,
+                    "targetPort": 8080,
+                    "nodePort": 0
+                }],
+                "selector": {
+                    "name": "ruby-hello-world"
+                },
+                "portalIP": "",
+                "type": "ClusterIP",
+                "sessionAffinity": "None"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "ruby-hello-world",
+                "creationTimestamp": null
+            },
+            "spec": {
+                "to": {
+                    "kind": "Service",
+                    "name": "ruby-hello-world"
+                }
+            }
+        },
+
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "ruby-hello-world",
+                "creationTimestamp": null
+            },
+            "spec": {},
+            "status": {
+                "dockerImageRepository": ""
+            }
+        },
+
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "ruby-20-rhel7",
+                "creationTimestamp": null
+            },
+            "spec": {
+                "dockerImageRepository": "registry.access.redhat.com/openshift3/ruby-20-rhel7"
+            },
+            "status": {
+                "dockerImageRepository": ""
+            }
+        },
+
+
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "ruby-hello-world",
+                "creationTimestamp": null,
+                "labels": {
+                    "name": "ruby-hello-world-build"
+                }
+            },
+            "spec": {
+                "triggers": [{
+                    "type": "Generic",
+                    "generic": {
+                        "secret": "c1a5067a1405d2c2"
+                    }
+                }, {
+                    "type": "GitHub",
+                    "github": {
+                        "secret": "90ba6adc88affc30"
+                    }
+                }, {
+                    "type": "ImageChange",
+                    "imageChange": {
+                        "lastTriggeredImageID": "registry.access.redhat.com/openshift3/ruby-20-rhel7:latest"
+                    }
+                }],
+                "source": {
+                    "type": "Git",
+                    "git": {
+                        "uri": "https://github.com/kenthua/ruby-hello-world.git",
+                        "ref": "master"
+                    }
+                },
+                "strategy": {
+                    "type": "Source",
+                    "sourceStrategy": {
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "ruby-20-rhel7:latest"
+                        }
+                    }
+                },
+                "output": {
+                    "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "ruby-hello-world:latest"
+                    }
+                },
+                "resources": {}
+            },
+            "status": {
+                "lastVersion": 0
+            }
+        },
+
+
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "ruby-hello-world",
+                "creationTimestamp": null
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Recreate",
+                    "rollingParams": {
+                        "updatePeriodSeconds": 1,
+                        "intervalSeconds": 1,
+                        "timeoutSeconds": 600
+                    },
+                    "resources": {}
+                },
+                "triggers": [{
+                    "type": "ImageChange",
+                    "imageChangeParams": {
+                        "automatic": true,
+                        "containerNames": [
+                            "ruby-hello-world"
+                        ],
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "ruby-hello-world:latest"
+                        }
+                    }
+                }, {
+                    "type": "ConfigChange"
+                }],
+                "replicas": 1,
+                "selector": {
+                    "name": "ruby-hello-world"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "name": "ruby-hello-world"
+                        }
+                    },
+                    "spec": {
+                        "containers": [{
+                            "name": "ruby-hello-world",
+                            "image": "ruby-20-rhel7",
+                            "ports": [{
+                                "containerPort": 8080,
+                                "protocol": "TCP"
+                            }],
+                            "env": [{
+                                "name": "DATABASE_SERVICE_HOST",
+                                "value": "${DATABASE_SERVICE_HOST}"
+                            }, {
+                                "name": "DATABASE_SERVICE_PORT",
+                                "value": "${DATABASE_SERVICE_PORT}"
+                            }, {
+                                "name": "MYSQL_USER",
+                                "value": "${MYSQL_USER}"
+                            }, {
+                                "name": "MYSQL_PASSWORD",
+                                "value": "${MYSQL_USER}"
+                            }, {
+                                "name": "MYSQL_DATABASE",
+                                "value": "${MYSQL_DATABASE}"
+                            }],
+                            "resources": {},
+                            "terminationMessagePath": "/dev/termination-log",
+                            "imagePullPolicy": "Always"
+                        }],
+                        "restartPolicy": "Always",
+                        "dnsPolicy": "ClusterFirst"
+                    }
+                }
+            },
+            "status": {}
+        }
+
+
+    ],
+    "parameters": [
+
+        {
+            "name": "DATABASE_SERVICE_HOST",
+            "description": "host for the database service",
+            "value": "mysql.database.svc.cluster.local"
+        },
+
+        {
+            "name": "DATABASE_SERVICE_PORT",
+            "description": "port for the database service",
+            "value": "3306"
+        },
+
+        {
+            "name": "MYSQL_USER",
+            "description": "user for mysql",
+            "value": "root"
+        },
+
+        {
+            "name": "MYSQL_PASSWORD",
+            "description": "password for mysql",
+            "value": "redhat"
+        },
+
+        {
+            "name": "MYSQL_DATABASE",
+            "description": "mysql database name",
+            "value": "mydb"
+        },
+
+        {
+            "name": "ADMIN_USERNAME",
+            "description": "administrator username",
+            "generate": "expression",
+            "from": "admin[A-Z0-9]{3}"
+        }, {
+            "name": "ADMIN_PASSWORD",
+            "description": "administrator password",
+            "generate": "expression",
+            "from": "[a-zA-Z0-9]{8}"
+        }
+    ],
+    "labels": {
+        "template": "application-template-stibuild"
+    }
+}
