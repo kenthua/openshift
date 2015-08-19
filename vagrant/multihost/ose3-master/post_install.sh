@@ -57,9 +57,10 @@ oadm router router --replicas=1 \
     --stats-password='redhat' \
     --service-account=router
 
-# add routing config so new projects wil leverage specified subdomain
-echo "routingConfig:" >> /etc/openshift/master/master-config.yaml
-echo "  subdomain: cloudapps.example.com" >> /etc/openshift/master/master-config.yaml
+# add routing config so new projects wil leverage specified subdomain 
+# not needed if ansible/hosts has this config already
+#echo "routingConfig:" >> /etc/openshift/master/master-config.yaml
+#echo "  subdomain: cloudapps.example.com" >> /etc/openshift/master/master-config.yaml
 
 # setup so that openshift doesn't authenticate passwords (any password is fine) - moved to ansible/hosts
 #sed -i -e "s/- name: deny_all/- name: anypassword/" /etc/openshift/master/master-config.yaml

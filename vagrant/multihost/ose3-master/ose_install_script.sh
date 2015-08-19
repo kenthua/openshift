@@ -21,6 +21,9 @@ deployment_type=enterprise
 # if you want the kube network to be on a different IP network range - (Services normally 172.30.0.0)
 #openshift_master_portal_net = 192.168.0.0/16
 
+# set subdomain -- NEEDS TO BE TESTED
+osm_default_subdomain=[{'subdomain': 'cloudapps.example.com'}]
+
 # enable htpasswd authentication
 # openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/openshift-passwd'}]
 openshift_master_identity_providers=[{'name': 'any_password', 'login': 'true', 'challenge': 'true','kind': 'AllowAllPasswordIdentityProvider'}]
