@@ -32,7 +32,7 @@ b5m
 
 	oc new-project k-war
 
-Browser - Create (Project View) -> Select Image
+Browser - Add to Project -> Select Image
 
 	https://github.com/kenthua/kitchensink-war.git
 	jboss-eap6-openshift:latest
@@ -60,7 +60,7 @@ b6m
 
 	oc new-project kitchensink
 
-Browser - Create (Project View)
+Browser - Add to Project
 
 	https://github.com/kenthua/kitchensink.git
 	EAP:latest or eap6-basic
@@ -90,7 +90,7 @@ Browser
 # Kitchensink S2I - postgres - builder image
 b8m
 
-Browser - Create Project (Home View) (Click OpenShift Enterprise text to get to Project screen)
+Browser - Create Project (Click OpenShift Enterprise text to get to Project screen)
 
 	k-postgres
 
@@ -99,7 +99,7 @@ Add EAP keystore secret
 	oc project k-postgres
 	oc create -f eap-app-secret.json
  
-Browser - Create (Project View)-> Browse all templates -> eap6-postgresql-sti -> Select template -> edit parameters
+Browser - Add to Project -> Browse all templates -> eap6-postgresql-sti -> Select template -> edit parameters
 
 	GIT_URI=https://github.com/kenthua/kitchensink-postgres.git
 	DB_JNDI=java:jboss/datasources/PostgreSQLDS
@@ -145,11 +145,11 @@ Let's manually scale
 # Ruby hello-world 
 (b6m) / 25m
 
-Browser - Create (Home View)
+Browser - Create
 
 	ruby	
 
-Browser - Create (Project View) 
+Browser - Add to Project
 
 	https://github.com/kenthua/ruby-hello-world.git
 	ruby:2.0
@@ -164,7 +164,7 @@ Browser - Browse -> Services -> Navigate to URL
 
 	http://ruby-hello-world.ruby.cloudapps.example.com
 
-Browser - Create (Project View) -> browse all templates
+Browser - Add to Project -> browse all templates
 
 	mysql-empemeral
 
@@ -254,7 +254,7 @@ Browser - Create (Home view)
 
 	php
 
-Browser - Create (Project view)
+Browser - Add to Project
 
 	https://github.com/kenthua/openshift-php-upload-demo.git
 	php:5.5
@@ -333,7 +333,7 @@ Browser - Create (Home View)
 
 	data	
 
-Browser - Create (Project View) - browse all templates 
+Browser - Add to Project - browse all templates 
 
 	mysql-ephemeral
 
@@ -367,7 +367,7 @@ Browser - Create (Home View)
 
 	frontend	
 
-Browser - Create (Project View) - Create Using a Template 
+Browser - Add to Project - Create Using a Template 
 
 	ruby-hello-world-template
 
@@ -393,7 +393,7 @@ Browser - Create (Home View)
 
 	data	
 
-Browser - Create (Project View) - browse all templates 
+Browser - Add to Project - browse all templates 
 
 	mysql-ephemeral
 
@@ -423,7 +423,7 @@ Browser - Create (Home View)
 
 	frontend	
 
-Browser - Create (Project View) 
+Browser - Add to Project
 
 	http://github.com/kenthua/ruby-hello-world.git
 	ruby:2.0
@@ -459,7 +459,7 @@ Browser - Create (Home View)
 
 	template-test
 
-Browser - Create (Project View) -> Select Template -> Create
+Browser - Add to Project -> Select Template -> Create
 
 	template: php-upload-template
 
