@@ -34,6 +34,8 @@ Scripts and commands provided
 
 * Master Node to NodeX communication issues 
 
+    - Resolution being worked on: https://github.com/openshift/openshift-sdn/issues/84  
+
     Why did this happen?  Likely because my base vagrant box is doing something when vagrant messes with networking.
 
     Resolution for now: 
