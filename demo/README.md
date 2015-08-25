@@ -481,3 +481,9 @@ Browser - navigate to:
 
 
 
+---
+
+
+# References
+https://github.com/openshift/training 
+
