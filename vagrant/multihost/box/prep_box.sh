@@ -12,6 +12,8 @@ subscription-manager repos \
     --enable="rhel-7-server-ose-3.0-rpms"
 
 # setup prereq
+# NetworkManager shouldn't have a conflict with OpenShift SDN anymore, so techically it can be kept
+# https://github.com/openshift/openshift-docs/issues/749
 yum -y remove NetworkManager
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils deltarpm
 yum -y update
