@@ -14,7 +14,7 @@ subscription-manager repos \
 # setup prereq
 # NetworkManager shouldn't have a conflict with OpenShift SDN anymore, so techically it can be kept
 # https://github.com/openshift/openshift-docs/issues/749
-yum -y remove NetworkManager
+#yum -y remove NetworkManager
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils deltarpm
 yum -y update
 
@@ -30,6 +30,6 @@ yum -y --enablerepo=epel install ansible
 # clean repo
 yum -y clean all
 
-# Modify sshd config
+# Modify sshd config (vagrant requirement)
 sed -i -e '/^#UseDNS/a UseDNS no' /etc/ssh/sshd_config
 
