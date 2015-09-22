@@ -1,11 +1,31 @@
+
+<!-- TOC depth:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [Login to OpenShift](#login-to-openshift)
+- [Docker project with WAR](#docker-project-with-war)
+- [Kitchensink with just WAR file](#kitchensink-with-just-war-file)
+- [Kitchensink standalone S2I - H2 database - builder image](#kitchensink-standalone-s2i-h2-database-builder-image)
+- [Kitchensink S2I - postgres - builder image](#kitchensink-s2i-postgres-builder-image)
+- [Ruby hello-world](#ruby-hello-world)
+- [AB Deployment Testing](#ab-deployment-testing)
+- [PHP, persistent volumes](#php-persistent-volumes)
+- [Ruby hello-world with db different project - Ruby Instant App](#ruby-hello-world-with-db-different-project-ruby-instant-app)
+- [Ruby hello-world with db different project](#ruby-hello-world-with-db-different-project)
+- [PHP Upload Application Template - Instant App](#php-upload-application-template-instant-app)
+- [PHP Upload Application - Instant App](#php-upload-application-instant-app)
+- [References](#references)
+<!-- /TOC -->
+
 # Login to OpenShift 
 
 	oc login https://ose-aio.example.com:8443 --certificate-authority=ca.crt
 
 # Docker project with WAR
-Last Tested: 3.0.1 
-b6m
+Last Tested: 3.0.1  
+b6m  
 
+Console - 
+ 
 	oc new-project k-docker
 	oc new-app https://github.com/kenthua/kitchensink-docker.git
 	oc get pods -w
@@ -29,8 +49,10 @@ Expose the service
 	browser (http://kitchensink-docker.k-docker.cloudapps.example.com)	
 
 # Kitchensink with just WAR file
-Last Tested: 3.0.0 
-b5m
+Last Tested: 3.0.0  
+b5m  
+
+Console -  
 
 	oc new-project k-war
 
@@ -58,8 +80,10 @@ URL
 
 
 # Kitchensink standalone S2I - H2 database - builder image
-Last Tested: 3.0.1 
-b6m
+Last Tested: 3.0.1  
+b6m  
+
+Console - 
 
 	oc new-project kitchensink
 
@@ -91,8 +115,8 @@ Browser
 
 
 # Kitchensink S2I - postgres - builder image
-Last Tested: 3.0.0 
-b8m
+Last Tested: 3.0.0  
+b8m  
 
 Browser - New Project (Click OpenShift Enterprise text to get to Project screen)
 
@@ -147,8 +171,8 @@ Let's manually scale
 	No events.
 	
 # Ruby hello-world 
-Last Tested: 3.0.0 
-(b6m) / 25m
+Last Tested: 3.0.0  
+(b6m) / 25m  
 
 Browser - New Project
 
@@ -370,8 +394,8 @@ Last test
 	Application VERSION 2 -- Pod IP: 10.1.0.17
 
 # PHP, persistent volumes 
-Last Tested: 3.0.0 
-(b4m) / 20m
+Last Tested: 3.0.0  
+(b4m) / 20m  
 
 If you don't have a persistent volume already created by root, reference this repo for a quick NFS & PV setup:  
 https://github.com/kenthua/openshift-configs/tree/master/root
@@ -454,7 +478,7 @@ ose-aio machine
 
 
 # Ruby hello-world with db different project - Ruby Instant App
-Last Tested: 3.0.0 
+Last Tested: 3.0.0  
 
 Browser - New Project (Home View)
 
@@ -515,7 +539,7 @@ Browser - Navigate to:
 
 
 # Ruby hello-world with db different project
-Last Tested: 3.0.0 
+Last Tested: 3.0.0  
 
 Browser - New Project (Home View)
 
@@ -578,7 +602,7 @@ Browser - Navigate to:
 	http://ruby-hello-world.frontend.cloudapps.example.com
 
 # PHP Upload Application Template - Instant App
-Last Tested: 3.0.0 
+Last Tested: 3.0.0  
 
 As admin/root user
 
@@ -599,7 +623,7 @@ Browser - navigate to:
 	http://php-upload.template-test.cloudapps.example.com/form.html	
 
 # PHP Upload Application - Instant App
-Last Tested: 3.0.0 
+Last Tested: 3.0.0  
 
 	oc new-project newapp-test
 	oc new-app php-upload.json
