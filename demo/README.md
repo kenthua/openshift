@@ -1,18 +1,21 @@
 
+Table of Contents
+---
+
 <!-- TOC depth:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Login to OpenShift](#login-to-openshift)
 - [Docker project with WAR](#docker-project-with-war)
 - [Kitchensink with just WAR file](#kitchensink-with-just-war-file)
-- [Kitchensink standalone S2I - H2 database - builder image](#kitchensink-standalone-s2i-h2-database-builder-image)
-- [Kitchensink S2I - postgres - builder image](#kitchensink-s2i-postgres-builder-image)
+- [Kitchensink standalone S2I . H2 database . builder image](#kitchensink-standalone-s2i-h2-database-builder-image)
+- [Kitchensink S2I . postgres . builder image](#kitchensink-s2i-postgres-builder-image)
 - [Ruby hello-world](#ruby-hello-world)
 - [AB Deployment Testing](#ab-deployment-testing)
 - [PHP, persistent volumes](#php-persistent-volumes)
-- [Ruby hello-world with db different project - Ruby Instant App](#ruby-hello-world-with-db-different-project-ruby-instant-app)
+- [Ruby hello-world with db different project . Ruby Instant App](#ruby-hello-world-with-db-different-project-ruby-instant-app)
 - [Ruby hello-world with db different project](#ruby-hello-world-with-db-different-project)
-- [PHP Upload Application Template - Instant App](#php-upload-application-template-instant-app)
-- [PHP Upload Application - Instant App](#php-upload-application-instant-app)
+- [PHP Upload Application Template . Instant App](#php-upload-application-template-instant-app)
+- [PHP Upload Application . Instant App](#php-upload-application-instant-app)
 - [References](#references)
 <!-- /TOC -->
 
@@ -79,7 +82,7 @@ URL
 	http://kitchensink-war.k-war.cloudapps.example.com	
 
 
-# Kitchensink standalone S2I - H2 database - builder image
+# Kitchensink standalone S2I . H2 database . builder image
 Last Tested: 3.0.1  
 b6m  
 
@@ -114,7 +117,7 @@ Browser
 	http://kitchensink.kitchensink.cloudapps.example.com
 
 
-# Kitchensink S2I - postgres - builder image
+# Kitchensink S2I . postgres . builder image
 Last Tested: 3.0.0  
 b8m  
 
@@ -477,7 +480,7 @@ ose-aio machine
 	curl http://172.30.117.104:8080/test.php 
 
 
-# Ruby hello-world with db different project - Ruby Instant App
+# Ruby hello-world with db different project . Ruby Instant App
 Last Tested: 3.0.0  
 
 Browser - New Project (Home View)
@@ -601,7 +604,7 @@ Browser - Navigate to:
 
 	http://ruby-hello-world.frontend.cloudapps.example.com
 
-# PHP Upload Application Template - Instant App
+# PHP Upload Application Template . Instant App
 Last Tested: 3.0.0  
 
 As admin/root user
@@ -622,7 +625,7 @@ Browser - navigate to:
 
 	http://php-upload.template-test.cloudapps.example.com/form.html	
 
-# PHP Upload Application - Instant App
+# PHP Upload Application . Instant App
 Last Tested: 3.0.0  
 
 	oc new-project newapp-test
