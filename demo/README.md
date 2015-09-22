@@ -250,8 +250,8 @@ Check out how many rc's we have
 	ruby-hello-world-4   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:a6a81a82cd4305e9b50cb189875d4cc7f1dd5a9c42c6b956db36726a14bd8e5a   deployment=ruby-hello-world-4,deploymentconfig=ruby-hello-world   1
 
 # AB Deployment Testing
-Latest Tested: 3.0.1
-Added: 2015-09-22 
+Latest Tested: 3.0.1  
+Added: 2015-09-22  
 
 Reference, thanks to Veer for the example on the OpenShift blog: https://blog.openshift.com/openshift-3-demo-part-11-ab-deployments/
 
