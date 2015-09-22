@@ -3,6 +3,7 @@
 	oc login https://ose-aio.example.com:8443 --certificate-authority=ca.crt
 
 # Docker project with WAR
+Last Tested: 3.0.1 
 b6m
 
 	oc new-project k-docker
@@ -28,6 +29,7 @@ Expose the service
 	browser (http://kitchensink-docker.k-docker.cloudapps.example.com)	
 
 # Kitchensink with just WAR file
+Last Tested: 3.0.0 
 b5m
 
 	oc new-project k-war
@@ -56,6 +58,7 @@ URL
 
 
 # Kitchensink standalone S2I - H2 database - builder image
+Last Tested: 3.0.1 
 b6m
 
 	oc new-project kitchensink
@@ -88,9 +91,10 @@ Browser
 
 
 # Kitchensink S2I - postgres - builder image
+Last Tested: 3.0.0 
 b8m
 
-Browser - Create Project (Click OpenShift Enterprise text to get to Project screen)
+Browser - New Project (Click OpenShift Enterprise text to get to Project screen)
 
 	k-postgres
 
@@ -143,9 +147,10 @@ Let's manually scale
 	No events.
 	
 # Ruby hello-world 
+Last Tested: 3.0.0 
 (b6m) / 25m
 
-Browser - Create
+Browser - New Project
 
 	ruby	
 
@@ -244,13 +249,133 @@ Check out how many rc's we have
 	ruby-hello-world-3   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:84b3c3a091f9bc7fb5530c126add792df93a29b779fb7abcc26291ba79a339d9   deployment=ruby-hello-world-3,deploymentconfig=ruby-hello-world   0
 	ruby-hello-world-4   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:a6a81a82cd4305e9b50cb189875d4cc7f1dd5a9c42c6b956db36726a14bd8e5a   deployment=ruby-hello-world-4,deploymentconfig=ruby-hello-world   1
 
+# AB Deployment Testing
+Latest Tested: 3.0.1 
+
+Reference, thanks to Veer for the example on the OpenShift blog: https://blog.openshift.com/openshift-3-demo-part-11-ab-deployments/
+
+Browser - New Project
+
+	ab-example
+	
+Browser - Add to Project 
+NOTE: We do not want to create a route because we will be creating a new service and a new route based on the service
+
+	https://github.com/kenthua/ab-example.git
+	php:5.5
+	Name: a-example
+	Routing: Create a route to the application: No
+	Labels: abgroup=true
+	
+Edit DC and create a new service based on edited DC 
+We will be replacing the default deploymentconfig=a-example selector with abgroup=true 
+NOTE: One could also edit the existing service a-example and replace deploymentconfig=a-example with abgroup=true, but we will edit the DC in this example
+
+	oc get dc/a-example -o yaml > dc-a-example.yaml
+	sed -i -e '/selector:/!b;n;c\   \ abgroup: "true"' dc-a-example.yaml
+	oc replace -f dc-a-example.yaml
+	
+Then we will expose the DC as a service call ab-service with a selector of abgroup=true	
+	
+	oc expose dc/a-example --name=ab-service --selector=abgroup=true --generator=service/v1
+	
+Expose the service as a route
+	
+	oc expose service ab-service
+	
+Increase the replicas to 4
+
+	oc scale --replicas=4 rc/a-example-1
+
+Run a test of the scaled application
+
+	for i in {1..10}; do curl ab-service.ab-example.cloudapps.example.com; echo " "; done
+	
+	Application VERSION 1 -- Pod IP: 10.1.0.12
+	Application VERSION 1 -- Pod IP: 10.1.0.13
+	Application VERSION 1 -- Pod IP: 10.1.1.18
+	Application VERSION 1 -- Pod IP: 10.1.1.19
+	Application VERSION 1 -- Pod IP: 10.1.0.12
+	Application VERSION 1 -- Pod IP: 10.1.0.13
+	Application VERSION 1 -- Pod IP: 10.1.1.18
+	Application VERSION 1 -- Pod IP: 10.1.1.19
+	Application VERSION 1 -- Pod IP: 10.1.0.12
+	Application VERSION 1 -- Pod IP: 10.1.0.13
+
+Edit php index.php on github, i.e. increment app version
+
+Browser - Add to Project
+
+	https://github.com/kenthua/ab-example.git
+	php:5.5
+	Name: b-example
+	Routing: Create a route to the application: No
+	Labels: abgroup=true
+
+Run a test of the same route with the newly added project, with the label abgroup=true 
+Notice that VERSION 2 is now in the load balancing scheme
+
+	for i in {1..10}; do curl ab-service.ab-example.cloudapps.example.com; echo " "; done
+	
+	Application VERSION 1 -- Pod IP: 10.1.0.12
+	Application VERSION 1 -- Pod IP: 10.1.0.13
+	Application VERSION 2 -- Pod IP: 10.1.0.14
+	Application VERSION 1 -- Pod IP: 10.1.1.18
+	Application VERSION 1 -- Pod IP: 10.1.1.19
+	Application VERSION 1 -- Pod IP: 10.1.0.12
+	Application VERSION 1 -- Pod IP: 10.1.0.13
+	Application VERSION 2 -- Pod IP: 10.1.0.14
+	Application VERSION 1 -- Pod IP: 10.1.1.18
+	Application VERSION 1 -- Pod IP: 10.1.1.19
+	
+Scale down VERSION 1 and Scale up VERSION 2
+
+	oc scale --replicas=2 rc/a-example-1
+	oc scale --replicas=2 rc/b-example-1
+	
+Run another test
+
+	for i in {1..10}; do curl ab-service.ab-example.cloudapps.example.com; echo " "; done
+	
+	Application VERSION 1 -- Pod IP: 10.1.0.12
+	Application VERSION 1 -- Pod IP: 10.1.0.13
+	Application VERSION 2 -- Pod IP: 10.1.0.14
+	Application VERSION 2 -- Pod IP: 10.1.1.21
+	Application VERSION 1 -- Pod IP: 10.1.0.12
+	Application VERSION 1 -- Pod IP: 10.1.0.13
+	Application VERSION 2 -- Pod IP: 10.1.0.14
+	Application VERSION 2 -- Pod IP: 10.1.1.21
+	Application VERSION 1 -- Pod IP: 10.1.0.12
+	Application VERSION 1 -- Pod IP: 10.1.0.13
+	
+Scale up VERSION 2 and Scale down VERSION 1
+
+	oc scale --replicas=4 rc/b-example-1
+	oc scale --replicas=0 rc/a-example-1	
+	
+Last test
+
+	for i in {1..10}; do curl ab-service.ab-example.cloudapps.example.com; echo " "; done
+
+	Application VERSION 2 -- Pod IP: 10.1.0.14
+	Application VERSION 2 -- Pod IP: 10.1.0.17
+	Application VERSION 2 -- Pod IP: 10.1.1.21
+	Application VERSION 2 -- Pod IP: 10.1.1.24
+	Application VERSION 2 -- Pod IP: 10.1.0.14
+	Application VERSION 2 -- Pod IP: 10.1.0.17
+	Application VERSION 2 -- Pod IP: 10.1.1.21
+	Application VERSION 2 -- Pod IP: 10.1.1.24
+	Application VERSION 2 -- Pod IP: 10.1.0.14
+	Application VERSION 2 -- Pod IP: 10.1.0.17
+
 # PHP, persistent volumes 
+Last Tested: 3.0.0 
 (b4m) / 20m
 
 If you don't have a persistent volume already created by root, reference this repo for a quick NFS & PV setup:  
 https://github.com/kenthua/openshift-configs/tree/master/root
 
-Browser - Create (Home view)
+Browser - New Project (Home view)
 
 	php
 
@@ -328,8 +453,9 @@ ose-aio machine
 
 
 # Ruby hello-world with db different project - Ruby Instant App
+Last Tested: 3.0.0 
 
-Browser - Create (Home View)
+Browser - New Project (Home View)
 
 	data	
 
@@ -363,7 +489,7 @@ Add Instant App (as system:admin - root user)
 
 	oc create -f ruby-hello-world-template.json -n openshift
 
-Browser - Create (Home View)
+Browser - New Project (Home View)
 
 	frontend	
 
@@ -388,8 +514,9 @@ Browser - Navigate to:
 
 
 # Ruby hello-world with db different project
+Last Tested: 3.0.0 
 
-Browser - Create (Home View)
+Browser - New Project (Home View)
 
 	data	
 
@@ -419,7 +546,7 @@ Verify mysql-1 pod is running
 	curl 172.30.237.51:3306
 	5.5.41exO_r>}{��qHP9j.DK,9yxmysql_native_password!��#08S01Got packets out of order	
 
-Browser - Create (Home View)
+Browser - New Project (Home View)
 
 	frontend	
 
@@ -450,12 +577,13 @@ Browser - Navigate to:
 	http://ruby-hello-world.frontend.cloudapps.example.com
 
 # PHP Upload Application Template - Instant App
+Last Tested: 3.0.0 
 
 As admin/root user
 
 	oc create -f php-upload.json -n openshift
 
-Browser - Create (Home View)
+Browser - New Project (Home View)
 
 	template-test
 
@@ -470,6 +598,7 @@ Browser - navigate to:
 	http://php-upload.template-test.cloudapps.example.com/form.html	
 
 # PHP Upload Application - Instant App
+Last Tested: 3.0.0 
 
 	oc new-project newapp-test
 	oc new-app php-upload.json
