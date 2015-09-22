@@ -7,7 +7,7 @@ Table of Contents
 - [Login to OpenShift](#login-to-openshift)
 - [Docker project with WAR](#docker-project-with-war)
 - [Kitchensink with just WAR file](#kitchensink-with-just-war-file)
-- [Kitchensink standalone S2I . H2 database . builder image](#kitchensink-standalone-s2i-h2-database-builder-image)
+- [Kitchensink standalone S2I, H2 database, builder image](#kitchensink-standalone-s2i-h2-database-builder-image)
 - [Kitchensink S2I . postgres . builder image](#kitchensink-s2i-postgres-builder-image)
 - [Ruby hello-world](#ruby-hello-world)
 - [AB Deployment Testing](#ab-deployment-testing)
@@ -82,7 +82,7 @@ URL
 	http://kitchensink-war.k-war.cloudapps.example.com	
 
 
-# Kitchensink standalone S2I . H2 database . builder image
+# Kitchensink standalone S2I, H2 database, builder image
 Last Tested: 3.0.1  
 b6m  
 
