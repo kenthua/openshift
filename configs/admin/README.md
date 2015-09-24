@@ -3,6 +3,8 @@ OpenShift root access configurations
 
 # Resource Quotas / limits
 
+Quota resource limits for CPU and Memory require the Pods to have resource limits defined.  Otherwise by default they are unbounded and the quotas will deny creation of new pods.
+
 Memory  
 1Mi ~ 1024K bytes  
 250Mi ~ 250MB  
