@@ -1,7 +1,20 @@
 OpenShift root access configurations
 ===
 
-#Persistent Volumes
+# Resource Quotas / limits
+
+Memory  
+1Mi ~ 1024K bytes  
+250Mi ~ 250MB  
+1Gi ~ 1024M bytes  
+
+CPU  
+200m ~ .20 Core  
+500m ~ .50 Core  
+1 ~ 1 Core  
+
+
+# Persistent Volumes
 
 In order to run the `persistentvolume.json` a local NFS must be set up for the script to point to.  Of course this is for a POC/prototype, in production you would have an NFS infrastructure configured.
 

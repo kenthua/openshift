@@ -6,12 +6,14 @@
   },
   "spec": {
     "hard": {
-      "memory": "512Mi", 
-      "cpu": "200m", 
-      "pods": "3", 
-      "services": "3", 
-      "replicationcontrollers":"3", 
-      "resourcequotas":"1" 
+      "memory": "1Gi", 
+      "cpu": "2", 
+      "pods": "10", 
+      "services": "7", 
+      "replicationcontrollers":"7", 
+      "resourcequotas":"1",
+      "secrets":"10",
+      "persistentvolumeclaims":"10" 
     }
   }
 }
