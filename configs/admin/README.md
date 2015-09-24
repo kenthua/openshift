@@ -3,7 +3,7 @@ OpenShift root access configurations
 
 # Resource Quotas / limits
 
-Quota resource limits for CPU and Memory require the Pods to have resource limits defined.  Otherwise by default they are unbounded and the quotas will deny creation of new pods.
+Quota resource limits for CPU and Memory require the Pods to have resource limits defined.  Otherwise by default they are unbounded and the quotas will deny creation of new resources.
 
 Memory  
 1Mi ~ 1024K bytes  
@@ -31,10 +31,6 @@ The rest of the commands are run on the master, the NFS host providing the volum
 	chmod 700 /var/export/vol1
 
 Edit /etc/exports
-
-Manual
-
-	/var/export/vol1 *(rw,sync,all_squash)
 
 Scripted
 
@@ -84,3 +80,8 @@ run commands
 allow containers to write to nfs mounted directories
 
 	setsebool -P virt_use_nfs=true
+	
+create the Persistent volume (as admin/root)
+	
+	oc create -f persistentvolume.json
+	
