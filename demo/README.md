@@ -24,7 +24,7 @@ Table of Contents
 	oc login https://ose-aio.example.com:8443 --certificate-authority=ca.crt
 
 # Docker project with WAR
-Last Tested: 3.0.1  
+Last Tested: 3.0.2  
 b6m  
 
 Console - 
