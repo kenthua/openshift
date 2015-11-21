@@ -1,8 +1,16 @@
 # OpenShift Enterprise 3 Vagrant Setup
 
 Status:  
-AIO - Working  
-Multihost - Working 
+2015-11-20
+
+Vagrant
+- AIO 3.0.x - Working  
+- Multihost 3.0.x - Working 
+- Multihost 3.1 - Not Tested
+
+Non-Vagrant
+- Multihost 3.1 - Working
+
 
 credits to Brian Ashburn for the reference point
 https://github.com/bashburn/ose3-vagrant

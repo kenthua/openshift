@@ -17,6 +17,7 @@ Table of Contents
 - [PHP Upload Application Template, Instant App](#php-upload-application-template-instant-app)
 - [PHP Upload Application, Instant App](#php-upload-application-instant-app)
 - [References](#references)
+
 <!-- /TOC -->
 
 # Login to OpenShift 
@@ -24,7 +25,7 @@ Table of Contents
 	oc login https://ose-aio.example.com:8443 --certificate-authority=ca.crt
 
 # Docker project with WAR
-Last Tested: 3.0.2  
+Last Tested: 3.1  
 b6m  
 
 Console - 
@@ -52,21 +53,21 @@ Expose the service
 	browser (http://kitchensink-docker.k-docker.cloudapps.example.com)	
 
 # Kitchensink with just WAR file
-Last Tested: 3.0.0  
+Last Tested: 3.1 
 b5m  
 
 Console -  
 
 	oc new-project k-war
 
-Browser - Add to Project -> Select Image
+Browser - Add to Project
 
 	https://github.com/kenthua/kitchensink-war.git
-	jboss-eap6-openshift:latest
+	jboss-eap64-openshift:1.1 or eap64-basic-s2i
 
 or command line  
 
-	oc new-app --template=eap6-basic-sti --param=GIT_URI=https://github.com/kenthua/kitchensink-war.git --param=GIT_REF=master --param=GIT_CONTEXT_DIR=""
+	oc new-app --template=eap64-basic-s2i -p SOURCE_REPOSITORY_URL=https://github.com/kenthua/kitchensink-war.git,SOURCE_REPOSITORY_REF=master,CONTEXT_DIR="",APPLICATION_NAME=kitchensink-war
 
 	oc get pod
 	oc logs -f kitchensink-war-1-build
@@ -83,7 +84,7 @@ URL
 
 
 # Kitchensink standalone S2I, H2 database, builder image
-Last Tested: 3.0.1  
+Last Tested: 3.1  
 b6m  
 
 Console - 
@@ -93,11 +94,11 @@ Console -
 Browser - Add to Project
 
 	https://github.com/kenthua/kitchensink.git
-	EAP:latest or eap6-basic
+	jboss-eap64-openshift:1.1 or eap64-basic-s2i
 
 or command line
 
-	oc new-app --template=eap6-basic-sti --param=GIT_URI=https://github.com/kenthua/kitchensink.git --param=GIT_REF=master --param=GIT_CONTEXT_DIR="" --param=APPLICATION_NAME=kitchensink
+	oc new-app --template=eap64-basic-s2i -p SOURCE_REPOSITORY_URL=https://github.com/kenthua/kitchensink.git,SOURCE_REPOSITORY_REF=master,CONTEXT_DIR="",APPLICATION_NAME=kitchensink
 
 Watch the build when it starts
 

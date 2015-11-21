@@ -12,8 +12,7 @@ ansible_ssh_user=root
 # If ansible_ssh_user is not root, ansible_sudo must be set to true
 #ansible_sudo=true
 
-# To deploy origin, change deployment_type to origin
-deployment_type=enterprise
+deployment_type=openshift-enterprise
 
 # if you want the POD network to be on a different IP network range - (PODS  normally 10.1.0.0)
 #osm_cluster_network_cidr=192.168.128.0/17
@@ -24,23 +23,25 @@ deployment_type=enterprise
 # set subdomain
 osm_default_subdomain=cloudapps.example.com
 
-# enable htpasswd authentication
-# openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/openshift-passwd'}]
+# session options
+openshift_master_session_name=ssn
+openshift_master_session_max_seconds=3600
+openshift_master_session_auth_secrets=['DONT+USE+THIS+SECRET+b4NV+pmZNSO']
+openshift_master_session_encryption_secrets=['DONT+USE+THIS+SECRET+b4NV+pmZNSO']
+
+# uncomment the following to enable htpasswd authentication; defaults to DenyAllPasswordIdentityProvider
+#openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/openshift-passwd'}]
 openshift_master_identity_providers=[{'name': 'any_password', 'login': 'true', 'challenge': 'true','kind': 'AllowAllPasswordIdentityProvider'}]
 
 # host group for masters
 [masters]
-ose3-master.example.com 
+ose-master.example.com
 
 # host group for nodes, includes region info
 [nodes]
-ose3-node2.example.com
-ose3-node1.example.com 
-ose3-master.example.com 
+ose-master.example.com openshift_node_labels=\"{'region': 'infra', 'zone': 'default'}\"
+ose-node1.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'east'}\"
+ose-node2.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'west'}\"
 " > /etc/ansible/hosts
 
-cd ~
-git clone https://github.com/openshift/openshift-ansible
-cd openshift-ansible
-
-ansible-playbook ~/openshift-ansible/playbooks/byo/config.yml
+ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
