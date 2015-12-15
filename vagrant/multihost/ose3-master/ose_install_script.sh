@@ -23,6 +23,9 @@ deployment_type=openshift-enterprise
 # set subdomain
 osm_default_subdomain=cloudapps.example.com
 
+# set default node selector to only deploy apps into region primary
+osm_default_node_selector='region=primary'
+
 # session options
 openshift_master_session_name=ssn
 openshift_master_session_max_seconds=3600
