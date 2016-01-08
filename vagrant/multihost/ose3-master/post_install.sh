@@ -9,16 +9,6 @@ useradd alice
 # add user so they can access the local docker-registry
 oadm policy add-role-to-user system:registry alice
 
-# setup service account for docker-registry
-echo \
-    '{"kind":"ServiceAccount","apiVersion":"v1","metadata":{"name":"registry"}}' \
-     | oc create -f -
-
-cd ~
-oc get scc privileged -o yaml > scc-privileged.yaml
-echo "- system:serviceaccount:default:registry" >> scc-privileged.yaml
-oc replace -f scc-privileged.yaml
-
 mkdir -p /mnt/docker
 
 # install docker-registry
@@ -28,7 +18,6 @@ oadm registry --config=/etc/origin/master/admin.kubeconfig \
     --selector='region=infra' \
     --mount-host=/mnt/docker \
     --service-account=registry 
-
 
 # install router
 # prepare generic certificate for openshift endpoints which don't provide their own certs
@@ -41,17 +30,6 @@ oadm ca create-server-cert --signer-cert=$CA/ca.crt \
 cat cloudapps.crt cloudapps.key $CA/ca.crt > cloudapps.router.pem
 
 # setup service account for router
-echo \
-  '{"kind":"ServiceAccount","apiVersion":"v1","metadata":{"name":"router"}}' \
-  | oc create -f -
-
-cd ~
-oc get scc privileged -o yaml > scc-privileged.yaml
-sed -i -e "s/allowHostNetwork: false/allowHostNetwork: true/" scc-privileged.yaml
-sed -i -e "s/allowHostPorts: false/allowHostPorts: true/" scc-privileged.yaml
-echo "- system:serviceaccount:default:router" >> scc-privileged.yaml
-oc replace -f scc-privileged.yaml
-
 oadm router router --replicas=1 \
     --credentials='/etc/origin/master/openshift-router.kubeconfig' \
     --images='registry.access.redhat.com/openshift3/ose-${component}:${version}' \
