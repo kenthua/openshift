@@ -1,5 +1,6 @@
 # enable hawkular metrics
 # deployed in this project - since this is where pods will look natively
+oadm new-project openshift-infra
 oc project openshift-infra
 # create the metrics deployer SA
 oc create -f - <<API
