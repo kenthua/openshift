@@ -278,8 +278,8 @@ Check out how many rc's we have
 	ruby-hello-world-4   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:a6a81a82cd4305e9b50cb189875d4cc7f1dd5a9c42c6b956db36726a14bd8e5a   deployment=ruby-hello-world-4,deploymentconfig=ruby-hello-world   1
 
 # AB Deployment Testing
-Last Tested: 3.0.1  
-Added: 2015-09-22  
+Last Tested: 3.1.0  
+Added: 2016-01-20 
 
 Reference, thanks to Veer for the example on the OpenShift blog: https://blog.openshift.com/openshift-3-demo-part-11-ab-deployments/
 
@@ -288,23 +288,16 @@ Browser - New Project
 	ab-example
 	
 Browser - Add to Project  
-NOTE: We do not want to create a route because we will be creating a new service and a new route based on the service
+Click Show advanced build and deployment options, for more options  
+NOTE: We do not want to create a route because we will be creating a new service and a new route based on the service  
 
 	https://github.com/kenthua/ab-example.git
 	php:5.5
 	Name: a-example
 	Routing: Create a route to the application: No
-	Labels: abgroup=true
+	Labels: abgroup=true  
 	
-Edit DC and create a new service based on edited DC  
-We will be replacing the default deploymentconfig=a-example selector with abgroup=true  
-NOTE: One could also edit the existing service a-example and replace deploymentconfig=a-example with abgroup=true, but we will edit the DC in this example
-
-	oc get dc/a-example -o yaml > dc-a-example.yaml
-	sed -i -e '/selector:/!b;n;c\   \ abgroup: "true"' dc-a-example.yaml
-	oc replace -f dc-a-example.yaml
-	
-Then we will expose the DC as a service call ab-service with a selector of abgroup=true	
+Then we will expose the DC as a service called ab-service with a selector of abgroup=true	
 	
 	oc expose dc/a-example --name=ab-service --selector=abgroup=true --generator=service/v1
 	
@@ -318,7 +311,7 @@ Increase the replicas to 4
 
 Run a test of the scaled application
 
-	for i in {1..10}; do curl ab-service.ab-example.cloudapps.example.com; echo " "; done
+	for i in {1..10}; do curl ab-service-ab-example.cloudapps.example.com; echo " "; done
 	
 	Application VERSION 1 -- Pod IP: 10.1.0.12
 	Application VERSION 1 -- Pod IP: 10.1.0.13
@@ -344,7 +337,7 @@ Browser - Add to Project
 Run a test of the same route with the newly added project, with the label abgroup=true 
 Notice that VERSION 2 is now in the load balancing scheme
 
-	for i in {1..10}; do curl ab-service.ab-example.cloudapps.example.com; echo " "; done
+	for i in {1..10}; do curl ab-service-ab-example.cloudapps.example.com; echo " "; done
 	
 	Application VERSION 1 -- Pod IP: 10.1.0.12
 	Application VERSION 1 -- Pod IP: 10.1.0.13
@@ -364,7 +357,7 @@ Scale down VERSION 1 and Scale up VERSION 2
 	
 Run another test
 
-	for i in {1..10}; do curl ab-service.ab-example.cloudapps.example.com; echo " "; done
+	for i in {1..10}; do curl ab-service-ab-example.cloudapps.example.com; echo " "; done
 	
 	Application VERSION 1 -- Pod IP: 10.1.0.12
 	Application VERSION 1 -- Pod IP: 10.1.0.13
@@ -384,7 +377,7 @@ Scale up VERSION 2 and Scale down VERSION 1
 	
 Last test
 
-	for i in {1..10}; do curl ab-service.ab-example.cloudapps.example.com; echo " "; done
+	for i in {1..10}; do curl ab-service-ab-example.cloudapps.example.com; echo " "; done
 
 	Application VERSION 2 -- Pod IP: 10.1.0.14
 	Application VERSION 2 -- Pod IP: 10.1.0.17
