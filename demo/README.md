@@ -9,7 +9,7 @@ Table of Contents
 - [Docker, project with WAR, 3.1](#docker-project-with-war-31)
 - [Kitchensink with just WAR file, 3.1](#kitchensink-with-just-war-file-31)
 - [Kitchensink standalone S2I, H2 database, builder image, 3.1](#kitchensink-standalone-s2i-h2-database-builder-image-31)
-- [Kitchensink S2I, postgres, builder image, 3.0](#kitchensink-s2i-postgres-builder-image-30)
+- [Kitchensink S2I, postgres, builder image, 3.1](#kitchensink-s2i-postgres-builder-image-31)
 - [Ticket Monster demo to prod with template, 3.1](#ticket-monster-demo-to-prod-with-template-31)
 - [AB Deployment Testing, 3.1](#ab-deployment-testing-31)
 - [MLB Parks app and db, create app and add db, 3.1](#mlb-parks-app-and-db-create-app-and-add-db-31)
@@ -103,7 +103,7 @@ Console - As User
 Browser - Add to Project
 
 	jboss-eap64-openshift:1.1 or eap64-basic-s2i
-	https://github.com/kenthua/kitchensink-war.git
+	Git repository URL: https://github.com/kenthua/kitchensink-war.git
 
 or command line  
 
@@ -133,8 +133,8 @@ Console -  As User
 
 Browser - Add to Project
 
-	https://github.com/kenthua/kitchensink.git
 	jboss-eap64-openshift:1.1 or eap64-basic-s2i
+	Git repository URL: https://github.com/kenthua/kitchensink.git
 
 or command line
 
@@ -158,59 +158,74 @@ Browser
 	http://kitchensink.kitchensink.cloudapps.example.com
 
 
-# Kitchensink S2I, postgres, builder image, 3.0
-Last Tested: 3.0.0  
+# Kitchensink S2I, postgres, builder image, 3.1
+Last Tested: 3.1 
 b8m  
 
-Browser - New Project (Click OpenShift Enterprise text to get to Project screen)
+Browser - New Project
 
 	k-postgres
 
 Add EAP keystore secret
 
 	oc project k-postgres
-	oc create -f eap-app-secret.json
+	oc create -f https://raw.githubusercontent.com/kenthua/openshift/master/configs/user/eap-app-s2i-secret.json
  
-Browser - Add to Project -> Browse all templates -> eap6-postgresql-sti -> Select template -> edit parameters
+Browser - Add to Project
 
-	GIT_URI=https://github.com/kenthua/kitchensink-postgres.git
+	eap64-postgresql-s2i	
+	Name: eap-app
+	SOURCE_REPOSITORY_URL=https://github.com/kenthua/kitchensink-postgres.git 
+	SOURCE_REPOSITORY_REF=master
+	CONTEXT_DIR=
 	DB_JNDI=java:jboss/datasources/PostgreSQLDS
 
-Browser - Browse -> Builds -> wait for build eap-app-1 to start
+Browser - Check overview page  
 
-Check out the pods (notice the postgres pod as well)
+Check out the pods for completion (notice the postgres pod as well)
 
 	oc get pod
-	NAME                         READY     REASON    RESTARTS   AGE
-	eap-app-1-build              1/1       Running   0          3m
-	eap-app-postgresql-1-8wzae   1/1       Running   0          3m
+	
+	NAME                         READY     STATUS      RESTARTS   AGE
+	eap-app-1-build              0/1       Completed   0          2m
+	eap-app-1-uiazy              1/1       Running     0          45s
+	eap-app-postgresql-1-bkruh   1/1       Running     0          2m
 
-Let's manually scale
+Once the build is complete and running, let's manually scale
 
 	oc get rc
-	CONTROLLER             CONTAINER(S)         IMAGE(S)                                                                                                       SELECTOR                                                                                                  REPLICAS
-	eap-app-1              eap-app              172.30.56.67:5000/k-postgres/eap-app@sha256:b9830468ff16d7c6a880bc50da2b6890ff05732c1bc5e5833f687be5c010c6d3   deployment=eap-app-1,deploymentConfig=eap-app,deploymentconfig=eap-app                                    1
-	eap-app-postgresql-1   eap-app-postgresql   registry.access.redhat.com/openshift3/postgresql-92-rhel7:latest                                               deployment=eap-app-postgresql-1,deploymentConfig=eap-app-postgresql,deploymentconfig=eap-app-postgresql   1
+	
+	CONTROLLER             CONTAINER(S)         IMAGE(S)                                                                                                       SELECTOR                                                                                                  REPLICAS   AGE
+eap-app-1              eap-app              172.30.18.39:5000/k-postgres/eap-app@sha256:3d1e4704939eb530a1283bdcc718c008a50faadf89b4d75f3874d985193c05ed   deployment=eap-app-1,deploymentConfig=eap-app,deploymentconfig=eap-app                                    1          1m
+eap-app-postgresql-1   eap-app-postgresql   registry.access.redhat.com/openshift3/postgresql-92-rhel7:latest                                               deployment=eap-app-postgresql-1,deploymentConfig=eap-app-postgresql,deploymentconfig=eap-app-postgresql   1          2m
 	
 	oc scale --replicas=2 rc/eap-app-1
 	
 	oc get pod
-	NAME                         READY     REASON       RESTARTS   AGE
-	eap-app-1-build              0/1       ExitCode:0   0          26m
-	eap-app-1-ig8y1              1/1       Running      0          1m
-	eap-app-1-iwwe0              1/1       Running      0          19m
-	eap-app-postgresql-1-8wzae   1/1       Running      0          26m
+	
+	NAME                         READY     STATUS      RESTARTS   AGE
+	eap-app-1-autqo              1/1       Running     0          27s
+	eap-app-1-build              0/1       Completed   0          3m
+	eap-app-1-uiazy              1/1       Running     0          2m
+	eap-app-postgresql-1-bkruh   1/1       Running     0          3m
+	
 	
 	oc get service eap-app
 	
+	NAME      CLUSTER_IP       EXTERNAL_IP   PORT(S)    SELECTOR                   AGE
+	eap-app   172.30.126.247   <none>        8080/TCP   deploymentConfig=eap-app   3m
+	
+		
 	oc describe service eap-app
+
 	Name:			eap-app
-	Labels:			application=eap-app,template=eap6-postgresql-sti
+	Namespace:		k-postgres
+	Labels:			application=eap-app,template=eap64-postgresql-s2i,xpaas=1.1.0
 	Selector:		deploymentConfig=eap-app
 	Type:			ClusterIP
-	IP:			172.30.35.161
+	IP:			172.30.126.247
 	Port:			<unnamed>	8080/TCP
-	Endpoints:		10.1.0.22:8080,10.1.0.25:8080
+	Endpoints:		10.1.0.8:8080,10.1.1.21:8080
 	Session Affinity:	None
 	No events.
 
