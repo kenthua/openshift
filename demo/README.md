@@ -5,26 +5,26 @@ Table of Contents
 <!-- TOC depth:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Login to OpenShift](#login-to-openshift)
-- [Docker project with WAR](#docker-project-with-war)
-- [Kitchensink with just WAR file](#kitchensink-with-just-war-file)
-- [Kitchensink standalone S2I, H2 database, builder image](#kitchensink-standalone-s2i-h2-database-builder-image)
-- [Kitchensink S2I, postgres, builder image](#kitchensink-s2i-postgres-builder-image)
-- [Ruby hello-world](#ruby-hello-world)
-- [AB Deployment Testing](#ab-deployment-testing)
-- [PHP, persistent volumes](#php-persistent-volumes)
-- [Ruby hello-world with db different project, Ruby Instant App](#ruby-hello-world-with-db-different-project-ruby-instant-app)
-- [Ruby hello-world with db different project](#ruby-hello-world-with-db-different-project)
-- [PHP Upload Application Template, Instant App](#php-upload-application-template-instant-app)
-- [PHP Upload Application, Instant App](#php-upload-application-instant-app)
+- [Docker project with WAR, 3.1](#docker-project-with-war-31)
+- [Kitchensink with just WAR file, 3.1](#kitchensink-with-just-war-file-31)
+- [Kitchensink standalone S2I, H2 database, builder image, 3.1](#kitchensink-standalone-s2i-h2-database-builder-image-31)
+- [Kitchensink S2I, postgres, builder image, 3.0](#kitchensink-s2i-postgres-builder-image-30)
+- [Ticket Monster demo to prod with template, 3.1](#ticket-monster-demo-to-prod-with-template-31)
+- [Ruby hello-world, 3.0](#ruby-hello-world-30)
+- [AB Deployment Testing, 3.1](#ab-deployment-testing-31)
+- [PHP, persistent volumes, 3.0](#php-persistent-volumes-30)
+- [Ruby hello-world with db different project, Ruby Instant App, 3.0](#ruby-hello-world-with-db-different-project-ruby-instant-app-30)
+- [Ruby hello-world with db different project, 3.0](#ruby-hello-world-with-db-different-project-30)
+- [PHP Upload Application Template, Instant App, 3.0](#php-upload-application-template-instant-app-30)
+- [PHP Upload Application, Instant App, 3.0](#php-upload-application-instant-app-30)
 - [References](#references)
-
 <!-- /TOC -->
 
 # Login to OpenShift 
 
-	oc login https://ose-aio.example.com:8443 --certificate-authority=ca.crt
-
-# Docker project with WAR
+	oc login ose-aio.example.com:8443 --certificate-authority=ca.crt -u <username> -p <password>
+ 
+# Docker project with WAR, 3.1
 Last Tested: 3.1  
 b6m  
 
@@ -52,7 +52,7 @@ Expose the service
 	oc expose service kitchensink-docker
 	browser (http://kitchensink-docker.k-docker.cloudapps.example.com)	
 
-# Kitchensink with just WAR file
+# Kitchensink with just WAR file, 3.1
 Last Tested: 3.1 
 b5m  
 
@@ -83,7 +83,7 @@ URL
 	http://kitchensink-war.k-war.cloudapps.example.com	
 
 
-# Kitchensink standalone S2I, H2 database, builder image
+# Kitchensink standalone S2I, H2 database, builder image, 3.1
 Last Tested: 3.1  
 b6m  
 
@@ -118,7 +118,7 @@ Browser
 	http://kitchensink.kitchensink.cloudapps.example.com
 
 
-# Kitchensink S2I, postgres, builder image
+# Kitchensink S2I, postgres, builder image, 3.0
 Last Tested: 3.0.0  
 b8m  
 
@@ -173,8 +173,67 @@ Let's manually scale
 	Endpoints:		10.1.0.22:8080,10.1.0.25:8080
 	Session Affinity:	None
 	No events.
+
+# Ticket Monster demo to prod with template, 3.1
+Last Tested: 3.1.0  
+Added: 2016-01-20  
+
+Scenario derived from Jim Minter, thanks Jim!  
+
+Pre-setup steps as user: `system:admin`  
+Create 2 projects, `demo` and `prod`, add policy for prod to be able to pull images from the `demo` project
+
+	oadm new-project demo --admin=alice
+	oadm new-project prod --admin=alice
+	oc policy add-role-to-group system:image-puller system:serviceaccounts:prod -n demo
 	
-# Ruby hello-world 
+Add templates to both the openshift namespace  
+
+	curl https://raw.githubusercontent.com/kenthua/openshift/master/demo/config/ticket-monster-prod-template.yaml | \
+	oc create -n openshift -f -
+	curl https://raw.githubusercontent.com/kenthua/openshift/master/demo/config/ticket-monster-template.yaml | \
+	oc create -n openshift -f -
+
+Browser - select project `demo`
+
+Browser - Add to Project (filter by keyword 'monster')
+
+	monster
+
+Force deployment of monster-mysql (if mysql deploys after the monster build is done, you must re-deploy monster)  
+Browser - Deployments - `monster-mysql` - Deploy
+
+Browser - navigate to 
+
+	http://monster-demo.cloudapps.example.com
+	
+Browser - Projects (Home View)  
+
+Browser - select project `prod`
+
+Browser - Add to Project (filter by keyword 'monster')
+
+	monster-prod
+
+Force deployment of monster-mysql (if mysql deploys after the monster build is done, you must re-deploy monster)  
+Browser - Deployments - `monster-mysql` - Deploy  
+
+Tag the demo project monster imagestream as prod  
+From the imagestream `monster`, extract the latest PullSpec from `monster@sha256....`  
+As User: alice
+
+	oc project demo
+	export MY_TAG=`oc describe is monster | grep latest | awk '{split($6, a, /\/demo\//); print a[2]}'`
+	oc tag $MY_TAG monster:prod
+	oc describe is monster
+	
+The build in `monster` deployment in the `prod` project should automatically trigger and build
+
+Browser - navigate to
+
+	http://monster-prod.cloudapps.example.com
+	
+# Ruby hello-world, 3.0
 Last Tested: 3.0.0  
 (b6m) / 25m  
 
@@ -277,9 +336,9 @@ Check out how many rc's we have
 	ruby-hello-world-3   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:84b3c3a091f9bc7fb5530c126add792df93a29b779fb7abcc26291ba79a339d9   deployment=ruby-hello-world-3,deploymentconfig=ruby-hello-world   0
 	ruby-hello-world-4   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:a6a81a82cd4305e9b50cb189875d4cc7f1dd5a9c42c6b956db36726a14bd8e5a   deployment=ruby-hello-world-4,deploymentconfig=ruby-hello-world   1
 
-# AB Deployment Testing
+# AB Deployment Testing, 3.1
 Last Tested: 3.1.0  
-Added: 2016-01-20 
+Added: 2015-09-22 
 
 Reference, thanks to Veer for the example on the OpenShift blog: https://blog.openshift.com/openshift-3-demo-part-11-ab-deployments/
 
@@ -390,7 +449,7 @@ Last test
 	Application VERSION 2 -- Pod IP: 10.1.0.14
 	Application VERSION 2 -- Pod IP: 10.1.0.17
 
-# PHP, persistent volumes 
+# PHP, persistent volumes, 3.0
 Last Tested: 3.0.0  
 (b4m) / 20m  
 
@@ -474,7 +533,7 @@ ose-aio machine
 	curl http://172.30.117.104:8080/test.php 
 
 
-# Ruby hello-world with db different project, Ruby Instant App
+# Ruby hello-world with db different project, Ruby Instant App, 3.0
 Last Tested: 3.0.0  
 
 Browser - New Project (Home View)
@@ -535,7 +594,7 @@ Browser - Navigate to:
 	http://ruby-hello-world.frontend.cloudapps.example.com
 
 
-# Ruby hello-world with db different project
+# Ruby hello-world with db different project, 3.0
 Last Tested: 3.0.0  
 
 Browser - New Project (Home View)
@@ -598,7 +657,7 @@ Browser - Navigate to:
 
 	http://ruby-hello-world.frontend.cloudapps.example.com
 
-# PHP Upload Application Template, Instant App
+# PHP Upload Application Template, Instant App, 3.0
 Last Tested: 3.0.0  
 
 As admin/root user
@@ -619,7 +678,7 @@ Browser - navigate to:
 
 	http://php-upload.template-test.cloudapps.example.com/form.html	
 
-# PHP Upload Application, Instant App
+# PHP Upload Application, Instant App, 3.0
 Last Tested: 3.0.0  
 
 	oc new-project newapp-test
@@ -637,4 +696,5 @@ Browser - navigate to:
 
 # References
 https://github.com/openshift/training 
+https://github.com/jim-minter/ose3-ticket-monster
 
