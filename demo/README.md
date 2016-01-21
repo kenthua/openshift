@@ -5,13 +5,15 @@ Table of Contents
 <!-- TOC depth:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Login to OpenShift](#login-to-openshift)
-- [Docker project with WAR, 3.1](#docker-project-with-war-31)
+- [Docker, kubernetes guestbook, 3.1](#docker-kubernetes-guestbook-31)
+- [Docker, project with WAR, 3.1](#docker-project-with-war-31)
 - [Kitchensink with just WAR file, 3.1](#kitchensink-with-just-war-file-31)
 - [Kitchensink standalone S2I, H2 database, builder image, 3.1](#kitchensink-standalone-s2i-h2-database-builder-image-31)
 - [Kitchensink S2I, postgres, builder image, 3.0](#kitchensink-s2i-postgres-builder-image-30)
 - [Ticket Monster demo to prod with template, 3.1](#ticket-monster-demo-to-prod-with-template-31)
-- [Ruby hello-world, 3.0](#ruby-hello-world-30)
 - [AB Deployment Testing, 3.1](#ab-deployment-testing-31)
+- [MLB Parks app and db, create app and add db, 3.1](#mlb-parks-app-and-db-create-app-and-add-db-31)
+- [MLB Parks app and db, template, 3.1](#mlb-parks-app-and-db-template-31)
 - [PHP, persistent volumes, 3.0](#php-persistent-volumes-30)
 - [Ruby hello-world with db different project, Ruby Instant App, 3.0](#ruby-hello-world-with-db-different-project-ruby-instant-app-30)
 - [Ruby hello-world with db different project, 3.0](#ruby-hello-world-with-db-different-project-30)
@@ -23,12 +25,50 @@ Table of Contents
 # Login to OpenShift 
 
 	oc login ose-aio.example.com:8443 --certificate-authority=ca.crt -u <username> -p <password>
+
+# Docker, kubernetes guestbook, 3.1
+Last Tested: 3.1
+Added: 2016-01-21
+
+Console -  As User  
+Create new project & application  
+
+	oc new-project guestbook
+	oc new-app kubernetes/guestbook
+	oc get pods -w
+	
+Wait for the application to finish deploying  
+
+	NAME                 READY     STATUS    RESTARTS   AGE
+	guestbook-1-deploy   0/1       Pending   0          11s
+
+When the pod is running
+
+	NAME                READY     STATUS    RESTARTS   AGE
+	guestbook-1-fge2d   1/1       Running   0          34s
+
+A service is created, but a route needs to be added for external access  
+
+	NAME        CLUSTER_IP      EXTERNAL_IP   PORT(S)    SELECTOR                                   AGE
+	guestbook   172.30.27.215   <none>        3000/TCP   app=guestbook,deploymentconfig=guestbook   1m
+	
+Create the route
+
+	oc expose service guestbook
+	oc get route
+
+	NAME        HOST/PORT                                   PATH      SERVICE     LABELS          INSECURE POLICY   TLS TERMINATION
+	guestbook   guestbook-guestbook.cloudapps.example.com             guestbook   app=guestbook
+
+Browser - navigate to  
+
+	http://guestbook-guestbook.cloudapps.example.com
  
-# Docker project with WAR, 3.1
+# Docker, project with WAR, 3.1
 Last Tested: 3.1  
 b6m  
 
-Console - 
+Console - As User  
  
 	oc new-project k-docker
 	oc new-app https://github.com/kenthua/kitchensink-docker.git
@@ -56,14 +96,14 @@ Expose the service
 Last Tested: 3.1 
 b5m  
 
-Console -  
+Console - As User  
 
 	oc new-project k-war
 
 Browser - Add to Project
 
-	https://github.com/kenthua/kitchensink-war.git
 	jboss-eap64-openshift:1.1 or eap64-basic-s2i
+	https://github.com/kenthua/kitchensink-war.git
 
 or command line  
 
@@ -87,7 +127,7 @@ URL
 Last Tested: 3.1  
 b6m  
 
-Console - 
+Console -  As User  
 
 	oc new-project kitchensink
 
@@ -180,7 +220,7 @@ Added: 2016-01-20
 
 Scenario derived from Jim Minter, thanks Jim!  
 
-Pre-setup steps as user: `system:admin`  
+Console -  As `system:admin`
 Create 2 projects, `demo` and `prod`, add policy for prod to be able to pull images from the `demo` project
 
 	oadm new-project demo --admin=alice
@@ -189,10 +229,8 @@ Create 2 projects, `demo` and `prod`, add policy for prod to be able to pull ima
 	
 Add templates to both the openshift namespace  
 
-	curl https://raw.githubusercontent.com/kenthua/openshift/master/demo/config/ticket-monster-prod-template.yaml | \
-	oc create -n openshift -f -
-	curl https://raw.githubusercontent.com/kenthua/openshift/master/demo/config/ticket-monster-template.yaml | \
-	oc create -n openshift -f -
+	oc create -n openshift -f https://raw.githubusercontent.com/kenthua/openshift/master/demo/config/ticket-monster-prod-template.yaml
+	oc create -n openshift -f https://raw.githubusercontent.com/kenthua/openshift/master/demo/config/ticket-monster-template.yaml
 
 Browser - select project `demo`
 
@@ -218,6 +256,7 @@ Browser - Add to Project (filter by keyword 'monster')
 Force deployment of monster-mysql    
 Browser - Deployments - `monster-mysql` - Deploy  
 
+Console - As User   
 Tag the demo project monster imagestream as prod  
 From the imagestream `monster`, extract the latest PullSpec from `monster@sha256....`  
 As User: alice
@@ -233,109 +272,6 @@ Browser - navigate to
 
 	http://monster-prod.cloudapps.example.com
 	
-# Ruby hello-world, 3.0
-Last Tested: 3.0.0  
-(b6m) / 25m  
-
-Browser - New Project
-
-	ruby	
-
-Browser - Add to Project
-
-	https://github.com/kenthua/ruby-hello-world.git
-	ruby:2.0
-
-Edit Deployment Configuration
-
-	MYSQL_USER=root
-	MYSQL_PASSWORD=redhat
-	MYSQL_DATABASE=mydb
-
-Browser - Browse -> Services -> Navigate to URL
-
-	http://ruby-hello-world.ruby.cloudapps.example.com
-
-Browser - Add to Project -> browse all templates
-
-	mysql-empemeral
-
-Edit parameters
-
-	DATABASE_SERVICE_NAME=database
-	POSTGRESQL_USER=root
-	POSTGRESQL_PASSWORD=redhat
-	POSTGRESQL_DATABASE=mydb
-
-Verify database-1 and ruby-hello-world-1 pods are running
-
-	oc get pod
-	NAME                       READY     REASON       RESTARTS   AGE
-	database-1-aytfl           1/1       Running      0          20s
-	ruby-hello-world-1-build   0/1       ExitCode:0   0          10m
-	ruby-hello-world-1-jc1jg   1/1       Running      0          4m
-
-Browser - app still broken  
-Need to force a rebuild with of the POD, because the original frontend environment didn't have DATABASE_SERVICE_HOST environemnt variable
-
-	oc delete pod `oc get pod | grep -e "hello-world-[0-9]" | grep -v build | awk '{print $1}'`
-
-Old pod is deleted and a new pod is spawned to meet the desired state of replica size = 1
-Refresh app again
-
-Make a change to the application
-
-Now we need to get the generic webhook url
-
-	oc describe bc ruby-hello-world
-	
-	Name:			ruby-hello-world
-	...
-	Webhook Generic:	https://ose-aio.example.com:8443/oapi/v1/namespaces/ruby/buildconfigs/ruby-hello-world/webhooks/1f4a60ac41f59d9b/generic
-	...
-	Builds:
-	  Name			Status		Duration	Creation Time
-	  ruby-hello-world-1 	complete 	6m6s 		2015-07-17 19:20:23 -0400 EDT
-	 
-Trigger a new build manually via webhook
-
-	curl -i -H "Accept: application/json" \
-	-H "X-HTTP-Method-Override: PUT" -X POST -k \
-	https://ose-aio.example.com:8443/oapi/v1/namespaces/ruby/buildconfigs/ruby-hello-world/webhooks/1f4a60ac41f59d9b/generic
-	
-	HTTP/1.1 200 OK
-	Cache-Control: no-store
-	Date: Fri, 17 Jul 2015 23:40:50 GMT
-	Content-Length: 0
-	Content-Type: text/plain; charset=utf-8
-
-Check out a new build
-
-	oc get build
-	NAME                 TYPE      STATUS     POD
-	ruby-hello-world-1   Source    Complete   ruby-hello-world-1-build
-	ruby-hello-world-2   Source    Running    ruby-hello-world-2-build
-
-Once ready, check out the new changes
-
-Rollback to the original
-	
-	oc rollback ruby-hello-world-1
-	
-Rollback to the changes if desired
-
-	oc rollback ruby-hello-world-2
-	
-Check out how many rc's we have
-
-	oc get rc
-	CONTROLLER           CONTAINER(S)       IMAGE(S)                                                                                                          SELECTOR                                                          REPLICAS
-	database-1           mysql              registry.access.redhat.com/openshift3/mysql-55-rhel7:latest                                                       deployment=database-1,deploymentconfig=database,name=database     1
-	ruby-hello-world-1   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:84b3c3a091f9bc7fb5530c126add792df93a29b779fb7abcc26291ba79a339d9   deployment=ruby-hello-world-1,deploymentconfig=ruby-hello-world   0
-	ruby-hello-world-2   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:a6a81a82cd4305e9b50cb189875d4cc7f1dd5a9c42c6b956db36726a14bd8e5a   deployment=ruby-hello-world-2,deploymentconfig=ruby-hello-world   0
-	ruby-hello-world-3   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:84b3c3a091f9bc7fb5530c126add792df93a29b779fb7abcc26291ba79a339d9   deployment=ruby-hello-world-3,deploymentconfig=ruby-hello-world   0
-	ruby-hello-world-4   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:a6a81a82cd4305e9b50cb189875d4cc7f1dd5a9c42c6b956db36726a14bd8e5a   deployment=ruby-hello-world-4,deploymentconfig=ruby-hello-world   1
-
 # AB Deployment Testing, 3.1
 Last Tested: 3.1.0  
 Added: 2015-09-22 
@@ -350,9 +286,9 @@ Browser - Add to Project
 Click Show advanced build and deployment options, for more options  
 NOTE: We do not want to create a route because we will be creating a new service and a new route based on the service  
 
-	https://github.com/kenthua/ab-example.git
 	php:5.5
 	Name: a-example
+	https://github.com/kenthua/ab-example.git
 	Routing: Create a route to the application: No
 	Labels: abgroup=true  
 	
@@ -387,9 +323,9 @@ Edit php index.php on github, i.e. increment app version
 
 Browser - Add to Project
 
-	https://github.com/kenthua/ab-example.git
 	php:5.5
 	Name: b-example
+	https://github.com/kenthua/ab-example.git
 	Routing: Create a route to the application: No
 	Labels: abgroup=true
 
@@ -449,6 +385,108 @@ Last test
 	Application VERSION 2 -- Pod IP: 10.1.0.14
 	Application VERSION 2 -- Pod IP: 10.1.0.17
 
+# MLB Parks app and db, create app and add db, 3.1
+Last Tested: 3.1
+Added: 2016-01-21
+
+From Grant Shipley, thanks Grant!
+
+Browser - New Project
+	
+	mlbparks
+
+Browser - Add to Project
+
+	jboss-eap64-openshift:1.1
+	Name: mlbparks
+	https://github.com/kenthua/openshift3mlbparks.git
+
+When the application is built and ready  
+Browser - Navigate to  
+
+	http://mlbparks-mlbparks.cloudapps.example.com
+	
+Note the empty map, we need to add a database  
+Browser - Add to Project
+
+	mongodb-ephemeral
+	MONGODB_USER : mlbparks
+	MONGODB_PASSWORD : mlbparks
+	MONGODB_DATABASE: mlbparks
+	MONGODB_ADMIN_PASSWORD : mlbparks
+
+Console - As User  
+	
+	oc project mlbparks
+	oc env dc mlbparks -e MONGODB_USER=mlbparks -e MONGODB_PASSWORD=mlbparks -e MONGODB_DATABASE=mlbparks
+
+This will trigger a new dc build of the application pod with the new environment variables  
+Once the re-build is complete and ready  
+
+You can check for the new activity in the browser or the console with `oc get pods`
+
+Browser - navigate to
+
+	http://mlbparks-mlbparks.cloudapps.example.com
+
+# MLB Parks app and db, template, 3.1
+Last Tested: 3.1
+Added: 2016-01-21
+
+From Grant Shipley, thanks Grant!
+
+Console - As User 
+
+	oc new-project mlbparkstemplate
+	oc create -f https://raw.githubusercontent.com/kenthua/openshift3mlbparks/master/mlbparks-template.json
+	oc new-app mlbparks
+	
+Everything is predefined / generated
+
+	--> Deploying template mlbparks for "mlbparks"
+	     With parameters:
+	      APPLICATION_NAME=mlbparks
+	      APPLICATION_DOMAIN=
+	      SOURCE_REPOSITORY_URL=https://github.com/kenthua/openshift3mlbparks
+	      SOURCE_REPOSITORY_REF=master
+	      CONTEXT_DIR=
+	      HORNETQ_QUEUES=
+	      HORNETQ_TOPICS=
+	      HORNETQ_CLUSTER_PASSWORD=juSOlaGS # generated
+	      GITHUB_WEBHOOK_SECRET=ywa7SxpE # generated
+	      GENERIC_WEBHOOK_SECRET=OFjGeUmX # generated
+	      IMAGE_STREAM_NAMESPACE=openshift
+	      DATABASE_SERVICE_NAME=mongodb
+	      MONGODB_USER=userFJX # generated
+	      MONGODB_PASSWORD=ORhBvEYc0CufVJ87 # generated
+	      MONGODB_DATABASE=sampledb
+	      MONGODB_ADMIN_PASSWORD=YDdxL8wmSvlk6veE # generated
+	--> Creating resources with label app=mlbparks ...
+	    Service "mlbparks" created
+	    Route "mlbparks" created
+	    ImageStream "mlbparks" created
+	    BuildConfig "mlbparks" created
+	    DeploymentConfig "mlbparks" created
+	    Service "mongodb" created
+	    DeploymentConfig "mongodb" created
+	--> Success
+	    Build scheduled for "mlbparks" - use the logs command to track its progress.
+	    Run 'oc status' to view your app.
+
+Once the application is built and the application pod is running  
+
+	oc get pods
+	
+	NAME               READY     STATUS      RESTARTS   AGE
+	mlbparks-1-build   0/1       Completed   0          4m
+	mlbparks-1-pcv1o   1/1       Running     0          27s
+	mongodb-1-3sp8n    1/1       Running     0          4m
+
+Browser - navigate to  
+
+	http://mlbparks-mlbparkstemplate.cloudapps.example.com
+
+	
 # PHP, persistent volumes, 3.0
 Last Tested: 3.0.0  
 (b4m) / 20m  
@@ -690,11 +728,117 @@ Browser - navigate to:
 	http://php-upload.newapp-test.cloudapps.example.com/form.html
 
 
+	# Ruby hello-world, 3.0
+	Last Tested: 3.0.0  
+	(b6m) / 25m  
+
+	Browser - New Project
+
+		ruby	
+
+	Browser - Add to Project
+
+		https://github.com/kenthua/ruby-hello-world.git
+		ruby:2.0
+
+	Edit Deployment Configuration
+
+		MYSQL_USER=root
+		MYSQL_PASSWORD=redhat
+		MYSQL_DATABASE=mydb
+
+	Browser - Browse -> Services -> Navigate to URL
+
+		http://ruby-hello-world.ruby.cloudapps.example.com
+
+	Browser - Add to Project -> browse all templates
+
+		mysql-empemeral
+
+	Edit parameters
+
+		DATABASE_SERVICE_NAME=database
+		POSTGRESQL_USER=root
+		POSTGRESQL_PASSWORD=redhat
+		POSTGRESQL_DATABASE=mydb
+
+	Verify database-1 and ruby-hello-world-1 pods are running
+
+		oc get pod
+		NAME                       READY     REASON       RESTARTS   AGE
+		database-1-aytfl           1/1       Running      0          20s
+		ruby-hello-world-1-build   0/1       ExitCode:0   0          10m
+		ruby-hello-world-1-jc1jg   1/1       Running      0          4m
+
+	Browser - app still broken  
+	Need to force a rebuild with of the POD, because the original frontend environment didn't have DATABASE_SERVICE_HOST environemnt variable
+
+		oc delete pod `oc get pod | grep -e "hello-world-[0-9]" | grep -v build | awk '{print $1}'`
+
+	Old pod is deleted and a new pod is spawned to meet the desired state of replica size = 1
+	Refresh app again
+
+	Make a change to the application
+
+	Now we need to get the generic webhook url
+
+		oc describe bc ruby-hello-world
+		
+		Name:			ruby-hello-world
+		...
+		Webhook Generic:	https://ose-aio.example.com:8443/oapi/v1/namespaces/ruby/buildconfigs/ruby-hello-world/webhooks/1f4a60ac41f59d9b/generic
+		...
+		Builds:
+		  Name			Status		Duration	Creation Time
+		  ruby-hello-world-1 	complete 	6m6s 		2015-07-17 19:20:23 -0400 EDT
+		 
+	Trigger a new build manually via webhook
+
+		curl -i -H "Accept: application/json" \
+		-H "X-HTTP-Method-Override: PUT" -X POST -k \
+		https://ose-aio.example.com:8443/oapi/v1/namespaces/ruby/buildconfigs/ruby-hello-world/webhooks/1f4a60ac41f59d9b/generic
+		
+		HTTP/1.1 200 OK
+		Cache-Control: no-store
+		Date: Fri, 17 Jul 2015 23:40:50 GMT
+		Content-Length: 0
+		Content-Type: text/plain; charset=utf-8
+
+	Check out a new build
+
+		oc get build
+		NAME                 TYPE      STATUS     POD
+		ruby-hello-world-1   Source    Complete   ruby-hello-world-1-build
+		ruby-hello-world-2   Source    Running    ruby-hello-world-2-build
+
+	Once ready, check out the new changes
+
+	Rollback to the original
+		
+		oc rollback ruby-hello-world-1
+		
+	Rollback to the changes if desired
+
+		oc rollback ruby-hello-world-2
+		
+	Check out how many rc's we have
+
+		oc get rc
+		CONTROLLER           CONTAINER(S)       IMAGE(S)                                                                                                          SELECTOR                                                          REPLICAS
+		database-1           mysql              registry.access.redhat.com/openshift3/mysql-55-rhel7:latest                                                       deployment=database-1,deploymentconfig=database,name=database     1
+		ruby-hello-world-1   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:84b3c3a091f9bc7fb5530c126add792df93a29b779fb7abcc26291ba79a339d9   deployment=ruby-hello-world-1,deploymentconfig=ruby-hello-world   0
+		ruby-hello-world-2   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:a6a81a82cd4305e9b50cb189875d4cc7f1dd5a9c42c6b956db36726a14bd8e5a   deployment=ruby-hello-world-2,deploymentconfig=ruby-hello-world   0
+		ruby-hello-world-3   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:84b3c3a091f9bc7fb5530c126add792df93a29b779fb7abcc26291ba79a339d9   deployment=ruby-hello-world-3,deploymentconfig=ruby-hello-world   0
+		ruby-hello-world-4   ruby-hello-world   172.30.56.67:5000/ruby/ruby-hello-world@sha256:a6a81a82cd4305e9b50cb189875d4cc7f1dd5a9c42c6b956db36726a14bd8e5a   deployment=ruby-hello-world-4,deploymentconfig=ruby-hello-world   1
+
+
 
 ---
 
 
 # References
-https://github.com/openshift/training 
-https://github.com/jim-minter/ose3-ticket-monster
+https://github.com/openshift/training  
+https://github.com/jim-minter/ose3-ticket-monster  
+https://github.com/gshipley/openshift3mlbparks  
+
 
