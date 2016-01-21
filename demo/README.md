@@ -215,7 +215,7 @@ Browser - Add to Project (filter by keyword 'monster')
 
 	monster-prod
 
-Force deployment of monster-mysql (if mysql deploys after the monster build is done, you must re-deploy monster)  
+Force deployment of monster-mysql    
 Browser - Deployments - `monster-mysql` - Deploy  
 
 Tag the demo project monster imagestream as prod  
@@ -227,7 +227,7 @@ As User: alice
 	oc tag $MY_TAG monster:prod
 	oc describe is monster
 	
-The build in `monster` deployment in the `prod` project should automatically trigger and build
+The deployment `monster` in the project `prod` should automatically trigger and build
 
 Browser - navigate to
 
