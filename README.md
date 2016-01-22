@@ -3,7 +3,8 @@ OpenShift Enterprise 3.0/3.1 Content
 
 - Configs - Various configs for different scenarios, to be run by root/sysadmin or user  
 - Demo - Scenarios from starting with a Docker image, war, java webapp, ruby, php  
-- Vagrant - all-in-one & multi-host examples  
+- Install - Scripts to install OpenShift Enterprise
+- Vagrant - all-in-one & multi-host examples (deprecated)  
 
 
 # Other examples located in other repositories
