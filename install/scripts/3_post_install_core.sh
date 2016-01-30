@@ -10,6 +10,8 @@ useradd alice
 oadm policy add-role-to-user system:registry alice
 
 mkdir -p /mnt/docker
+# this is needed for the 3.1.1.6+ registry
+chmod -R 777 /mnt/docker
 
 # install docker-registry
 oadm registry --config=/etc/origin/master/admin.kubeconfig \
