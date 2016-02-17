@@ -1,7 +1,16 @@
 User Configs
 ============
 
-#Application Template Examples
+# NodePort Example
+Tested 3.1.1.6  
+* This example is for exposing A-MQ's TCP 61616 port outside of OSE
+* The current HAProxy router in OSE 3.1 and lower only supports HTTP/HTTPS traffic
+* Acceptable nodePort range is 30000-32767
+* Change the selector accordingly to your specified deploymentConfig
+* Change the name/description 
+* Documentation on [Integrating External Services](https://docs.openshift.com/enterprise/3.1/dev_guide/integrating_external_services.html)
+
+# Application Template Examples
 * php-upload - complete php upload application template
 * php-upload-persistent - complete php upload with persistent volume application template (requires creation of PV at admin level)
 
@@ -12,12 +21,12 @@ Create the app like this:
 
 	oc start-build php-upload
 
-#Generic Pod
+# Generic Pod
 * pod.yaml
 
 Generic pod that'll create a container that pings
 
-#PVC Claim in the App DC
+# PVC Claim in the App DC
 The part we will need to edit is the pod dc template. We will need to add two
 parts: 
 
