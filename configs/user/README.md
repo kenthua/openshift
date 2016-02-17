@@ -5,7 +5,7 @@ User Configs
 Tested 3.1.1.6  
 * This example is for exposing A-MQ's TCP 61616 port outside of OSE
 * The current HAProxy router in OSE 3.1 and lower only supports HTTP/HTTPS traffic
-* Acceptable nodePort range is 30000-32767
+* Acceptable nodePort range is 30000-32767, specify 0 to have OSE select a port
 * Change the selector accordingly to your specified deploymentConfig
 * Change the name/description 
 * Documentation on [Integrating External Services](https://docs.openshift.com/enterprise/3.1/dev_guide/integrating_external_services.html)
