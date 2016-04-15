@@ -1,0 +1,74 @@
+---
+- name: Install nfs-utils package
+  yum: 
+    name: nfs-utils
+    state: present
+
+- name: Create directories
+  file:
+    path: /var/export/{{ item }}
+    owner: nfsnobody
+    group: nfsnobody
+    mode: 0777
+    state: directory
+  with_items: folders
+
+- name: Add line in file etc exports
+  lineinfile: 
+   dest: /etc/exports
+   insertafter: EOF
+   line: /var/export/{{ item }} *(rw,sync,all_squash)
+  with_items: folders
+
+- name: Enable services
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - rpcbind
+    - nfs-server
+    - nfs-lock
+    - nfs-idmap    
+    
+- name: Set up iptables rules
+  copy: src=iptables-save dest=/etc/sysconfig/iptables
+  notify: restart iptables  
+
+- name: Modify sysconfig/nfs RPCMOUNTOPTS
+  replace:
+    dest: /etc/sysconfig/nfs
+    regexp: '(\s+)^RPCMOUNTDOPTS=""'
+    replace: '\1RPCMOUNTDOPTS="-p 20048"'
+
+- name: Modify sysconfig/nfs STATDARG
+  replace:
+    dest: /etc/sysconfig/nfs
+    regexp: '(\s+)^STATDARG=""'
+    replace: '\1STATDARG="-p 50825"'
+    
+- name: Modify sysctl.conf tcpport
+  lineinfile: 
+   dest: /etc/sysctl.conf
+   insertafter: EOF
+   line: fs.nfs.nlm_tcpport=53248
+  
+- name: Modify sysctl.conf udpport
+  lineinfile: 
+   dest: /etc/sysctl.conf
+   insertafter: EOF
+   line: fs.nfs.nlm_udpport=53248
+
+- name: sysctl -p
+  command: sysctl -p
+
+- name: SELinux - virt_use_nfs
+  command: setsebool -P virt_use_nfs 1
+
+- name: SELinux - virt_sandbox_use_nfs
+  command: setsebool -P virt_sandbox_use_nfs 1
+
+- name: Restart nfs
+  service: 
+    name: nfs
+    state: restarted

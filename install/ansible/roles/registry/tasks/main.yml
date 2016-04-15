@@ -1,0 +1,51 @@
+---
+- name: Change the oc context
+  command: "oc config use-context {{ default_context }}"
+
+- name: Switch to default project
+  command: oc project default
+
+- name: Patch to support infrastructure components witin region=infra
+  command: oc patch namespace/default -p '{"metadata":{"annotations":{"openshift.io/node-selector":"region=infra"}}}'
+
+- name: Make master schedulable
+  command: oadm manage-node {{ master_host_name }} --schedulable=true
+
+- name: Add user alice
+  user: 
+    name: alice
+    state: present
+
+- name: Copy the oclogin.sh file
+  template: src=oclogin.sh dest=/home/alice/oclogin.sh
+
+- name: Set permissions on file
+  file:
+    owner: alice
+    group: alice
+    mode: 0755
+    path: /home/alice/oclogin.sh
+
+- name: Add user alice to the system:registry
+  command: oadm policy add-role-to-user system:registry alice
+
+- name: Create docker mount path
+  file:
+    mode: 0777
+    path: /mnt/docker
+    state: directory
+
+- name: Check whether a registry exists or not
+  command: oadm registry --dry-run
+  register: registry_out
+  ignore_errors: true
+
+- name: Install the registry
+  command: >
+    oadm registry --config=/etc/origin/master/admin.kubeconfig
+    --credentials=/etc/origin/master/openshift-registry.kubeconfig
+    --images='{{ registry_url }}'
+    --selector='region=infra'
+    --mount-host=/mnt/docker
+    --service-account=registry 
+  when: registry_out | failed

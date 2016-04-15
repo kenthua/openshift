@@ -1,0 +1,10 @@
+---
+- hosts: openshift_master
+  remote_user: root
+  vars:
+    folders:
+      - vol1
+      - vol2
+      
+  roles:
+    - nfs

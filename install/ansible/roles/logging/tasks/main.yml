@@ -1,0 +1,127 @@
+---
+# make sure that we are using the default user (system:admin) and the default project
+- name: Change the oc context
+  command: "oc config use-context {{ default_context }}"
+
+- name: Check for the logging project
+  command: "oc get project logging"
+  register: logging_out
+  ignore_errors: true
+
+# we will eventually want to look at the logging and metrics project, so
+# this is useful
+- name: Make admin user a cluster-admin
+  command: oadm policy add-cluster-role-to-user cluster-admin admin
+
+# eventually we will change the region to be appropriate and this command will need to change
+- name: Create the logging project
+  command: oadm new-project logging --node-selector=""
+  when: logging_out | failed
+
+#- name: Remove the default node selector on the logging project
+#  command: oc patch namespace/logging -p '{"metadata":{"annotations":{"openshift.io/node-selector":"region=infra"}}}'
+#- name: Remove the default node selector on the logging project
+#  command: oc patch namespace/logging -p '{"metadata":{"annotations":{"openshift.io/node-selector":""}}}'
+
+- name: Switch to the logging project
+  command: "oc project logging"
+
+- name: Check for logging-deployer secret
+  command: "oc get secret logging-deployer"
+  register: logging_deployer_secret_out
+  ignore_errors: true
+
+- name: Create the null logging-deployer secret
+  command: oc secrets new logging-deployer nothing=/dev/null
+  when: logging_deployer_secret_out | failed
+
+- name: Check for logging-deployer service account
+  command: oc get sa logging-deployer
+  register: logging_deployer_sa_out
+  ignore_errors: true
+
+- name: Create the logging-deployer service account
+  shell: 'echo ''{"apiVersion":"v1","kind":"ServiceAccount","metadata":{"name":"logging-deployer"},"secrets":[{"name":"logging-deployer"}]}'' | oc create -f -'
+  when: logging_deployer_sa_out | failed
+
+- name: Wait for the logging-deployer secrets
+  shell: "oc get secrets | grep logging-deployer-token"
+  register: deployer_token_out
+  until: deployer_token_out | success
+  retries: 15
+  delay: 10
+
+#- name: Grant the edit role to the logging-deployer service account
+#  command: oc policy add-role-to-user edit system:serviceaccount:logging:logging-deployer
+- name: Grant the edit role to the logging-deployer service account
+  command: oc policy add-role-to-user edit --serviceaccount logging-deployer
+
+- name: Put the fluentd service account in the privileged SCC
+  command: oadm policy add-scc-to-user privileged system:serviceaccount:logging:aggregated-logging-fluentd
+
+- name: Give fluentd cluster-reader permissions
+  command: oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:logging:aggregated-logging-fluentd
+
+# if the artifacts are already deployed, don't process the deployer template
+- name: Check for the deployed artifacts
+  command: oc get template logging-support-template
+  register: logging_support_template_out
+  ignore_errors: true
+
+- name: Instantiate the logging deployer via the template
+  shell: >
+    oc process logging-deployer-template -n openshift
+    -v KIBANA_HOSTNAME=kibana.{{ sub_domain }}
+    -v PUBLIC_MASTER_URL={{ public_master_url }}
+    -v ES_CLUSTER_SIZE=1
+    | oc create -f -
+  when: logging_support_template_out | failed
+
+- name: Wait for the deployer to finish
+  shell: "oc get pod | awk '/logging-deployer-[a-zA-Z0-9]*/{ print $3 }'"
+  register: deployer_output
+  until: deployer_output.stdout | search("Completed")
+  retries: 15
+  delay: 10
+
+- name: Determine elastic search DC
+  shell: "oc get dc | awk '/logging-es-[a-zA-Z0-9]*/{ print $1 }'"
+  register: logging_es_out
+
+- name: Modify the kibana DC with a node selector for infra
+  command: oc patch dc/logging-kibana -p '{"spec":{"template":{"spec":{"nodeSelector":{"region":"infra"}}}}}'
+
+- name: Modify the es DC with a node selector for infra
+  command: oc patch dc/{{ logging_es_out.stdout }} -p '{"spec":{"template":{"spec":{"nodeSelector":{"region":"infra"}}}}}'
+
+# if the image streams exist, don't process the support template
+- name: Check for logging-kibana imagestream
+  command: oc get is logging-kibana
+  register: kibana_is_out
+  ignore_errors: true
+
+- name: Process the logging support template
+  shell: "oc process logging-support-template | oc create -f -"
+  when: kibana_is_out | failed
+
+- name: Create local host mount directory for es
+  file: 
+    path: /mnt/logging
+    state: directory
+
+- name: Check if es is still using empty directory
+  command: "oc volume dc/{{ logging_es_out.stdout }}"
+  register: logging_dc_out
+
+- name: Attach volume to es DC
+  command: >
+    oc volume dc/{{ logging_es_out.stdout }} 
+    --add 
+    --overwrite 
+    --type=hostPath
+    --name=elasticsearch-storage 
+    --path=/mnt/logging
+  when: "'empty directory' in logging_dc_out.stdout"
+
+- name: Scale fluentd to number of nodes
+  command: oc scale dc/logging-fluentd --replicas=2

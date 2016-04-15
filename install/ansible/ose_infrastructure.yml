@@ -1,0 +1,9 @@
+---
+- hosts: openshift_master
+  remote_user: root
+  
+  roles:
+#    - registry
+#    - router
+    - logging
+#    - metrics

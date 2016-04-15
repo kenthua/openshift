@@ -1,0 +1,67 @@
+# make sure that we are using the default user (system:admin) and the default project
+- name: Change the oc context
+  command: "oc config use-context {{ default_context }}"
+
+- name: Change to the openshift-infra project
+  command: "oc project openshift-infra"
+
+- name: Force metrics components into env=infra
+  command: oc patch namespace/openshift-infra -p '{"metadata":{"annotations":{"openshift.io/node-selector":"region=infra"}}}'
+
+- name: Check for metrics-deployer service account
+  command: oc get sa metrics-deployer
+  register: metrics_deployer_sa_out
+  ignore_errors: true
+
+- name: Create the metrics-deployer service account
+  shell: 'echo ''{"apiVersion":"v1","kind":"ServiceAccount","metadata":{"name":"metrics-deployer"},"secrets":[{"name":"metrics-deployer"}]}'' | oc create -f -'
+  when: metrics_deployer_sa_out | failed
+
+- name: Wait for the metrics-deployer secrets
+  shell: "oc get secrets | grep metrics-deployer-token"
+  register: metrics_token_out
+  until: metrics_token_out | success
+  retries: 15
+  delay: 10
+
+- name: Grant the edit role to the metrics-deployer service account
+  command: oadm policy add-role-to-user edit system:serviceaccount:openshift-infra:metrics-deployer
+
+- name: Grant the cluster-reader role to the heapster service account
+  command: oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:heapster
+
+- name: Check for metrics-deployer secret
+  command: "oc get secret metrics-deployer"
+  register: metrics_deployer_secret_out
+  ignore_errors: true
+
+- name: Create the null metrics-deployer secret
+  command: oc secrets new metrics-deployer nothing=/dev/null
+  when: metrics_deployer_secret_out | failed
+
+# if the artifacts are already deployed, don't process the deployer template
+- name: Check for the deployed artifacts
+  command: oc get rc hawkular-metrics
+  register: metrics_artifacts_out
+  ignore_errors: true
+
+- name: Instantiate the logging deployer via the template
+  shell: >
+    oc process metrics-deployer-template -n openshift
+    -v USE_PERSISTENT_STORAGE=false
+    -v HAWKULAR_METRICS_HOSTNAME="{{ master_host_name }}" | oc create -f -
+  when: metrics_artifacts_out | failed
+
+- name: Wait for the deployer to finish
+  shell: "oc get pod | awk '/metrics-deployer-[a-zA-Z0-9]*/{ print $3 }'"
+  register: deployer_output
+  until: deployer_output.stdout | search("Completed")
+  retries: 15
+  delay: 10
+
+- name: Wait for the hawkular-cassandra-1 RC to exist
+  command: oc get rc hawkular-cassandra-1
+  register: rc_out
+  until: rc_out.stdout | search("hawkular-cassandra-1")
+  retries: 15
+  delay: 10

@@ -1,0 +1,22 @@
+---
+- name: key gen
+  hosts: openshift_master
+  tasks:      
+  - name: generate ssh key
+    user:
+      name: root
+      generate_ssh_key: yes
+  register: rootkey
+
+- name: dist key
+  hosts: openshift_node    
+  task:
+  - name: distribute keys
+    authorized_key:
+      user: root
+      key: "{{ hostvars[item].rootkey.ssh_public_key }}"
+      state: present
+  with_items: groups['all']
+  register: authorize
+  
+- debug: var=authorize

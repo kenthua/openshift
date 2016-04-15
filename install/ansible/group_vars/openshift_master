@@ -1,0 +1,5 @@
+default_context: default/ose-master-example-com:8443/system:admin
+public_master_url: https://ose-master.example.com:8443
+sub_domain: cloudapps.example.com
+master_host_name: ose-master.example.com
+registry_url: registry.access.redhat.com/openshift3/ose-${component}:${version}

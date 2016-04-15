@@ -1,0 +1,3 @@
+rhsm_pool_id: 8a85f981531cbc0401531e8d87734692
+rhsm_user: <<username>>
+rhsm_password: <<password>>
