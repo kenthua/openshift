@@ -1,4 +1,11 @@
 ---
+- hosts: custom_vms
+  remote_user: root
+  vars:
+    - config_network: false
+
+  roles:
+    - network_prereq
 
 - hosts: openshift
   remote_user: root

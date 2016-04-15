@@ -4,16 +4,19 @@
     regexp='(\s+)^DNS1=172.16.118.132'
     replace='\1DNS1=172.16.118.2'
   notify: restart network
+  when: config_network
 
 - name: Modify peerdns entry in - ifcfg
   replace: dest=/etc/sysconfig/network-scripts/ifcfg-eno16777736
     regexp='(\s+)^PEERDNS="no"'
     replace='\1PEERDNS="yes"'
   notify: restart network
+  when: config_network
 
 - name: Modify dns entries - dhclient.conf
   template: src=dhclient.conf dest=/etc/dhcp/dhclient.conf
   notify: restart network
+  when: config_network
 
 #- name: restart network
 #  service: name=network state=restarted

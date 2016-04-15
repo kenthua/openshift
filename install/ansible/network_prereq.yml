@@ -1,6 +1,0 @@
----
-- hosts: custom_vms
-  remote_user: root
-  
-  roles:
-    - network_prereq

@@ -9,7 +9,7 @@
   command: oc patch namespace/default -p '{"metadata":{"annotations":{"openshift.io/node-selector":"region=infra"}}}'
 
 - name: Make master schedulable
-  command: oadm manage-node {{ master_host_name }} --schedulable=true
+  command: oadm manage-node {{ master_hostname }} --schedulable=true
 
 - name: Add user alice
   user: 

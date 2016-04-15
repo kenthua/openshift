@@ -49,7 +49,7 @@
   shell: >
     oc process metrics-deployer-template -n openshift
     -v USE_PERSISTENT_STORAGE=false
-    -v HAWKULAR_METRICS_HOSTNAME="{{ master_host_name }}" | oc create -f -
+    -v HAWKULAR_METRICS_HOSTNAME="{{ master_hostname }}" | oc create -f -
   when: metrics_artifacts_out | failed
 
 - name: Wait for the deployer to finish

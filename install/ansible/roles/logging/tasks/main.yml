@@ -104,24 +104,88 @@
   shell: "oc process logging-support-template | oc create -f -"
   when: kibana_is_out | failed
 
-- name: Create local host mount directory for es
-  file: 
-    path: /mnt/logging
-    state: directory
+# we use a template to then lay down YAML to create the PV
+# this sets facts that are then consumed in the template
+- name: Set the facts for the logging PV template
+  set_fact:
+    pv_name: "logging-pv"
+    capacity: "10"
+    vol_path: "/var/export/vol1"
+    vol_hostname: "{{ master_hostname }}"
+
+- name: Create a YAML file for the PV for the logging volume
+  template:
+    src: pv.yml.j2
+    dest: /root/logging-pv.yaml
+
+- name: Check for logging PV
+  command: oc get pv "{{ pv_name }}"
+  register: logging_pv_out
+  ignore_errors: true
+
+# as before
+- name: Set the facts for the logging PVC template
+  set_fact:
+    claim_name: "logging-pvc"
+    capacity: "10"
+    access_mode: "ReadWriteMany"
+
+- name: Check for logging PVC
+  command: oc get pvc "{{ claim_name }}"
+  register: logging_pvc_out
+  ignore_errors: true
+
+- name: Create a YAML file for the PVC for the logging volume
+  template:
+    src: pvc.yml.j2
+    dest: /root/logging-pvc.yaml
+
+- name: Create PV from YAML for logging EBS volume
+  command: oc create -f /root/logging-pv.yaml
+  when: logging_pv_out | failed
+
+- name: Create PVC from YAML for logging EBS volume
+  command: oc create -f /root/logging-pvc.yaml
+  when: logging_pvc_out | failed
 
 - name: Check if es is still using empty directory
   command: "oc volume dc/{{ logging_es_out.stdout }}"
   register: logging_dc_out
 
+- name: Attach volume to es DC
+  command: >
+    oc volume dc/{{ logging_es_out.stdout }} 
+    --add 
+    --overwrite 
+    --type=persistentVolumeClaim
+    --claim-name=logging-pvc
+    --name=elasticsearch-storage 
+  when: "'empty directory' in logging_dc_out.stdout"
+
 #- name: Attach volume to es DC
-#  command: >
-#    oc volume dc/{{ logging_es_out.stdout }} 
-#    --add 
-#    --overwrite 
-#    --type=hostPath
-#    --name=elasticsearch-storage 
-#    --path=/mnt/logging
-#  when: "'empty directory' in logging_dc_out.stdout"
+# command: >
+#  oc volume dc/{{ logging_es_out.stdout }} --add --overwrite -t persistentVolumeClaim
+#  --claim-name=logging-pvc --name=elasticsearch-storage
+#when: "'empty directory' in logging_dc_out.stdout"
+
+- name: Check if fsGroup is set in logging DC
+  shell: "oc get dc/{{ logging_es_out.stdout }} -o yaml | grep fsGroup"
+  register: fsgroup_out
+  ignore_errors: true
+
+- name: Determine logging project supplemental group
+  command: oc get project logging -o json
+  register: logging_project_out
+  when: fsgroup_out | failed
+
+- name: Process the logging project json into a fact
+  set_fact:
+    logging_project_json: "{{ logging_project_out.stdout | from_json }}"
+  when: fsgroup_out | failed
+
+- name: Patch the es DC with the fsGroup
+  command: oc patch dc/{{ logging_es_out.stdout }} -p '{"spec":{"template":{"spec":{"securityContext":{"fsGroup":{{ logging_project_json["metadata"]["annotations"]["openshift.io/sa.scc.supplemental-groups"].split("/").0 }}}}}}}'
+  when: fsgroup_out | failed
 
 - name: Scale fluentd to number of nodes
   command: oc scale dc/logging-fluentd --replicas=2
