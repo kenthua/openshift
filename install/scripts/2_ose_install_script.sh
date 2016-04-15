@@ -24,6 +24,7 @@ deployment_type=openshift-enterprise
 osm_default_subdomain=cloudapps.example.com
 
 # set default node selector to only deploy apps into region primary
+# when this is set, registry and router cannot deploy because it doesn't know where to go
 osm_default_node_selector='region=primary'
 
 # session options

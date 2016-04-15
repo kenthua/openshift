@@ -15,13 +15,14 @@ API
 oc policy add-role-to-user edit \
             system:serviceaccount:logging:logging-deployer
 
-oc edit scc/privileged
+#oc edit scc/privileged
 #- system:serviceaccount:logging:aggregated-logging-fluentd
+oadm policy add-scc-to-user privileged system:serviceaccount:logging:aggregated-logging-fluentd
 
 oadm policy add-cluster-role-to-user cluster-reader \
               system:serviceaccount:logging:aggregated-logging-fluentd
 
-oc create -n openshift -f /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/infrastructure-templates/enterprise/logging-deployer.yaml
+oc create -n openshift -f /usr/share/openshift/examples/infrastructure-templates/enterprise/logging-deployer.yaml
 
 oc process logging-deployer-template -n openshift \
           -v KIBANA_OPS_HOSTNAME=kibana-ops.cloudapps.example.com,KIBANA_HOSTNAME=kibana-logging.cloudapps.example.com,ES_CLUSTER_SIZE=1,PUBLIC_MASTER_URL=https://ose-master.example.com:8443 \

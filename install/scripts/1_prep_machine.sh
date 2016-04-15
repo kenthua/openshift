@@ -41,5 +41,5 @@ yum -y clean all
 #$host; done
 
 # Modify sshd config (vagrant requirement)
-sed -i -e '/^#UseDNS/a UseDNS no' /etc/ssh/sshd_config
+#sed -i -e '/^#UseDNS/a UseDNS no' /etc/ssh/sshd_config
 

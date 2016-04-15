@@ -1,10 +1,23 @@
 #!/bin/bash
 
+# make the default namespace accept region=infra 
+# new untested method with "oc patch"
+oc patch namespace/default -p '{"metadata":{"annotations":{"openshift.io/node-selector":"region=infra"}}}'
+
+#oc get namespace default -o yaml > namespace.default.yaml
+#sed -i  '/annotations/ a \ \ \ \ openshift.io/node-selector: region=infra' namespace.default.yaml
+#oc replace -f namespace.default.yaml
+
 # make the master node schedulable
 oadm manage-node ose-master.example.com --schedulable=true
 
 # add users - with AllowAllPasswordIdentityProvider, oc login using any id / password
 useradd alice
+
+# add oclogin command for user alice
+echo "oc login https://ose-master.example.com:8443 -u alice -p password --insecure-skip-tls-verify=true" > /home/alice/oclogin.sh
+chown alice:alice /home/alice/oclogin.sh
+chmod 755 /home/alice/oclogin.sh
 
 # add user so they can access the local docker-registry
 oadm policy add-role-to-user system:registry alice
@@ -31,7 +44,7 @@ oadm ca create-server-cert --signer-cert=$CA/ca.crt \
 
 cat cloudapps.crt cloudapps.key $CA/ca.crt > cloudapps.router.pem
 
-# setup service account for router
+# setup router
 oadm router router --replicas=1 \
     --credentials='/etc/origin/master/openshift-router.kubeconfig' \
     --images='registry.access.redhat.com/openshift3/ose-${component}:${version}' \

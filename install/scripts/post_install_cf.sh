@@ -53,10 +53,21 @@ API
 oadm policy add-role-to-user edit system:serviceaccount:openshift-infra:metrics-deployer
 # heapster service account, access to list nodes and access stats
 oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:heapster
-# chose to generate self signed cert, will require browser to accept cert
-oc secrets new metrics-deployer nothing=/dev/null
+# choose to generate self signed cert, will require browser to accept cert
+#oc secrets new metrics-deployer nothing=/dev/null
+
+# Setup a key -- testing
+CA=/etc/origin/master
+oadm ca create-server-cert --signer-cert=$CA/ca.crt   --signer-key=$CA/ca.key --signer-serial=$CA/ca.serial.txt \
+  --hostnames='hawkular-metrics' --cert=metrics.crt --key=metrics.key
+cat metrics.crt metrics.key > metrics.pem
+oc secrets new metrics-deployer \
+   hawkular-metrics.pem=metrics.pem \
+   hawkular-metrics-ca.cert=/etc/origin/master/ca.crt
+
+
 # install metrics components
-oc process -f /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/infrastructure-templates/enterprise/metrics-deployer.yaml -v \
+oc process -f /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/v1.1/infrastructure-templates/enterprise/metrics-deployer.yaml -v \
 IMAGE_PREFIX=openshift3/,\
 IMAGE_VERSION=latest,\
 HAWKULAR_METRICS_HOSTNAME=$HAWKULAR_METRICS_HOSTNAME,\
