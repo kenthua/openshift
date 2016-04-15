@@ -1,0 +1,7 @@
+---
+- name: test
+  hosts: openshift_master
+  remote_user: root
+  roles:
+    - test
+  
