@@ -31,9 +31,22 @@
     - nfs-lock
     - nfs-idmap    
     
-- name: Set up iptables rules
-  copy: src=iptables-save dest=/etc/sysconfig/iptables
-  notify: restart iptables  
+#- name: Set up iptables rules
+#  copy: src=iptables-save dest=/etc/sysconfig/iptables
+#  notify: restart iptables  
+- name: Open the correct iptables ports
+  lineinfile: 
+    dest: "/etc/sysconfig/iptables"
+    regexp: "^-A OS_FIREWALL_ALLOW -p {{ item.protocol }} -m state --state NEW -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT$"
+    line: "-A OS_FIREWALL_ALLOW -p {{ item.protocol }} -m state --state NEW -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT"
+    insertafter: "^-A FORWARD -j REJECT --reject-with"
+  with_items:
+    - { protocol: tcp, port: 53248 }
+    - { protocol: tcp, port: 50825 }
+    - { protocol: tcp, port: 20048 }
+    - { protocol: tcp, port: 2049 }
+    - { protocol: tcp, port: 111 }
+  notify: restart iptables
 
 - name: Modify sysconfig/nfs RPCMOUNTOPTS
   replace:
