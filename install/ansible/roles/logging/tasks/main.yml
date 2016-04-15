@@ -113,15 +113,15 @@
   command: "oc volume dc/{{ logging_es_out.stdout }}"
   register: logging_dc_out
 
-- name: Attach volume to es DC
-  command: >
-    oc volume dc/{{ logging_es_out.stdout }} 
-    --add 
-    --overwrite 
-    --type=hostPath
-    --name=elasticsearch-storage 
-    --path=/mnt/logging
-  when: "'empty directory' in logging_dc_out.stdout"
+#- name: Attach volume to es DC
+#  command: >
+#    oc volume dc/{{ logging_es_out.stdout }} 
+#    --add 
+#    --overwrite 
+#    --type=hostPath
+#    --name=elasticsearch-storage 
+#    --path=/mnt/logging
+#  when: "'empty directory' in logging_dc_out.stdout"
 
 - name: Scale fluentd to number of nodes
   command: oc scale dc/logging-fluentd --replicas=2
