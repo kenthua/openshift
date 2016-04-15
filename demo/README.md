@@ -2,7 +2,7 @@
 Table of Contents
 ---
 
-<!-- TOC depth:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+<!-- TOC depthFrom:undefined depthTo:undefined withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Login to OpenShift](#login-to-openshift)
 - [Docker, kubernetes guestbook, 3.1](#docker-kubernetes-guestbook-31)
@@ -14,12 +14,13 @@ Table of Contents
 - [AB Deployment Testing, 3.1](#ab-deployment-testing-31)
 - [MLB Parks app and db, create app and add db, 3.1](#mlb-parks-app-and-db-create-app-and-add-db-31)
 - [MLB Parks app and db, template, 3.1](#mlb-parks-app-and-db-template-31)
-- [PHP, persistent volumes, 3.0](#php-persistent-volumes-30)
+- [PHP, persistent volumes, 3.1](#php-persistent-volumes-31)
 - [Ruby hello-world with db different project, Ruby Instant App, 3.0](#ruby-hello-world-with-db-different-project-ruby-instant-app-30)
 - [Ruby hello-world with db different project, 3.0](#ruby-hello-world-with-db-different-project-30)
 - [PHP Upload Application Template, Instant App, 3.0](#php-upload-application-template-instant-app-30)
 - [PHP Upload Application, Instant App, 3.0](#php-upload-application-instant-app-30)
 - [References](#references)
+
 <!-- /TOC -->
 
 # Login to OpenShift 
@@ -502,8 +503,8 @@ Browser - navigate to
 	http://mlbparks-mlbparkstemplate.cloudapps.example.com
 
 	
-# PHP, persistent volumes, 3.0
-Last Tested: 3.0.0  
+# PHP, persistent volumes, 3.1
+Last Tested: 3.1.1.6  
 (b4m) / 20m  
 
 If you don't have a persistent volume already created by root, reference this repo for a quick NFS & PV setup:  
@@ -515,8 +516,8 @@ Browser - New Project (Home view)
 
 Browser - Add to Project
 
+	php:5.6
 	https://github.com/kenthua/openshift-php-upload-demo.git
-	php:5.5
 	Name: openshift-php-upload
 	
 Create a claim on a volume
@@ -524,14 +525,16 @@ Create a claim on a volume
 	oc create -f pvc.json
 
 	oc get pvc
-	NAME       LABELS    STATUS    VOLUME
-	phpclaim   map[]     Bound     phpvolume
+	NAME       LABELS    STATUS    VOLUME    CAPACITY   ACCESSMODES   AGE
+	phpclaim   <none>    Bound     vol1      5Gi        RWX           5s
 
 Need to edit the deployment config to leverage the volume
 
-First, directly under the `template spec:` line, add this YAML (indented from the `spec:` line):
+	oc edit dc openshift-php-upload
 
-		volumes:
+First, directly under the `template \n spec:` line, add this YAML (indented from the `spec:` line):
+
+	  volumes:
       - name: php-upload-volume
         persistentVolumeClaim:
           claimName: phpclaim
@@ -539,21 +542,21 @@ First, directly under the `template spec:` line, add this YAML (indented from th
 Then to have the container mount this, add this YAML after the `terminationMessagePath:` line:
 
         volumeMounts:
-        - mountPath: /opt/openshift/src/uploaded
+        - mountPath: /opt/app-root/src/uploaded
           name: php-upload-volume
 
 Automatically triggers a new deploy
 
 Browser - navigate to
 
-	http://openshift-php-upload.php.cloudapps.example.com/form.html
+	http://openshift-php-upload-php.cloudapps.example.com/form.html
 
 Scale the php upload app
 
 	oc get rc
-	CONTROLLER               CONTAINER(S)           IMAGE(S)                                                                                                             SELECTOR                                                                  REPLICAS
-	openshift-php-upload-1   openshift-php-upload   172.30.56.67:5000/php/openshift-php-upload@sha256:cf64adfa53b74a3548ad9fd6104fdf481015c9d74316d7da75625640dbc7fa7f   deployment=openshift-php-upload-1,deploymentconfig=openshift-php-upload   0
-	openshift-php-upload-2   openshift-php-upload   172.30.56.67:5000/php/openshift-php-upload@sha256:cf64adfa53b74a3548ad9fd6104fdf481015c9d74316d7da75625640dbc7fa7f   deployment=openshift-php-upload-2,deploymentconfig=openshift-php-upload   1
+	CONTROLLER               CONTAINER(S)           IMAGE(S)                                                                                                             SELECTOR                                                                  REPLICAS   AGE
+	openshift-php-upload-1   openshift-php-upload   172.30.90.52:5000/php/openshift-php-upload@sha256:55e28b206ca7ead87e3053b538886293c56ad40863d08c55ddd406f044349245   deployment=openshift-php-upload-1,deploymentconfig=openshift-php-upload   0          3m
+	openshift-php-upload-2   openshift-php-upload   172.30.90.52:5000/php/openshift-php-upload@sha256:55e28b206ca7ead87e3053b538886293c56ad40863d08c55ddd406f044349245   deployment=openshift-php-upload-2,deploymentconfig=openshift-php-upload   1          1m
 	
 	oc scale --replicas=3 rc/openshift-php-upload-2
 	
@@ -569,23 +572,6 @@ ose-aio machine
 	
 	ls /var/export/vol1
 	
-	oc get service -n php
-	
-	curl http://172.30.117.104:8080/test.php
-	openshift-php-upload-2-oc0g5
-	curl http://172.30.117.104:8080/test.php
-	openshift-php-upload-2-31eng
-	curl http://172.30.117.104:8080/test.php
-	openshift-php-upload-2-53f4z
-	curl http://172.30.117.104:8080/test.php
-	openshift-php-upload-2-oc0g5
-	curl http://172.30.117.104:8080/test.php
-	openshift-php-upload-2-31eng
-	curl http://172.30.117.104:8080/test.php
-	openshift-php-upload-2-53f4z
-	curl http://172.30.117.104:8080/test.php 
-
-
 # Ruby hello-world with db different project, Ruby Instant App, 3.0
 Last Tested: 3.0.0  
 
