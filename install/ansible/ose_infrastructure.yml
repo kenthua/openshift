@@ -14,4 +14,4 @@
     - registry
     - router
     - logging
-#    - metrics
+    - metrics
