@@ -34,6 +34,8 @@
 #- name: Set up iptables rules
 #  copy: src=iptables-save dest=/etc/sysconfig/iptables
 #  notify: restart iptables  
+
+# use this until 2.0 for iptables module
 - name: Open the correct iptables ports
   lineinfile: 
     dest: "/etc/sysconfig/iptables"
