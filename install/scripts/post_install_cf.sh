@@ -88,6 +88,7 @@ oadm router management-metrics \
 -n default \
 --credentials=/etc/origin/master/openshift-router.kubeconfig \
 --service-account=router --ports='443:5000' \
---selector="kubernetes.io/hostname=$MASTER_HOSTNAME"
+--selector="kubernetes.io/hostname=$MASTER_HOSTNAME" \
 --stats-port=1937 \
 --host-network=false
+
