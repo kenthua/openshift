@@ -1,4 +1,4 @@
 ---
-- name: pre-pull images
+- name: pre-pull docker images
   command: "docker pull {{ item }}"
   with_items: preload_images

@@ -65,3 +65,10 @@
   until: rc_out.stdout | search("hawkular-cassandra-1")
   retries: 15
   delay: 10
+  
+- name: Insert metricsPublicURL to master-config
+  lineinfile:
+    dest: "/etc/origin/master/master-config.yaml"
+    regexp: "^  metricsPublicURL: https://{{ master_hostname}}/hawkular/metrics`"
+    line: "  metricsPublicURL: https://{{ master_hostname}}/hawkular/metrics"
+    insertafter: "^  publicURL:"

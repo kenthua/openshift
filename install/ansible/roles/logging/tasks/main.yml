@@ -189,3 +189,11 @@
 
 - name: Scale fluentd to number of nodes
   command: oc scale dc/logging-fluentd --replicas=2
+  
+- name: Insert loggingPublicURL to master-config
+  lineinfile:
+    dest: "/etc/origin/master/master-config.yaml"
+    regexp: "^  loggingPublicURL: https://kibana.{{ sub_domain }}"
+    line: "  loggingPublicURL: https://kibana.{{ sub_domain }}"
+    insertbefore: "^  publicURL:"
+  

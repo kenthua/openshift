@@ -35,6 +35,9 @@
 #  copy: src=iptables-save dest=/etc/sysconfig/iptables
 #  notify: restart iptables  
 
+- name: Backup iptables
+  shell: "iptables-save > /etc/sysconfig/iptables"
+
 # use this until 2.0 for iptables module
 - name: Open the correct iptables ports
   lineinfile: 
@@ -43,12 +46,16 @@
     line: "-A OS_FIREWALL_ALLOW -p {{ item.protocol }} -m state --state NEW -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT"
     insertafter: "^-A FORWARD -j REJECT --reject-with"
   with_items:
-    - { protocol: tcp, port: 53248 }
-    - { protocol: tcp, port: 50825 }
-    - { protocol: tcp, port: 20048 }
-    - { protocol: tcp, port: 2049 }
     - { protocol: tcp, port: 111 }
+    - { protocol: tcp, port: 2049 }
+    - { protocol: tcp, port: 20048 }
+    - { protocol: tcp, port: 50825 }
+    - { protocol: tcp, port: 53248 }
+    - { protocol: udp, port: 53248 }    
   notify: restart iptables
+  
+#- name: Restore iptables
+#  shell: "iptables-restore < /etc/sysconfig/iptables"
 
 - name: Modify sysconfig/nfs RPCMOUNTOPTS
   replace:
