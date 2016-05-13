@@ -1,4 +1,14 @@
 ---
-- name: pre-pull images
-  command: "docker pull {{ item }}"
-  with_items: preload_images
+- name: Install pre-req packages
+  yum: state=present
+    name={{ item }}
+  with_items:
+    - ntp
+    
+- name: Enable services
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - ntpd    

@@ -11,6 +11,7 @@
     - bridge-utils
     - bash-completion
     - deltarpm
+    - ntp # this is required for metrics to work, otherwise node times out of sync cause metric issues
 
 - name: Update packages
   yum: state=latest
@@ -28,3 +29,13 @@
   replace: dest=/etc/sysconfig/docker
     regexp="(\s+)^OPTIONS='--selinux-enabled'"
     replace="\1OPTIONS='--selinux-enabled --insecure-registry 172.30.0.0/16'"
+
+# this is for metrics 
+- name: Enable services
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - ntpd    
+
