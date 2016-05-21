@@ -1,4 +1,6 @@
----
+---    
+# before running this, openshift needs to be installed
+# need to edit /etc/dnsmasq.d/origin-upstream-dns.conf with server 
 - hosts: openshift_master
   remote_user: root
   vars:
@@ -7,10 +9,6 @@
       - vol2
   roles:
     - nfs
-    
-- hosts: openshift_master
-  remote_user: root
-  roles:
     - registry
     - router
     - logging

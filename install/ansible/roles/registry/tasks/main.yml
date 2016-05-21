@@ -11,23 +11,23 @@
 - name: Make master schedulable
   command: oadm manage-node {{ master_hostname }} --schedulable=true
 
-- name: Add user alice
+- name: Add user john
   user: 
-    name: alice
+    name: john
     state: present
 
 - name: Copy the oclogin.sh file
-  template: src=oclogin.sh dest=/home/alice/oclogin.sh
+  template: src=oclogin.sh dest=/home/john/oclogin.sh
 
 - name: Set permissions on file
   file:
-    owner: alice
-    group: alice
+    owner: john
+    group: john
     mode: 0755
-    path: /home/alice/oclogin.sh
+    path: /home/john/oclogin.sh
 
-- name: Add user alice to the system:registry
-  command: oadm policy add-role-to-user system:registry alice
+- name: Add user john to the system:registry
+  command: oadm policy add-role-to-user system:registry john
 
 - name: Create docker mount path
   file:

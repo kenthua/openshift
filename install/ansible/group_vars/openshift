@@ -1,6 +1,6 @@
 rhsm_pool_id: 8a85f981531cbc0401531e8d87734692
-rhsm_user: <<username>>
-rhsm_password: <<password>>
+rhsm_user: kenthua
+rhsm_password: r3dhatcom
 preload_images:
 - openshift3/nodejs-010-rhel7:latest
 - openshift3/ose-pod:latest

@@ -18,8 +18,8 @@
   command: oadm new-project logging --node-selector=""
   when: logging_out | failed
 
-#- name: Remove the default node selector on the logging project
-#  command: oc patch namespace/logging -p '{"metadata":{"annotations":{"openshift.io/node-selector":"region=infra"}}}'
+- name: Remove the default node selector on the logging project
+  command: oc patch namespace/logging -p '{"metadata":{"annotations":{"openshift.io/node-selector":"region=infra"}}}'
 #- name: Remove the default node selector on the logging project
 #  command: oc patch namespace/logging -p '{"metadata":{"annotations":{"openshift.io/node-selector":""}}}'
 

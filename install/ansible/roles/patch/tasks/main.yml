@@ -1,0 +1,13 @@
+---
+- name: Apply origin-dns patch
+  get_url: 
+    url: https://raw.githubusercontent.com/sdodson/openshift-ansible/b457e27d36099700c89dabcca94e6fe50f8af524/roles/openshift_node_dnsmasq/files/networkmanager/99-origin-dns.sh
+    dest: /etc/NetworkManager/dispatcher.d/99-origin-dns.sh
+    mode: 0755
+    force: yes
+  notify: 
+    - restart network
+    - restart openvswitch
+    - restart atomic-openshift-node
+    - restart atomic-openshift-master
+#after updating to the new origin dns, need to restart openvswitch and openshift for it to take effect, otherwise pod networking has issues, 172.30.0.1 dial tcp timeout
