@@ -18,10 +18,10 @@
   command: oadm new-project logging --node-selector=""
   when: logging_out | failed
 
-- name: Remove the default node selector on the logging project
-  command: oc patch namespace/logging -p '{"metadata":{"annotations":{"openshift.io/node-selector":"region=infra"}}}'
 #- name: Remove the default node selector on the logging project
-#  command: oc patch namespace/logging -p '{"metadata":{"annotations":{"openshift.io/node-selector":""}}}'
+#  command: oc patch namespace/logging -p '{"metadata":{"annotations":{"openshift.io/node-selector":"region=infra"}}}'
+- name: Remove the default node selector on the logging project
+  command: oc patch namespace/logging -p '{"metadata":{"annotations":{"openshift.io/node-selector":""}}}'
 
 - name: Switch to the logging project
   command: "oc project logging"
@@ -111,12 +111,12 @@
     pv_name: "logging-pv"
     capacity: "10"
     vol_path: "/var/export/vol1"
-    vol_hostname: "{{ master_hostname }}"
+    vol_hostname: "{{ nfs_internal_hostname }}"
 
 - name: Create a YAML file for the PV for the logging volume
   template:
     src: pv.yml.j2
-    dest: /root/logging-pv.yaml
+    dest: /root/logging-pv.yml
 
 - name: Check for logging PV
   command: oc get pv "{{ pv_name }}"
@@ -138,14 +138,14 @@
 - name: Create a YAML file for the PVC for the logging volume
   template:
     src: pvc.yml.j2
-    dest: /root/logging-pvc.yaml
+    dest: /root/logging-pvc.yml
 
 - name: Create PV from YAML for logging EBS volume
-  command: oc create -f /root/logging-pv.yaml
+  shell: cat /root/logging-pv.yml | oc create -f -
   when: logging_pv_out | failed
 
 - name: Create PVC from YAML for logging EBS volume
-  command: oc create -f /root/logging-pvc.yaml
+  shell: cat /root/logging-pvc.yml | oc create -f -
   when: logging_pvc_out | failed
 
 - name: Check if es is still using empty directory

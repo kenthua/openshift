@@ -1,0 +1,58 @@
+---
+- hosts: workstation
+  remote_user: root
+  vars_files: 
+    - ose_ddns_vars.yml
+  roles:
+    - dns_config
+    
+- name: update master config urls
+  hosts: openshift_master
+  remote_user: root
+  vars_files: 
+    - ose_ddns_vars.yml
+            
+  tasks:
+    - name: replace master public url
+      replace: 
+        dest: "{{ master_config }}"
+        regexp: '(\s+)masterPublicURL: {{ original_url }}'
+        replace: '\1masterPublicURL: {{ new_url }}'
+      notify: 
+        - restart atomic-openshift-master
+    - name: replace public url
+      replace: 
+        dest: "{{ master_config }}"
+        regexp: '(\s+)publicURL: {{ original_url }}'
+        replace: '\1publicURL: {{ new_url }}'
+      notify: 
+        - restart atomic-openshift-master
+    - name: asset public url
+      replace: 
+        dest: "{{ master_config }}"
+        regexp: '(\s+)assetPublicURL: {{ original_url }}'
+        replace: '\1assetPublicURL: {{ new_url }}'   
+      notify: 
+        - restart atomic-openshift-master
+#    - name: master url
+#      replace: 
+#        dest: "{{ master_config }}"
+#        regexp: '(\s+)masterURL: {{ original_url }}'
+#        replace: '\1masterURL: {{ new_url }}'            
+    - name: replace subdomain
+      replace: 
+        dest: "{{ master_config }}"
+        regexp: '(\s+)subdomain:  \"{{ old_subdomain }}\"'
+        replace: '\1subdomain: \"{{ new_subdomain }}\"'  
+      notify: 
+        - restart atomic-openshift-master
+    # need to retart because of some issue with atomic and possibly with hostname, other nodes recover    
+    - name: restart atomic-openshift-node
+      service:
+        name: atomic-openshift-node
+        state: restarted
+  handlers:
+    - name: restart atomic-openshift-master
+      service:
+        name: atomic-openshift-master
+        state: restarted    

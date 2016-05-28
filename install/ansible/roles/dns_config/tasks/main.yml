@@ -1,0 +1,50 @@
+---
+  - name: install EPEL repo
+    yum:
+      name: "{{ epel_repo_url }}"
+      state: present
+    register: result
+    until: '"failed" not in result'
+    retries: 5
+    delay: 10
+
+  - name: import EPEL GPG key
+    rpm_key:
+      key: "{{ epel_repo_gpg_key_url }}"
+      state: present
+    
+  - name: install packages
+    yum:
+      name: "{{ item }}"
+      state: present
+    with_items:
+    - bind
+    - python-httplib2
+
+  - name: setup named.conf
+    template: 
+      src: named.conf.j2
+      dest: /etc/named.conf
+    notify: restart named
+    
+  - name: setup example zone
+    template:
+      src: example.com.db.j2
+      dest: /var/named/zones/example.com.db
+    notify: restart named
+  
+  - name: setup subdomain zone
+    template:
+      src: subdomain.db.j2
+      dest: "/var/named/zones/{{ subdomain }}.{{ domain }}.db"
+    notify: restart named
+            
+  - name: configure dns external ip on google domains
+    uri:
+      url: https://domains.google.com/nic/update?hostname={{ nameserver_name }}.{{ domain }}&myip={{ dns_external_ip }}
+      method: POST
+      user: "{{ ddns_user }}"
+      password: "{{ ddns_password }}"
+      HEADER_content-length: "0"
+      status_code: 200
+   

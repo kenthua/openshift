@@ -52,7 +52,7 @@
   shell: >
     oc process metrics-deployer-template -n openshift
     -v USE_PERSISTENT_STORAGE=false
-    -v HAWKULAR_METRICS_HOSTNAME="{{ master_hostname }}" | oc create -f -
+    -v HAWKULAR_METRICS_HOSTNAME="metrics.{{ sub_domain }}" | oc create -f -
   when: metrics_artifacts_out | failed
 
 - name: Wait for the deployer to finish
@@ -72,6 +72,6 @@
 - name: Insert metricsPublicURL to master-config
   lineinfile:
     dest: "/etc/origin/master/master-config.yaml"
-    regexp: "^  metricsPublicURL: https://{{ master_hostname}}/hawkular/metrics`"
-    line: "  metricsPublicURL: https://{{ master_hostname}}/hawkular/metrics"
+    regexp: "^  metricsPublicURL: https://metrics.{{ sub_domain }}/hawkular/metrics`"
+    line: "  metricsPublicURL: https://metrics.{{ sub_domain }}/hawkular/metrics"
     insertafter: "^  publicURL:"

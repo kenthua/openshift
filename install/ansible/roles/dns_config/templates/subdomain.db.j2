@@ -1,0 +1,13 @@
+$ORIGIN  .
+$TTL 1  ;  1 seconds (for testing only)
+{{ subdomain }}.{{ domain }} IN SOA {{ nameserver_name }}.{{ domain }}.  root.{{ subdomain }}.{{ domain }}.  (
+  2011112904  ;  serial
+  60  ;  refresh (1 minute)
+  15  ;  retry (15 seconds)
+  1800  ;  expire (30 minutes)
+  10  ; minimum (10 seconds)
+)
+  NS {{ nameserver_name }}.{{ domain }}.
+$ORIGIN {{ subdomain }}.{{ domain }}.
+master A {{ master_external_ip }}
+*.{{ ose_wildcard }} A {{ infra_external_ip }}
