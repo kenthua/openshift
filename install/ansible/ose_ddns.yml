@@ -25,15 +25,11 @@
         dest: "{{ master_config }}"
         regexp: '(\s+)publicURL: {{ original_url }}'
         replace: '\1publicURL: {{ new_url }}'
-      notify: 
-        - restart atomic-openshift-master
     - name: asset public url
       replace: 
         dest: "{{ master_config }}"
         regexp: '(\s+)assetPublicURL: {{ original_url }}'
         replace: '\1assetPublicURL: {{ new_url }}'   
-      notify: 
-        - restart atomic-openshift-master
 #    - name: master url
 #      replace: 
 #        dest: "{{ master_config }}"
@@ -44,15 +40,18 @@
         dest: "{{ master_config }}"
         regexp: '(\s+)subdomain:  \"{{ old_subdomain }}\"'
         replace: '\1subdomain: \"{{ new_subdomain }}\"'  
-      notify: 
-        - restart atomic-openshift-master
+
     # need to retart because of some issue with atomic and possibly with hostname, other nodes recover    
-    - name: restart atomic-openshift-node
+    - name: restart atomic openshift
       service:
-        name: atomic-openshift-node
+        name: "{{ item }}"
         state: restarted
-  handlers:
-    - name: restart atomic-openshift-master
-      service:
-        name: atomic-openshift-master
-        state: restarted    
+      with_items:
+        - atomic-openshift-master
+        - atomic-openshift-node
+
+#  handlers:
+#    - name: restart atomic-openshift-master
+#      service:
+#        name: atomic-openshift-master
+#        state: restarted    

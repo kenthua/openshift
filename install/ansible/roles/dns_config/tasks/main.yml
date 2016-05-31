@@ -47,4 +47,27 @@
       password: "{{ ddns_password }}"
       HEADER_content-length: "0"
       status_code: 200
-   
+  
+  - name: Copy the oclogin.sh file root
+    template: 
+      src: oclogin.sh.j2
+      dest: /root/oclogin.sh
+
+  - name: Set permissions on file root
+    file:
+      owner: root
+      group: root
+      mode: 0755
+      path: /root/oclogin.sh 
+      
+  - name: Copy the oclogin.sh file user
+    template: 
+      src: oclogin.sh.j2
+      dest: /home/user/oclogin.sh
+
+  - name: Set permissions on file user
+    file:
+      owner: user
+      group: user
+      mode: 0755
+      path: /home/user/oclogin.sh       

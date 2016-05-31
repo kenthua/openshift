@@ -1,8 +1,8 @@
-master_external_ip: 153.92.33.83
-infra_external_ip: 153.92.35.244
-dns_external_ip: 153.92.35.64
-ddns_user: oFFCJ4LmIDSLzqdo
-ddns_password: 9d41Zj9M9idLTyog
+master_external_ip: 104.197.6.245
+infra_external_ip: 104.155.143.68
+dns_external_ip: 104.154.250.157
+ddns_user: << your user >>
+ddns_password: << your pass >>
 
 domain: techknowledgeshare.net
 subdomain: ose
@@ -25,3 +25,4 @@ original_url: https://master.ose.techknowledgeshare.net
 new_url: https://master.{{ subdomain }}.{{ domain }}
 old_subdomain: apps.ose.techknowledgeshare.net
 new_subdomain: "{{ ose_wildcard }}.{{ subdomain }}.{{ domain }}"
+public_master_url: "{{ new_url }}:8443"
