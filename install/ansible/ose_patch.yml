@@ -1,5 +1,6 @@
 ---
+# no longer needed
 - hosts: openshift
   remote_user: root
   roles:
-    - patch
+#    - patch

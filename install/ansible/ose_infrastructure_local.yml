@@ -1,6 +1,6 @@
 ---    
 # before running this, openshift needs to be installed
-- hosts: openshift_master
+- hosts: openshift_local_master
   remote_user: root
   vars:
     folders:
@@ -11,6 +11,7 @@
       - vol5
   roles:
     - nfs
+    - ose_no_infra # run this if the master is also the infra_node
     - registry
     - router
     - logging

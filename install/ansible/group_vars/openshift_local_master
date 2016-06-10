@@ -2,4 +2,7 @@ default_context: default/ose-master-example-com:8443/system:admin
 public_master_url: https://ose-master.example.com:8443
 sub_domain: cloudapps.example.com
 nfs_internal_hostname: ose-master.example.com
-registry_url: registry.access.redhat.com/openshift3/ose-${component}:${version}
+registry_image_url: registry.access.redhat.com/openshift3/ose-${component}:${version}
+master_internal_hostname: ose-master.example.com
+master_external_hostname: ose-master.example.com
+

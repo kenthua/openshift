@@ -1,0 +1,1 @@
+oc login {{ public_master_url }} -u john -p password --insecure-skip-tls-verify=true
