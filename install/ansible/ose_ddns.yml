@@ -1,5 +1,6 @@
 ---
-- hosts: workstation
+- name: update workstation dns configuration
+  hosts: workstation
   remote_user: root
   vars_files: 
     - ose_ddns_vars.yml
@@ -10,78 +11,6 @@
   hosts: openshift_master
   remote_user: root
   vars_files: 
-    - ose_ddns_vars.yml
-            
-  tasks:
-    - name: replace master public url
-      replace: 
-        dest: "{{ master_config }}"
-        regexp: '(\s+)masterPublicURL: {{ original_url }}'
-        replace: '\1masterPublicURL: {{ new_url }}'
-    - name: replace public url
-      replace: 
-        dest: "{{ master_config }}"
-        regexp: '(\s+)publicURL: {{ original_url }}'
-        replace: '\1publicURL: {{ new_url }}'
-    - name: asset public url
-      replace: 
-        dest: "{{ master_config }}"
-        regexp: '(\s+)assetPublicURL: {{ original_url }}'
-        replace: '\1assetPublicURL: {{ new_url }}'   
-    - name: logging public url
-      replace: 
-        dest: "{{ master_config }}"
-        regexp: '(\s+)loggingPublicURL: {{ original_logging_url }}'
-        replace: '\1loggingPublicURL: {{ new_logging_url }}'  
-    - name: metrics public url
-      replace: 
-        dest: "{{ master_config }}"
-        regexp: '(\s+)metricsPublicURL: {{ original_metrics_url }}'
-        replace: '\1metricsPublicURL: {{ new_metrics_url }}'           
-    - name: replace subdomain
-      replace: 
-        dest: "{{ master_config }}"
-        regexp: '{{ old_wildcard_fqdn }}'
-        replace: '{{ new_wildcard_fqdn }}' 
-    - name: replace corsAllowedOrigins
-      replace:
-        dest: "{{ master_config }}"
-        regexp: '  - master.{{ old_subdomain }}.{{ domain }}'
-        replace: '  - master.{{ subdomain }}.{{ domain }}' 
-      
-    - name: switch to correct context
-      command: "oc config use-context {{ default_context }}"
-    - name: switch to project openshift-infra
-      command: "oc project openshift-infra"        
-    - name: update hawkular metrics route
-      command: oc patch route hawkular-metrics -p '{"spec":{"host":"metrics.{{ new_wildcard_fqdn }}"}}"'
-    - name: switch to logging project
-      command: "oc project logging"       
-    - name: update kibana logging route
-      command: oc patch route kibana -p '{"spec":{"host":"kibana.{{ new_wildcard_fqdn }}"}}'
-    - name: update kibaba-proxy oauth redirects
-      command: oc patch oauthclient kibana-proxy -p '{"redirectURIs":["https://kibana.{{ new_wildcard_fqdn }}","https://kibana-ops.example.com"]}'
-    - name: extract dc logging-kibana to yaml
-      shell: oc get dc/logging-kibana -o yaml > /root/dc-logging-kibana.yml
-    - name: edit dc logging-kibana yaml
-      replace:
-        dest: /root/dc-logging-kibana.yml
-        regexp: '.{{ old_subdomain }}.'
-        replace: '.{{ subdomain }}.'
-    - name: replace dc logging kibana with yaml
-      shell: "cat /root/dc-logging-kibana.yml | oc replace -f -"
-      
-    # need to restart because of some issue with atomic and possibly with hostname, other nodes recover    
-    - name: restart atomic openshift
-      service:
-        name: "{{ item }}"
-        state: restarted
-      with_items:
-        - atomic-openshift-master
-        - atomic-openshift-node
-
-#  handlers:
-#    - name: restart atomic-openshift-master
-#      service:
-#        name: atomic-openshift-master
-#        state: restarted    
+    - ose_ddns_vars.yml        
+  roles:
+    - ose_master_dns_update
