@@ -37,23 +37,31 @@
   
 - name: switch to correct context
   command: "oc config use-context {{ default_context }}"
+  
 - name: switch to project openshift-infra
   command: "oc project openshift-infra"        
+
 - name: update hawkular metrics route
   command: oc patch route hawkular-metrics -p '{"spec":{"host":"metrics.{{ new_wildcard_fqdn }}"}}"'
+
 - name: switch to logging project
   command: "oc project logging"       
+
 - name: update kibana logging route
   command: oc patch route kibana -p '{"spec":{"host":"kibana.{{ new_wildcard_fqdn }}"}}'
+
 - name: update kibaba-proxy oauth redirects
   command: oc patch oauthclient kibana-proxy -p '{"redirectURIs":["https://kibana.{{ new_wildcard_fqdn }}","https://kibana-ops.example.com"]}'
+
 - name: extract dc logging-kibana to yaml
   shell: oc get dc/logging-kibana -o yaml > /root/dc-logging-kibana.yml
+
 - name: edit dc logging-kibana yaml
   replace:
     dest: /root/dc-logging-kibana.yml
     regexp: '.{{ old_subdomain }}.'
     replace: '.{{ subdomain }}.'
+
 - name: replace dc logging kibana with yaml
   shell: "cat /root/dc-logging-kibana.yml | oc replace -f -"
   
@@ -65,6 +73,8 @@
   with_items:
     - atomic-openshift-master
     - atomic-openshift-node
+  tags:
+    - update_dns
 
 #  handlers:
 #    - name: restart atomic-openshift-master

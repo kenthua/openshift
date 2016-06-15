@@ -38,6 +38,8 @@
       src: subdomain.db.j2
       dest: "/var/named/zones/{{ subdomain }}.{{ domain }}.db"
     notify: restart named
+    tags:
+      - update_dns
             
   - name: set the dns external ip on google domains
     uri:
@@ -49,11 +51,15 @@
       status_code: 200
       return_content: yes
     register: response
+    tags:
+      - update_dns
 
   - name: check if google domains authentication was successful
     fail:
       msg: "response from google domains is badauth"
     when: "'badauth' in response.content"
+    tags:
+      - update_dns
   
   - name: copy the oclogin.sh file root
     template: 
