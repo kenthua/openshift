@@ -1,14 +1,14 @@
-ddns_user: "{{ lookup('env', 'GOOGLE_DDNS_USER') }}"
-ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') }}"
-ravello_user: "{{ lookup('env', 'RAVELLO_USER') }}"
-ravello_password: "{{ lookup('env', 'RAVELLO_PASSWORD') }}"
-
 ravello_application_name: OSE3.2-installed-v1.03-ose
 
 domain: techknowledgeshare.net
 subdomain: ose
 nameserver_name: ns1
 ose_wildcard: apps
+
+ddns_user: "{{ lookup('env', 'GOOGLE_DDNS_USER') }}"
+ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') }}"
+ravello_user: "{{ lookup('env', 'RAVELLO_USER') }}"
+ravello_password: "{{ lookup('env', 'RAVELLO_PASSWORD') }}"
 
 #
 # no need to change anything below here
