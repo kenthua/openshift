@@ -3,7 +3,7 @@
   hosts: all
   gather_facts: true
   vars_files: 
-    - ose_ddns_vars.yml
+    - vars.yml
   roles:
     - ansible-xml
     - ravello_ip_pull  

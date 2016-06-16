@@ -63,7 +63,7 @@
   debug:
     msg: master_ip={{ master_ip }} | infra_ip={{ infra_ip }} | workstation_ip={{ workstation_ip }}
     
-- name: save new ips to hosts-rav file
+- name: save new ips to hosts file
   template:
-    src: hosts-rav.j2
-    dest: ./hosts-rav 
+    src: hosts.j2
+    dest: ./hosts 

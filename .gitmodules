@@ -1,3 +1,3 @@
-[submodule "install/ansible/roles/ansible-xml"]
-	path = install/ansible/roles/ansible-xml
+[submodule "install/ansible-ravello/roles/ansible-xml"]
+	path = install/ansible-ravello/roles/ansible-xml
 	url = https://github.com/cmprescott/ansible-xml
