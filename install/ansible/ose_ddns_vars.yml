@@ -1,7 +1,7 @@
-ddns_user: <<>>
-ddns_password: <<>>
-ravello_user: <<>>
-ravello_password: <<>>
+ddns_user: "{{ lookup('env', 'GOOGLE_DDNS_USER') }}"
+ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') }}"
+ravello_user: "{{ lookup('env', 'RAVELLO_USER') }}"
+ravello_password: "{{ lookup('env', 'RAVELLO_PASSWORD') }}"
 
 ravello_application_name: OSE3.2-installed-v1.03-ose
 
