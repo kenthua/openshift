@@ -23,6 +23,8 @@ Updated for OSE 3.2
 ## Scripted Method - Initial Run
 0. Prerequisite: python-lxml
   * `sudo pip install lxml`
+0. Different way to clone to pull the ansible-xml project as well
+  * `git clone --recursive https://github.com/kenthua/openshift`
 0. Modify `ose_ddns_vars.yml` accordingly with configuration
 0. `ravello.sh`
 
