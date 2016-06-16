@@ -1,0 +1,69 @@
+---
+- name: login to ravello
+  uri:
+    url: https://cloud.ravellosystems.com/api/v1/login
+    method: POST
+    user: "{{ ravello_user }}"
+    password: "{{ ravello_password }}"
+    status_code: 200
+    return_content: yes
+  register: response
+
+- name: pull all ravello applications
+  uri:
+    url: https://cloud.ravellosystems.com/api/v1/applications
+    method: GET
+    status_code: 200
+    return_content: yes
+    HEADER_Cookie: "{{ response.set_cookie }}"
+  register: apps_response
+
+- name: extract app id for specified application
+  xml: 
+    xmlstring: "{{ apps_response.content }}"
+    xpath: //*[.="{{ ravello_application_name }}"]/..
+    content: attribute
+  register: app_response
+
+- set_fact:
+    application_id: "{{ app_response.matches[0]['{http://ravellosystems.com/management}application'].id }}"
+
+- name: application id
+  debug:
+    msg: "{{ application_id }}"
+
+- name: get the set of vms for the application
+  uri:
+    url: https://cloud.ravellosystems.com/api/v1/applications/{{ application_id }}/vms;deployment
+    method: GET
+    status_code: 200
+    return_content: yes
+    HEADER_Cookie: "{{ response.set_cookie }}"
+  register: vms_response
+  
+- name: extract the ips from the deployed application
+  xml: 
+    xmlstring: "{{ vms_response.content }}"
+    xpath: //*[.="{{ item }}"]/following-sibling::ns1:networkConnections/child::ns1:ipConfig/ns1:publicIp
+    content: text
+    namespaces:
+      ns1: http://ravellosystems.com/management
+  register: raw_ips
+  with_items:
+    - 1master
+    - 2infra
+    - 99workstation 
+
+- set_fact:
+    master_ip: "{{ raw_ips.results[0].matches[0]['{http://ravellosystems.com/management}publicIp'] }}"
+    infra_ip: "{{ raw_ips.results[1].matches[0]['{http://ravellosystems.com/management}publicIp'] }}"
+    workstation_ip: "{{ raw_ips.results[2].matches[0]['{http://ravellosystems.com/management}publicIp'] }}"
+
+- name: output ips pulled
+  debug:
+    msg: master_ip={{ master_ip }} | infra_ip={{ infra_ip }} | workstation_ip={{ workstation_ip }}
+    
+- name: save new ips to hosts-rav file
+  template:
+    src: hosts-rav.j2
+    dest: ./hosts-rav 

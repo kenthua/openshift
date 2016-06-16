@@ -1,3 +1,4 @@
 ---
-- name: debug
-  setup: msg={{ inventory_hostname }}
+  - debug:
+      msg: "{{ hostvars }}"
+      

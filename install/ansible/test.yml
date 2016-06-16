@@ -1,9 +1,9 @@
 ---
 - name: test
-  hosts: my_hosts
-  remote_user: root
-  gather_facts: false
+  hosts: all
+  gather_facts: true
   
   roles:
+    - ansible-xml
     - test
   

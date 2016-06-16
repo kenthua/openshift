@@ -1,0 +1,9 @@
+---
+- name: get ravello ips
+  hosts: all
+  gather_facts: true
+  vars_files: 
+    - ose_ddns_vars.yml
+  roles:
+    - ansible-xml
+    - ravello_ip_pull  
