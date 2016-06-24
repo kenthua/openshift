@@ -1,7 +1,8 @@
 ---
 - name: get ravello ips
-  hosts: all
+  hosts: localhost
   gather_facts: true
+  connection: local
   vars_files: 
     - vars.yml
   roles:
