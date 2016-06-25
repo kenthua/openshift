@@ -1,1 +1,1 @@
-oc login {{ public_master_url }} --insecure-skip-tls-verify=true
+oc login https://{{ app_name.master }}.{{ subdomain }}.{{ domain }}:8443 --insecure-skip-tls-verify=true

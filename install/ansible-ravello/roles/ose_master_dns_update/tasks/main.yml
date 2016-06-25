@@ -2,28 +2,28 @@
 - name: replace master public url
   replace: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)masterPublicURL: {{ original_url }}'
-    replace: '\1masterPublicURL: {{ new_url }}'
+    regexp: '(\s+)masterPublicURL: {{ original.master_url }}'
+    replace: '\1masterPublicURL: {{ new.master_url }}'
 - name: replace public url
   replace: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)publicURL: {{ original_url }}'
-    replace: '\1publicURL: {{ new_url }}'
+    regexp: '(\s+)publicURL: {{ original.master_url }}'
+    replace: '\1publicURL: {{ new.master_url }}'
 - name: asset public url
   replace: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)assetPublicURL: {{ original_url }}'
-    replace: '\1assetPublicURL: {{ new_url }}'   
+    regexp: '(\s+)assetPublicURL: {{ original.master_url }}'
+    replace: '\1assetPublicURL: {{ new.master_url }}'   
 - name: logging public url
   replace: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)loggingPublicURL: {{ original_logging_url }}'
-    replace: '\1loggingPublicURL: {{ new_logging_url }}'  
+    regexp: '(\s+)loggingPublicURL: {{ original.logging_url }}'
+    replace: '\1loggingPublicURL: {{ new.logging_url }}'  
 - name: metrics public url
   replace: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)metricsPublicURL: {{ original_metrics_url }}'
-    replace: '\1metricsPublicURL: {{ new_metrics_url }}'           
+    regexp: '(\s+)metricsPublicURL: {{ original.metrics_url }}'
+    replace: '\1metricsPublicURL: {{ new.metrics_url }}'           
 - name: replace subdomain
   replace: 
     dest: "{{ master_config }}"
@@ -42,7 +42,7 @@
   command: "oc project openshift-infra"        
 
 - name: update hawkular metrics route
-  command: oc patch route hawkular-metrics -p '{"spec":{"host":"metrics.{{ new_wildcard_fqdn }}"}}"'
+  command: oc patch route hawkular-metrics -p '{"spec":{"host":"{{ app_name.metrics }}.{{ new_wildcard_fqdn }}"}}"'
 
 - name: switch to logging project
   command: "oc project logging"       
@@ -51,7 +51,7 @@
   command: oc patch route kibana -p '{"spec":{"host":"kibana.{{ new_wildcard_fqdn }}"}}'
 
 - name: update kibaba-proxy oauth redirects
-  command: oc patch oauthclient kibana-proxy -p '{"redirectURIs":["https://kibana.{{ new_wildcard_fqdn }}","https://kibana-ops.example.com"]}'
+  command: oc patch oauthclient kibana-proxy -p '{"redirectURIs":["https://{{ app_name.kibana }}.{{ new_wildcard_fqdn }}","https://kibana-ops.example.com"]}'
 
 - name: extract dc logging-kibana to yaml
   shell: oc get dc/logging-kibana -o yaml > /root/dc-logging-kibana.yml

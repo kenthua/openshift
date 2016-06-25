@@ -1,7 +1,12 @@
----
+---    
+  - name: check for ddns credentials
+    fail:
+      msg: Google Domains - GOOGLE_DDNS_USER and GOOGLE_DDNS_PASSWORD environment variable must be set.
+    when: ddns_user == '' or ddns_password == ''
+    
   - name: install EPEL repo
     yum:
-      name: "{{ epel_repo_url }}"
+      name: "{{ epel_repo.url }}"
       state: present
     register: result
     until: '"failed" not in result'
@@ -10,7 +15,7 @@
 
   - name: import EPEL GPG key
     rpm_key:
-      key: "{{ epel_repo_gpg_key_url }}"
+      key: "{{ epel_repo.gpg_key_url }}"
       state: present
     
   - name: install packages
@@ -43,7 +48,7 @@
             
   - name: set the dns external ip on google domains
     uri:
-      url: https://domains.google.com/nic/update?hostname={{ nameserver_name }}.{{ domain }}&myip={{ dns_external_ip }}
+      url: https://domains.google.com/nic/update?hostname={{ nameserver_name }}.{{ domain }}&myip={{ ip.external.dns }}
       method: POST
       user: "{{ ddns_user }}"
       password: "{{ ddns_password }}"

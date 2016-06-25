@@ -1,0 +1,19 @@
+---
+ip:
+  external:
+    master: "{{ hostvars[groups['openshift_master'][0]].inventory_hostname }}"
+    infra: "{{ hostvars[groups['openshift_infra'][0]].inventory_hostname }}"
+    dns: "{{ hostvars[groups['workstation'][0]].inventory_hostname }}"
+  internal:
+    dns: 10.0.0.100
+    master: 10.0.0.2
+    infra: 10.0.0.3
+    node1: 10.0.0.4
+    node2: 10.0.0.5
+
+ansible_distribution_major_version: 7
+
+epel_repo:
+  url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+  gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+

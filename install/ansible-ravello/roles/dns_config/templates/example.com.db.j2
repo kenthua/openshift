@@ -9,9 +9,9 @@ example.com       IN SOA  ns1.example.com. hostmaster.example.com. (
             )
         NS  ns1.example.com.
 $ORIGIN example.com.
-ns1         A   {{ dns_internal_ip }}
-master  A   {{ master_internal_ip }}
-infra   A   {{ infra_internal_ip }}
-node01   A   {{ node1_internal_ip }}
-node02   A   {{ node2_internal_ip }}
-workstation A {{ dns_internal_ip }}
+ns1         A   {{ ip.internal.dns }}
+master  A   {{ ip.internal.master }}
+infra   A   {{ ip.internal.infra }}
+node01   A   {{ ip.internal.node1 }}
+node02   A   {{ ip.internal.node2 }}
+workstation A {{ ip.internal.dns }}

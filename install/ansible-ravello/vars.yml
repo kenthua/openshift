@@ -1,44 +1,24 @@
 ravello_application_name: OSE3.2-installed-v1.03-ose
 
-domain: techknowledgeshare.net
-subdomain: ose
-nameserver_name: ns1
 ose_wildcard: apps
+subdomain: ose
+domain: techknowledgeshare.net
+nameserver_name: ns1
 
-ddns_user: "{{ lookup('env', 'GOOGLE_DDNS_USER') }}"
-ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') }}"
 ravello_user: "{{ lookup('env', 'RAVELLO_USER') }}"
 ravello_password: "{{ lookup('env', 'RAVELLO_PASSWORD') }}"
+ddns_user: "{{ lookup('env', 'GOOGLE_DDNS_USER') }}"
+ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') }}"
 
 #
 # no need to change anything below here
 #
 
-master_external_ip: "{{ hostvars[groups['openshift_master'][0]].inventory_hostname }}"
-infra_external_ip: "{{ hostvars[groups['openshift_infra'][0]].inventory_hostname }}"
-dns_external_ip: "{{ hostvars[groups['workstation'][0]].inventory_hostname }}"
-
-dns_internal_ip: 10.0.0.100
-master_internal_ip: 10.0.0.2
-infra_internal_ip: 10.0.0.3
-node1_internal_ip: 10.0.0.4
-node2_internal_ip: 10.0.0.5
-
-ansible_distribution_major_version: 7
-
-epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
-epel_repo_gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-
-default_context: default/master-example-com:8443/system:admin
-
-master_config: /etc/origin/master/master-config.yaml
-original_url: https://master.ose.techknowledgeshare.net
-new_url: https://master.{{ subdomain }}.{{ domain }}
-original_logging_url: https://kibana.apps.ose.techknowledgeshare.net
-new_logging_url: https://kibana.{{ ose_wildcard }}.{{ subdomain }}.{{ domain }}
-original_metrics_url: https://metrics.apps.ose.techknowledgeshare.net/hawkular/metrics
-new_metrics_url: https://metrics.{{ ose_wildcard }}.{{ subdomain }}.{{ domain }}/hawkular/metrics
-old_wildcard_fqdn: apps.ose.techknowledgeshare.net
-new_wildcard_fqdn: "{{ ose_wildcard }}.{{ subdomain }}.{{ domain }}"
-public_master_url: "{{ new_url }}:8443"
+old_ose_wildcard: apps
 old_subdomain: ose
+old_domain: techknowledgeshare.net
+
+app_name:
+  kibana: kibana
+  metrics: metrics
+  master: master

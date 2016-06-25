@@ -1,4 +1,9 @@
----
+---    
+- name: check for ravello credentials
+  fail:
+    msg: Ravello - RAVELLO_USER and RAVELLO_PASSWORD environment variable must be set.
+  when: ravello_user == '' or ravello_password == ''    
+
 - name: login to ravello
   uri:
     url: https://cloud.ravellosystems.com/api/v1/login
