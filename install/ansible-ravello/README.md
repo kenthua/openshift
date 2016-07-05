@@ -32,3 +32,13 @@ OSE 3.2 ansible ravello scripts
 0. `ansible-playbook --private-key=ose-ravello.pem -i hosts-rav ose_ddns.yml --tags "update_dns"`
   * This will just run the tasks to update the dns server with the new ips.
   
+## Connecting CloudForms 4.1 to the OCP environment
+0. From the workstation machine
+  * `./oclogin.sh` - login as `admin`
+  * `oc sa get-token -n management-infra management-admin` - to extract the token
+0. On CloudForms 4.1, Compute > Containers > Providers > Configuration > Add a new Containers Providers
+  * Default endpoint: Use the token from the previous command
+  * Hawkular endpoint: `metrics.<ose_wildcard>.<subdomain>.<domain>`
+  * Validate each endpoint to ensure connectivity
+  
+  
