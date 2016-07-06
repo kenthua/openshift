@@ -42,7 +42,7 @@
     --default-cert={{ sub_domain }}.pem 
     --credentials=/etc/origin/master/openshift-router.kubeconfig 
     --service-account=router 
-    --images='{{ registry_url }}' 
+    --images='{{ registry_image_url }}' 
     --selector='region=infra' 
     --stats-user='admin' 
     --stats-password='redhat'
