@@ -42,6 +42,6 @@ OSE 3.2 ansible ravello scripts
   * Validate each endpoint to ensure connectivity
 0. Configure the CloudForms Management Engine to allow for all three Capacity & Utilization server roles, which are available under Configure → Configuration → Server → Server Control.[1]  
 
-[1] (CloudForms documentation)[https://access.redhat.com/documentation/en/red-hat-cloudforms/4.1/managing-providers/chapter-4-containers-providers]
+[1] [CloudForms documentation](https://access.redhat.com/documentation/en/red-hat-cloudforms/4.1/managing-providers/chapter-4-containers-providers)
   
   
