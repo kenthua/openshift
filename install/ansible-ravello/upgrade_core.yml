@@ -56,7 +56,7 @@
         dest: /usr/local/bin/openshift
         regexp: "^image_tag="
         line: "image_tag={{ image_version }}" 
-      when: "{{ inventory_hostname }}" in groups['openshift_master']     
+      when: inventory_hostname in groups['openshift_master']  
         
     - name: run oadm to test availability
       command: oadm
