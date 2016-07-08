@@ -28,7 +28,7 @@
       async_status: "jid={{ upgrade_async.ansible_job_id }}"
       register: job_result
       until: job_result.finished
-      retries: 30
+      retries: 60
       delay: 30
 
     - name: upgrade atomic host check
