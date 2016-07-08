@@ -16,7 +16,7 @@
       register: job_result
       until: job_result.finished
       retries: 30
-      delay: 10
+      delay: 30
 
     - name: upgrade atomic host
       command: "atomic host upgrade"
