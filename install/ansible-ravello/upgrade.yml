@@ -21,11 +21,7 @@
         - /etc/sysconfig/atomic-openshift-master
         - /etc/sysconfig/atomic-openshift-node
         - /etc/sysconfig/openvswitch
-      notify:
-        - restart_master
-        - restart_node
-        - restart_openvswitch
-        
+    
     - include: upgrade_core.yml 
       
     - name: reconcile cluster roles
@@ -48,21 +44,7 @@
       shell: > 
         oadm policy reconcile-cluster-roles 
         --additive-only=true 
-        --confirm
-                            
-  handlers:
-    - name: restart_master
-      service:
-        name: atomic-openshift-master
-        state: restarted
-    - name: restart_node
-      service:
-        name: atomic-openshift-node
-        state: restarted        
-    - name: restart_openvswitch
-      service:
-        name: openvswitch
-        state: restarted    
+        --confirm   
 
 - hosts: openshift_nodes
   remote_user: root
@@ -88,9 +70,6 @@
       with_items:
         - /etc/sysconfig/atomic-openshift-node
         - /etc/sysconfig/openvswitch
-      notify:
-        - restart_node
-        - restart_openvswitch
 
     - include: upgrade_core.yml         
       
@@ -99,21 +78,6 @@
       delegate_to: "{{ item }}"
       with_items: "{{ groups['openshift_master'] }}"
       
-  handlers:
-    - name: restart_master
-      service:
-        name: atomic-openshift-master
-        state: restarted
-    - name: restart_node
-      service:
-        name: atomic-openshift-node
-        state: restarted        
-    - name: restart_openvswitch
-      service:
-        name: openvswitch
-        state: restarted        
-
-
 - hosts: localhost
   remote_user: root
   connection: local
