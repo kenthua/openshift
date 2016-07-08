@@ -50,34 +50,4 @@
           delay=15
           timeout=300
       when: "'systemctl reboot' in upgrade.stdout"
-      
-    - name: update openshift proxy command to correct version
-      lineinfile:
-        dest: /usr/local/bin/openshift
-        regexp: "^image_tag="
-        line: "image_tag={{ image_version }}" 
-      when: inventory_hostname in groups['openshift_master']  
-        
-    - name: run oadm to test availability
-      command: oadm
-      async: 1000
-      poll: 0
-      register: oadm_run
-      delegate_to: master.example.com     
-      when: inventory_hostname in groups['openshift_master']  
-        
-    - name: check that oadm is ready
-      async_status: "jid={{ oadm_run.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 40
-      delay: 30
-      delegate_to: master.example.com     
-      when: inventory_hostname in groups['openshift_master']  
-        
-    - name: run oadm again
-      command: oadm     
-      delegate_to: master.example.com     
-      when: inventory_hostname in groups['openshift_master']  
-  
          
