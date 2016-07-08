@@ -1,0 +1,74 @@
+---        
+    - name: copy nuke_images.sh
+      copy:
+        src: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/upgrades/docker/files/nuke_images.sh
+        dest: /root/nuke_images.sh
+        mode: 755
+    
+    # this will need a jobid async - takes a while, causes next command to sometimes timeout    
+    - name: run nuke_images.sh
+      command: /root/nuke_images.sh
+      async: 1000
+      poll: 0
+      register: nuke_images
+
+    - name: wait for nuke_images to finish
+      async_status: "jid={{ nuke_images.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
+      delay: 10
+
+    - name: upgrade atomic host
+      command: "atomic host upgrade"
+      async: 1000
+      poll: 0
+      register: upgrade_async
+
+    - name: wait for upgrade to finish
+      async_status: "jid={{ upgrade_async.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
+      delay: 30
+
+    - name: upgrade atomic host check
+      command: "atomic host upgrade"
+      register: upgrade
+    
+    - name: restart node server
+      shell: sleep 2s && systemctl reboot
+      async: 1
+      poll: 0
+      ignore_errors: true
+      when: "'systemctl reboot' in upgrade.stdout"
+      
+    - name: wait for the node to come back
+      local_action:
+        module: wait_for
+          host="{{ inventory_hostname }}"
+          port=22
+          delay=15
+          timeout=300
+      when: "'systemctl reboot' in upgrade.stdout"
+
+    - name: run oadm to test availability
+      command: oadm
+      async: 1000
+      poll: 0
+      register: oadm_run
+      delegate_to: master.example.com     
+        
+    - name: check that oadm is ready
+      async_status: "jid={{ oadm_run.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 40
+      delay: 30
+      delegate_to: master.example.com     
+        
+    - name: run oadm again
+      command: oadm     
+      delegate_to: master.example.com     
+  
+         

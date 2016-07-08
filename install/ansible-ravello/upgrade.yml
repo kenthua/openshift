@@ -1,0 +1,115 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: upgrade atomic-openshift-utils
+      yum:
+        name: atomic-openshift-utils
+        state: latest
+            
+- hosts: openshift_master
+  remote_user: root
+  vars:
+    - image_version: v3.2.1.4
+  tasks:
+    - name: update config file IMAGE_VERSION
+      lineinfile:
+        dest: "{{ item }}"
+        regexp: "^IMAGE_VERSION="
+        line: "IMAGE_VERSION={{ image_version }}"      
+      with_items:
+        - /etc/sysconfig/atomic-openshift-master
+        - /etc/sysconfig/atomic-openshift-node
+        - /etc/sysconfig/openvswitch
+      notify:
+        - restart_master
+        - restart_node
+        - restart_openvswitch
+        
+    - include: upgrade_core.yml 
+      
+    - name: reconcile cluster roles
+      shell: > 
+        oadm policy reconcile-cluster-roles 
+        --additive-only=true 
+        --confirm
+    
+    - name: reconcile cluster role bindings
+      shell: > 
+        oadm policy reconcile-cluster-role-bindings 
+        --exclude-groups=system:authenticated 
+        --exclude-groups=system:authenticated:oauth 
+        --exclude-groups=system:unauthenticated 
+        --exclude-users=system:anonymous 
+        --additive-only=true 
+        --confirm
+    
+    - name: reconcile cluster roles again
+      shell: > 
+        oadm policy reconcile-cluster-roles 
+        --additive-only=true 
+        --confirm
+                            
+  handlers:
+    - name: restart_master
+      service:
+        name: atomic-openshift-master
+        state: restarted
+    - name: restart_node
+      service:
+        name: atomic-openshift-node
+        state: restarted        
+    - name: restart_openvswitch
+      service:
+        name: openvswitch
+        state: restarted    
+
+- hosts: openshift_nodes
+  remote_user: root
+  vars:
+    - image_version: v3.2.1.4
+  serial: 1
+  tasks:
+    - name: make node unschedulable
+      command: oadm manage-node {{ inventory_hostname }} --schedulable=false
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['openshift_master'] }}"
+   
+    - name: evacuate pods from node
+      command: oadm manage-node {{ inventory_hostname }} --evacuate --force
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['openshift_master'] }}"
+
+    - name: update config file IMAGE_VERSION
+      lineinfile:
+        dest: "{{ item }}"
+        regexp: "^IMAGE_VERSION="
+        line: "IMAGE_VERSION={{ image_version }}"      
+      with_items:
+        - /etc/sysconfig/atomic-openshift-node
+        - /etc/sysconfig/openvswitch
+      notify:
+        - restart_node
+        - restart_openvswitch
+
+    - include: upgrade_core.yml         
+      
+    - name: make node schedulable
+      command: oadm manage-node {{ inventory_hostname }} --schedulable=true
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['openshift_master'] }}"
+      
+  handlers:
+    - name: restart_master
+      service:
+        name: atomic-openshift-master
+        state: restarted
+    - name: restart_node
+      service:
+        name: atomic-openshift-node
+        state: restarted        
+    - name: restart_openvswitch
+      service:
+        name: openvswitch
+        state: restarted        
+         
