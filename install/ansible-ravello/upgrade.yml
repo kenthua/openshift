@@ -23,6 +23,28 @@
         - /etc/sysconfig/openvswitch
     
     - include: upgrade_core.yml 
+    
+    - name: update openshift proxy command to correct version
+      lineinfile:
+        dest: /usr/local/bin/openshift
+        regexp: "^image_tag="
+        line: "image_tag={{ image_version }}" 
+        
+    - name: run oadm to test availability
+      command: oadm
+      async: 1000
+      poll: 0
+      register: oadm_run
+        
+    - name: check that oadm is ready
+      async_status: "jid={{ oadm_run.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 40
+      delay: 30
+        
+    - name: run oadm again to make sure it's ready
+      command: oadm     
       
     - name: reconcile cluster roles
       shell: > 

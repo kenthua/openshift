@@ -64,6 +64,7 @@
       poll: 0
       register: oadm_run
       delegate_to: master.example.com     
+      when: inventory_hostname in groups['openshift_master']  
         
     - name: check that oadm is ready
       async_status: "jid={{ oadm_run.ansible_job_id }}"
@@ -72,9 +73,11 @@
       retries: 40
       delay: 30
       delegate_to: master.example.com     
+      when: inventory_hostname in groups['openshift_master']  
         
     - name: run oadm again
       command: oadm     
       delegate_to: master.example.com     
+      when: inventory_hostname in groups['openshift_master']  
   
          
