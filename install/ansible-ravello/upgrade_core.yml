@@ -5,7 +5,6 @@
         dest: /root/nuke_images.sh
         mode: 755
     
-    # this will need a jobid async - takes a while, causes next command to sometimes timeout    
     - name: run nuke_images.sh
       command: /root/nuke_images.sh
       async: 1000

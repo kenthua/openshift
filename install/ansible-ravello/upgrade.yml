@@ -112,4 +112,102 @@
       service:
         name: openvswitch
         state: restarted        
-         
+
+
+- hosts: localhost
+  remote_user: root
+  connection: local
+  vars:
+    - image_version: v3.2.1.4
+    - logging_image_version: 3.2.1
+    - default_context: default/master-example-com:8443/system:admin
+
+  tasks:
+    - name: switch to correct context
+      command: "oc login https://master.test.techknowledgeshare.net:8443 --token=u0AVrH5Bb6eYB-a82rR1syssfjVVAS5leUHjHpnoM9U --insecure-skip-tls-verify=true"
+  
+    - name: switch to project default
+      command: "oc project default"        
+      
+    - name: update router
+      command: oc patch dc/router -p '{"spec":{"template":{"spec":{"containers":[{"name":"router", "image":"openshift3/ose-haproxy-router:{{ image_version }}"}]}}}}'         
+    
+    - name: update registry
+      command: oc patch dc/docker-registry -p '{"spec":{"template":{"spec":{"containers":[{"name":"registry", "image":"openshift3/ose-docker-registry:{{ image_version }}"}]}}}}'               
+      
+    - name: create image streams
+      command:  oc create -n openshift -f /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/latest/{{ item }}
+      with_items:
+        - "image-streams/image-streams-rhel7.json"
+        - "db-templates"
+        - "xpaas-streams"
+        - "xpaas-templates"
+      ignore_errors: true        
+    
+    - name: replace image streams
+      command: oc replace -n openshift -f /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/latest/{{ item }}
+      with_items:
+        - "image-streams/image-streams-rhel7.json"
+        - "db-templates"
+        - "quickstart-templates"
+        - "xpaas-streams"
+        - "xpaas-templates"
+        - "infrastructure-templates/enterprise"
+
+    - name: get image streams
+      shell: "oc get is -n openshift | awk 'NR>1 { print $1 }'"
+      register: is_output
+    
+    # sso will fail        
+    - name: import latest images
+      command: oc import-image -n openshift "{{ item }}"
+      with_items: is_output.stdout_lines
+      ignore_errors: true
+      
+    - name: change to project logging
+      command: oc project logging
+      
+    - name: determine elastic search DC
+      shell: "oc get dc | awk '/logging-es-[a-zA-Z0-9]*/{ print $1 }'"
+      register: logging_es_out
+
+    - name: scale down logging pods
+      command: oc scale dc/{{ item }} --replicas=0
+      with_items:
+        - "logging-fluentd"
+        - "logging-kibana"
+    #    - "logging-kibana-ops"
+        - "{{ logging_es_out.stdout }}"
+      
+    - name: update logging images
+      command: oc import-image {{ item }}:{{ logging_image_version }} --from registry.access.redhat.com/openshift3/{{ item }}:{{ logging_image_version }}
+      with_items:
+        - logging-auth-proxy
+        - logging-kibana
+        - logging-elasticsearch
+        - logging-fluentd
+
+    - name: update es dc
+      command: oc patch dc/{{ logging_es_out.stdout }} -p '{"spec":{"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["elasticsearch"],"from":{"kind":"ImageStreamTag","name":"logging-elasticsearch:{{ logging_image_version }}"}}}]}}'          
+
+    - name: update fluentd dc
+      command: oc patch dc/logging-fluentd -p '{"spec":{"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["fluentd-elasticsearch"],"from":{"kind":"ImageStreamTag","name":"logging-fluentd:{{ logging_image_version }}"}}}]}}'          
+
+    - name: update kibana dc
+      command: oc patch dc/logging-kibana -p '{"spec":{"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["kibana"],"from":{"kind":"ImageStreamTag","name":"logging-kibana:{{ logging_image_version }}"}}},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["kibana-proxy"],"from":{"kind":"ImageStreamTag","name":"logging-auth-proxy:{{ logging_image_version }}"}}}]}}'
+    
+# not needed because of image change trigger above          
+#    - name: deploy dcs 
+#      command: oc deploy {{ item }} --latest
+#      with_items:
+#        - "{{ logging_es_out.stdout }}"
+#        - "logging-fluentd"
+#        - "logging-kibana"
+                  
+    - name: scale up logging pods
+      shell: oc scale dc/{{ item }}
+      with_items:
+        - "{{ logging_es_out.stdout }} --replicas=1"
+        - "logging-fluentd --replicas=2"
+        - "logging-kibana --replicas=1"
+    #    - "oc scale dc/logging-kibana-ops --replicas=0"
