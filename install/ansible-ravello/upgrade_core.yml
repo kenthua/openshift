@@ -1,6 +1,6 @@
 ---    
     - name: get docker version
-      command: "docker version | grep Version: | awk 'NR>1 { print $2 }'"
+      shell: "docker version | grep Version: | awk 'NR>1 { print $2 }'"
       register: docker_version
           
     - name: copy nuke_images.sh
