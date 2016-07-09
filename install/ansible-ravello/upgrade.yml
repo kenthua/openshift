@@ -110,7 +110,7 @@
 
   tasks:
     - name: switch to correct context
-      command: "oc login https://master.test.techknowledgeshare.net:8443 --token=u0AVrH5Bb6eYB-a82rR1syssfjVVAS5leUHjHpnoM9U --insecure-skip-tls-verify=true"
+      command: "oc login https://master.test.techknowledgeshare.net:8443 -u admin -p password --insecure-skip-tls-verify=true"
   
     - name: switch to project default
       command: "oc project default"        
