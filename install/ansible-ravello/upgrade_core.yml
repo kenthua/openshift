@@ -1,22 +1,29 @@
----        
+---    
+    - name: get docker version
+      command: "docker version | grep Version: | awk 'NR>1 { print $2 }'"
+      register: docker_version
+          
     - name: copy nuke_images.sh
       copy:
         src: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/upgrades/docker/files/nuke_images.sh
         dest: /root/nuke_images.sh
         mode: 755
+      when: docker_version.stdout | version_compare('1.10', '<=') 
     
     - name: run nuke_images.sh
       command: /root/nuke_images.sh
       async: 1000
       poll: 0
       register: nuke_images
-
+      when: docker_version.stdout | version_compare('1.10', '<=') 
+      
     - name: wait for nuke_images to finish
       async_status: "jid={{ nuke_images.ansible_job_id }}"
       register: job_result
       until: job_result.finished
       retries: 30
       delay: 30
+      when: docker_version.stdout | version_compare('1.10', '<=') 
 
     - name: upgrade atomic host
       command: "atomic host upgrade"
