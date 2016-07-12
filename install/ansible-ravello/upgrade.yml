@@ -25,28 +25,14 @@
         - /etc/sysconfig/atomic-openshift-node
         - /etc/sysconfig/openvswitch
 
-    - name: restart master
+    - name: restart openshift services
       service:
-        name: atomic-openshift-master
+        name: "{{ item }}"
         state: restarted
-    
-    - name: pause 2m
-      pause:
-        minutes: 2
-
-    - name: restart node
-      service:
-        name: atomic-openshift-node
-        state: restarted
-    
-    - name: pause 2m
-      pause:
-        minutes: 2
-                
-    - name: restart openvswitch
-      service:
-        name: openvswitch
-        state: restarted   
+      with_items:
+        - atomic-openshift-master
+        - openvswitch   
+        - atomic-openshift-node
 
     - include: upgrade_core.yml 
 
@@ -126,19 +112,13 @@
         - /etc/sysconfig/atomic-openshift-node
         - /etc/sysconfig/openvswitch
         
-    - name: restart node
+    - name: restart openshift services
       service:
-        name: atomic-openshift-node
+        name: "{{ item }}"
         state: restarted
-    
-    - name: pause 2m
-      pause:
-        minutes: 2
-                
-    - name: restart openvswitch
-      service:
-        name: openvswitch
-        state: restarted   
+      with_items:
+        - openvswitch   
+        - atomic-openshift-node
 
     - include: upgrade_core.yml         
       
