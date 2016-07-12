@@ -24,6 +24,7 @@
         - /etc/sysconfig/atomic-openshift-master
         - /etc/sysconfig/atomic-openshift-node
         - /etc/sysconfig/openvswitch
+      register: image_version_update
 
     - name: restart openshift services
       service:
@@ -33,6 +34,7 @@
         - atomic-openshift-master
         - openvswitch   
         - atomic-openshift-node
+      when: image_version_update|changed
 
     - include: upgrade_core.yml 
 
@@ -111,6 +113,7 @@
       with_items:
         - /etc/sysconfig/atomic-openshift-node
         - /etc/sysconfig/openvswitch
+      register: image_version_update
         
     - name: restart openshift services
       service:
@@ -119,6 +122,7 @@
       with_items:
         - openvswitch   
         - atomic-openshift-node
+      when: image_version_update|changed
 
     - include: upgrade_core.yml         
       
