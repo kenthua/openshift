@@ -2,10 +2,13 @@
 - hosts: localhost
   connection: local
   tasks:
-    - name: upgrade atomic-openshift-utils
+    - name: upgrade atomic-openshift utils and clients
       yum:
-        name: atomic-openshift-utils
+        name: "{{ item }}"
         state: latest
+      with_items:
+        - atomic-openshift-utils
+        - atomic-openshift-clients
             
 - hosts: openshift_master
   remote_user: root
@@ -74,15 +77,17 @@
     - upgrade_vars.yml
   serial: 1
   tasks:
+    - name: login to openshift
+      command: "oc login {{ master_url }} -u admin -p password --insecure-skip-tls-verify=true"
+      delegate_to: localhost
+            
     - name: make node unschedulable
-      command: oadm manage-node {{ inventory_hostname }} --schedulable=false
-      delegate_to: "{{ item }}"
-      with_items: "{{ groups['openshift_master'] }}"
+      command: oc adm manage-node {{ inventory_hostname }} --schedulable=false
+      delegate_to: localhost
    
     - name: evacuate pods from node
-      command: oadm manage-node {{ inventory_hostname }} --evacuate --force
-      delegate_to: "{{ item }}"
-      with_items: "{{ groups['openshift_master'] }}"
+      command: oc adm manage-node {{ inventory_hostname }} --evacuate --force
+      delegate_to: localhost
 
     - name: update config file IMAGE_VERSION
       lineinfile:
@@ -96,9 +101,8 @@
     - include: upgrade_core.yml         
       
     - name: make node schedulable
-      command: oadm manage-node {{ inventory_hostname }} --schedulable=true
-      delegate_to: "{{ item }}"
-      with_items: "{{ groups['openshift_master'] }}"
+      command: oc adm manage-node {{ inventory_hostname }} --schedulable=true
+      delegate_to: localhost
       
 - hosts: localhost
   remote_user: root
