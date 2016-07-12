@@ -49,6 +49,11 @@
         state: restarted   
 
     - include: upgrade_core.yml 
+
+    - name: openshift node service needs to restart again
+      service:
+        name: atomic-openshift-node
+        state: restarted    
     
     - name: update openshift proxy command to correct version
       lineinfile:
