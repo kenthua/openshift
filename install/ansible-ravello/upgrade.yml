@@ -24,7 +24,16 @@
         - /etc/sysconfig/atomic-openshift-master
         - /etc/sysconfig/atomic-openshift-node
         - /etc/sysconfig/openvswitch
-    
+
+    - name: restart openshift components
+      service:
+        name: "{{ item }}"
+        state: restarted
+      with_items:
+        - atomic-openshift-master
+        - atomic-openshift-node
+        - openvswitch    
+
     - include: upgrade_core.yml 
     
     - name: update openshift proxy command to correct version
@@ -97,6 +106,14 @@
       with_items:
         - /etc/sysconfig/atomic-openshift-node
         - /etc/sysconfig/openvswitch
+        
+    - name: restart openshift components
+      service:
+        name: "{{ item }}"
+        state: restarted
+      with_items:
+        - atomic-openshift-node
+        - openvswitch    
 
     - include: upgrade_core.yml         
       

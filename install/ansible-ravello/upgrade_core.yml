@@ -35,21 +35,21 @@
       async_status: "jid={{ upgrade_async.ansible_job_id }}"
       register: job_result
       until: job_result.finished
-      retries: 60
+      retries: 70
       delay: 30
 
     - name: upgrade atomic host check
       command: "atomic host upgrade"
       register: upgrade
     
-    - name: restart node server
+    - name: restart server
       shell: sleep 2s && systemctl reboot
       async: 1
       poll: 0
       ignore_errors: true
       when: "'systemctl reboot' in upgrade.stdout"
       
-    - name: wait for the node to come back
+    - name: wait for the server to come back
       local_action:
         module: wait_for
           host="{{ inventory_hostname }}"
