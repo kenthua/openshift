@@ -47,43 +47,43 @@
         regexp: "^image_tag="
         line: "image_tag={{ image_version }}" 
         
-    - name: run oadm to test availability
-      command: oadm
-      async: 1000
-      poll: 0
-      register: oadm_run
+    - name: check if openshift master api is ready
+      command: >
+        curl --silent --cacert /etc/origin/master/ca.crt
+        {{ master_url }}/healthz/ready
+      register: api_available_output
+      until: api_available_output.stdout == 'ok'
+      retries: 30
+      delay: 10
+    
+    - name: login to openshift
+      command: "oc login {{ master_url }} -u admin -p password --insecure-skip-tls-verify=true"
+      delegate_to: localhost
         
-    - name: check that oadm is ready
-      async_status: "jid={{ oadm_run.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 40
-      delay: 30
-        
-    - name: run oadm again to make sure it's ready
-      command: oadm     
-      
     - name: reconcile cluster roles
       shell: > 
-        oadm policy reconcile-cluster-roles 
+        oc adm policy reconcile-cluster-roles 
         --additive-only=true 
         --confirm
+      delegate_to: localhost
     
     - name: reconcile cluster role bindings
       shell: > 
-        oadm policy reconcile-cluster-role-bindings 
+        oc adm policy reconcile-cluster-role-bindings 
         --exclude-groups=system:authenticated 
         --exclude-groups=system:authenticated:oauth 
         --exclude-groups=system:unauthenticated 
         --exclude-users=system:anonymous 
         --additive-only=true 
         --confirm
+      delegate_to: localhost
     
     - name: reconcile cluster roles again
       shell: > 
-        oadm policy reconcile-cluster-roles 
+        oc adm policy reconcile-cluster-roles 
         --additive-only=true 
         --confirm   
+      delegate_to: localhost
 
 - hosts: openshift_nodes
   remote_user: root
@@ -92,7 +92,7 @@
   serial: 1
   tasks:
     - name: login to openshift
-      command: "oc login {{ master_url }} -u admin -p password --insecure-skip-tls-verify=true"
+      command: "oc config use-context {{ default_context }}"
       delegate_to: localhost
             
     - name: make node unschedulable
@@ -133,7 +133,7 @@
     - upgrade_vars.yml
   tasks:
     - name: login to openshift
-      command: "oc login {{ master_url }} -u admin -p password --insecure-skip-tls-verify=true"
+      command: "oc config use-context {{ default_context }}"
   
     - name: switch to project default
       command: "oc project default"        
