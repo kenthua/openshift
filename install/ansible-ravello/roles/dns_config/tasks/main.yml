@@ -38,7 +38,7 @@
       dest: /var/named/zones/example.com.db
     notify: restart named
   
-  - name: setup subdomain zone
+  - name: setup subdomain zone - for subdomain {{ subdomain }}
     template:
       src: subdomain.db.j2
       dest: "/var/named/zones/{{ subdomain }}.{{ domain }}.db"
