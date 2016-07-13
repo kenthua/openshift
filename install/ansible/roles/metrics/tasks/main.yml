@@ -62,7 +62,7 @@
   ignore_errors: true
 
 - name: Create PV from YAML for metrics EBS volume
-  command: cat /root/metrics-pv.yml | oc create -f -
+  shell: cat /root/metrics-pv.yml | oc create -f -
   when: metrics_pv_out | failed  
 
 # if the artifacts are already deployed, don't process the deployer template
