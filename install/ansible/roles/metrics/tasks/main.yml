@@ -41,6 +41,29 @@
 - name: Create the null metrics-deployer secret
   command: oc secrets new metrics-deployer nothing=/dev/null
   when: metrics_deployer_secret_out | failed
+ 
+ # we use a template to then lay down YAML to create the PV
+  # this sets facts that are then consumed in the template
+- name: Set the facts for the metrics PV template
+  set_fact:
+    pv_name: "metrics-pv"
+    capacity: "10"
+    vol_path: "/var/export/vol2"
+    vol_hostname: "{{ nfs_internal_hostname }}"
+
+- name: Create a YAML file for the PV for the metrics volume
+  template:
+    src: pv.yml.j2
+    dest: /root/metrics-pv.yml
+
+- name: Check for metrics PV  
+  command: oc get pv "{{ pv_name }}"
+  register: metrics_pv_out
+  ignore_errors: true
+
+- name: Create PV from YAML for metrics EBS volume
+  command: cat /root/metrics-pv.yml | oc create -f -
+  when: metrics_pv_out | failed  
 
 # if the artifacts are already deployed, don't process the deployer template
 - name: Check for the deployed artifacts
@@ -51,7 +74,7 @@
 - name: Instantiate the logging deployer via the template
   shell: >
     oc process metrics-deployer-template -n openshift
-    -v USE_PERSISTENT_STORAGE=false
+    -v CASSANDRA_PV_SIZE=10Gi
     -v HAWKULAR_METRICS_HOSTNAME="metrics.{{ sub_domain }}" | oc create -f -
   when: metrics_artifacts_out | failed
 
@@ -68,6 +91,35 @@
   until: rc_out.stdout | search("hawkular-cassandra-1")
   retries: 15
   delay: 10
+
+- name: Check if fsGroup is set in cassandra RC
+  shell: "oc get rc/hawkular-cassandra-1 -o yaml | grep fsGroup"
+  register: fsgroup_out
+  ignore_errors: true
+
+- name: Determine openshift-infra project supplemental group
+  command: oc get project openshift-infra -o json
+  register: infra_project_out
+  when: fsgroup_out | failed
+
+- name: Process the openshift-infra project json into a fact
+  set_fact:
+    infra_project_json: "{{ infra_project_out.stdout | from_json }}"
+  when: fsgroup_out | failed
+
+- name: Patch the cassandra RC with the fsGroup
+  command: oc patch rc/hawkular-cassandra-1 -p '{"spec":{"template":{"spec":{"securityContext":{"fsGroup":{{ infra_project_json["metadata"]["annotations"]["openshift.io/sa.scc.supplemental-groups"].split("/").0 }}}}}}}'
+  when: fsgroup_out | failed
+  register: patched_out
+
+- name: Find the cassandra pod
+  shell: oc get pod | awk '/hawkular-cassandra-1/{ print $1 }'
+  register: cassandra_pod_out
+  when: patched_out | success
+
+- name: Delete the cassandra pod to get the fsGroup into it
+  command: "oc delete pod {{ cassandra_pod_out.stdout }}"
+  when: patched_out | success
   
 - name: Insert metricsPublicURL to master-config
   lineinfile:

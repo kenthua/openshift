@@ -5,8 +5,8 @@
   vars:
     folders:
       - vol1 # logging
-      - vol2 # registry
-      - vol3
+      - vol2 # metrics
+      - vol3 # registry
       - vol4
       - vol5
   roles:
