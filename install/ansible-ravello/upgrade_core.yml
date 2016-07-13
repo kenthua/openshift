@@ -12,42 +12,43 @@
     
     - name: run nuke_images.sh
       command: /root/nuke_images.sh
-      async: 1000
-      poll: 0
+      async: 600
+      poll: 60
       register: nuke_images
       when: docker_version.stdout | version_compare('1.10', '<=') 
       
-    - name: wait for nuke_images to finish
-      async_status: "jid={{ nuke_images.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 30
-      delay: 30
-      when: docker_version.stdout | version_compare('1.10', '<=') 
+#    - name: wait for nuke_images to finish
+#      async_status: "jid={{ nuke_images.ansible_job_id }}"
+#      register: job_result
+#      until: job_result.finished
+#      retries: 30
+#      delay: 30
+#      when: docker_version.stdout | version_compare('1.10', '<=') 
 
     - name: upgrade atomic host
       command: "atomic host upgrade"
-      async: 1000
-      poll: 0
+      async: 600
+      poll: 60
       register: upgrade_async
 
-    - name: wait for upgrade to finish
-      async_status: "jid={{ upgrade_async.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 70
-      delay: 30
+#    - name: wait for upgrade to finish
+#      async_status: "jid={{ upgrade_async.ansible_job_id }}"
+#      register: job_result
+#      until: job_result.finished
+#      retries: 70
+#      delay: 30
 
-    - name: upgrade atomic host check
-      command: "atomic host upgrade"
-      register: upgrade
+#    - name: upgrade atomic host check
+#      command: "atomic host upgrade"
+#      register: upgrade
     
     - name: restart server
       shell: sleep 2s && systemctl reboot
       async: 1
       poll: 0
       ignore_errors: true
-      when: "'systemctl reboot' in upgrade.stdout"
+#      when: "'systemctl reboot' in upgrade.stdout"
+      when: "'systemctl reboot' in upgrade_async.stdout"
       
     - name: wait for the server to come back
       local_action:
