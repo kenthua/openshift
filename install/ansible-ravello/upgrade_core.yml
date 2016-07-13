@@ -57,5 +57,5 @@
           port=22
           delay=15
           timeout=300
-      when: "'systemctl reboot' in upgrade.stdout"
+      when: "'systemctl reboot' in upgrade_async.stdout"
          
