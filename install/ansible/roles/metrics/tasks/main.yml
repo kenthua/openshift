@@ -71,11 +71,11 @@
   register: metrics_artifacts_out
   ignore_errors: true
 
-- name: Instantiate the logging deployer via the template
+- name: Instantiate the metrics deployer via the template
   shell: >
     oc process metrics-deployer-template -n openshift
     -v CASSANDRA_PV_SIZE=10Gi
-    -v HAWKULAR_METRICS_HOSTNAME="metrics.{{ sub_domain }}" | oc create -f -
+    -v HAWKULAR_METRICS_HOSTNAME=metrics.{{ sub_domain }} | oc create -f -
   when: metrics_artifacts_out | failed
 
 - name: Wait for the deployer to finish
