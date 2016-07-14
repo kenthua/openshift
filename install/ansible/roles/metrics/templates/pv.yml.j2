@@ -7,7 +7,6 @@ spec:
     storage: "{{ capacity }}Gi" 
   accessModes:
     - ReadWriteOnce
-    - ReadWriteMany
   nfs: 
     path: "{{ vol_path }}" 
     server: "{{ vol_hostname }}"
