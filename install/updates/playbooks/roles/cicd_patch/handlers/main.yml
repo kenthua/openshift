@@ -1,0 +1,3 @@
+---
+- name: restart_rpcidmapd
+  service: name=rpcidmapd state=restarted
