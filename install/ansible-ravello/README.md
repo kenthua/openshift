@@ -1,4 +1,4 @@
-OSE 3.2 ansible ravello scripts
+OCP 3.2 ansible ravello scripts
 ---
 
 * Based off Ravello blueprint
@@ -13,10 +13,8 @@ OSE 3.2 ansible ravello scripts
   * `RAVELLO_PASSWORD`
 
 ### Scripted Method - Initial Run
-0. Prerequisite: python-lxml
-  * `sudo pip install lxml`
-0. Different way to clone to pull the ansible-xml project as well
-  * `git clone --recursive https://github.com/kenthua/openshift`
+0. Prerequisite: ravello-sdk
+  * `sudo pip install ravello-sdk`
 0. Modify `vars.yml` accordingly with configuration
 0. `ravello.sh`
 
@@ -43,5 +41,4 @@ OSE 3.2 ansible ravello scripts
 0. Configure the CloudForms Management Engine to allow for all three Capacity & Utilization server roles, which are available under Configure → Configuration → Server → Server Control.[1]  
 
 [1] [CloudForms documentation](https://access.redhat.com/documentation/en/red-hat-cloudforms/4.1/managing-providers/chapter-4-containers-providers)
-  
   

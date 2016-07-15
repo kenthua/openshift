@@ -1,0 +1,40 @@
+---    
+- name: check for ravello credentials
+  fail:
+    msg: Ravello - RAVELLO_USER and RAVELLO_PASSWORD environment variable must be set.
+  when: ravello_user == '' or ravello_password == ''    
+
+- name: ravello app info pull
+  ravello_app:
+    username: "{{ ravello_user }}"
+    password: "{{ ravello_password }}"      
+    name: "{{ ravello_application_name }}"
+    state: list
+  register: app_list
+    
+- name: set master host
+  set_fact:
+    master_host: "{{ item.publicIp }}"
+  with_items: "{{ app_list.results }}"
+  when: "'master' in item.host"
+ 
+- name: set infra host
+  set_fact:
+    infra_host: "{{ item.publicIp }}"
+  with_items: "{{ app_list.results }}"
+  when: "'infra' in item.host"
+
+- name: set workstation host
+  set_fact:
+    workstation_host: "{{ item.publicIp }}"
+  with_items: "{{ app_list.results }}"
+  when: "'workstation' in item.host"
+
+- name: output ips pulled
+  debug:
+    msg: master_host={{ master_host }} | infra_host={{ infra_host }} | workstation_host={{ workstation_host }}
+      
+- name: save new ips to hosts file
+  template:
+    src: hosts.j2
+    dest: ./hosts   
