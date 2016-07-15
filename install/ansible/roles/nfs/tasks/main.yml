@@ -17,9 +17,17 @@
   lineinfile: 
    dest: /etc/exports
    insertafter: EOF
-   line: /var/export/{{ item }} *(rw,sync,all_squash)
+   line: /var/export/{{ item }} *(rw,root_squash,no_wdelay)
   with_items: folders
-
+  
+- name: Modify idmapd with hostname
+  lineinfile:
+    dest: /etc/idmapd.conf
+    regexp: "^Domain ="
+    insertafter: "^#Domain ="
+    line: "Domain = {{ nfs_internal_hostname }}"
+  notify: restart_rpcidmapd
+        
 - name: Enable services
   service:
     name: "{{ item }}"
