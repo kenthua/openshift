@@ -1,5 +1,0 @@
----
-  - hosts: workstation
-    remote_user: root
-    roles:
-      - cicd_patch
