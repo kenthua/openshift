@@ -224,3 +224,10 @@
         - "logging-fluentd --replicas=2"
         - "logging-kibana --replicas=1"
     #    - "oc scale dc/logging-kibana-ops --replicas=0"
+    
+    - name: upgrade metrics
+      shell: >
+        oc process metrics-deployer-template -n openshift 
+        -v USE_PERSISTENT_STORAGE=false 
+        -v HAWKULAR_METRICS_HOSTNAME={{ metrics_url }}
+        -v MODE=refresh | oc create -f -

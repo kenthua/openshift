@@ -3,3 +3,4 @@ image_version: v3.2.1.4
 logging_image_version: 3.2.1
 default_context: default/master-example-com:8443/system:admin
 master_url: https://master.ose.techknowledgeshare.net:8443
+metrics_url: metrics.apps.ose.techknowledgeshare.net
