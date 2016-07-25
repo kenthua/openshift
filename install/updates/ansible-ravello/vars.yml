@@ -5,6 +5,7 @@ subdomain: ose
 domain: techknowledgeshare.net
 nameserver_name: ns1
 guid: 
+ci_enabled: true
 
 ravello_user: "{{ lookup('env', 'RAVELLO_USER') }}"
 ravello_password: "{{ lookup('env', 'RAVELLO_PASSWORD') }}"
