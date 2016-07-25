@@ -1,7 +1,6 @@
 ---
 - name: update master for dns changes
-  hosts: localhost
-  connection: local
+  hosts: openshift_master
   remote_user: root
   vars_files: 
     - vars.yml        
