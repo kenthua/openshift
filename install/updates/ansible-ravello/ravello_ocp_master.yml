@@ -1,0 +1,9 @@
+---
+- name: update master for dns changes
+  hosts: localhost
+  connection: local
+  remote_user: root
+  vars_files: 
+    - vars.yml        
+  roles:
+    - ose_master_dns_update
