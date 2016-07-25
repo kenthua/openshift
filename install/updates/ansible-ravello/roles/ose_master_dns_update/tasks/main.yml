@@ -4,21 +4,25 @@
     dest: "{{ master_config }}"
     regexp: "masterPublicURL: {{ original.master_url }}"
     replace: "masterPublicURL: {{ new.master_url }}"
+    
 - name: replace public url
   lineinfile: 
     dest: "{{ master_config }}"
     regexp: '  publicURL: '
     line: '  publicURL: {{ new.master_url }}'
+    
 - name: asset public url
   lineinfile: 
     dest: "{{ master_config }}"
     regexp: '  assetPublicURL: '
     line: '  assetPublicURL: {{ new.master_url }}'   
+    
 - name: logging public url
   lineinfile: 
     dest: "{{ master_config }}"
     regexp: '  loggingPublicURL: '
     line: '  loggingPublicURL: {{ new.logging_url }}'  
+    
 - name: metrics public url
   lineinfile: 
     dest: "{{ master_config }}"
@@ -28,8 +32,9 @@
 - name: replace subdomain
   lineinfile: 
     dest: "{{ master_config }}"
-    insertafter: '^routingConfig: '
+    insertafter: '^routingConfig:'
     line: '{{ new_wildcard_fqdn }}' 
+    
 - name: replace corsAllowedOrigins
   lineinfile:
     dest: "{{ master_config }}"
