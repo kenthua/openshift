@@ -26,10 +26,10 @@
     line: '  metricsPublicURL: {{ new.metrics_url }}'    
            
 - name: replace subdomain
-  replace: 
+  lineinfile: 
     dest: "{{ master_config }}"
-    regexp: '{{ old_wildcard_fqdn }}'
-    replace: '{{ new_wildcard_fqdn }}' 
+    inertafter: '^routingConfig: '
+    line: '{{ new_wildcard_fqdn }}' 
 - name: replace corsAllowedOrigins
   lineinfile:
     dest: "{{ master_config }}"
@@ -67,7 +67,7 @@
   shell: "cat /root/dc-logging-kibana.yml | oc replace -f -"
 
 - name: switch to ci project
-  command: "oc project logging"  
+  command: "oc project ci"  
   when: ci_enabled     
 
 - name: update ci gogs route
