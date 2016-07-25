@@ -33,7 +33,8 @@
   lineinfile: 
     dest: "{{ master_config }}"
     insertafter: '^routingConfig:'
-    line: '{{ new_wildcard_fqdn }}' 
+    regexp: ' subdomain: '
+    line: '  subdomain: {{ new_wildcard_fqdn }}' 
     
 - name: replace corsAllowedOrigins
   lineinfile:
