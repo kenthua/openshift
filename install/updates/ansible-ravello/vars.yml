@@ -1,9 +1,10 @@
-ravello_application_name: OSE3.2-installed-v1.03-ose
+ravello_application_name: OCP3.2-installed-v1.04a-ose-cicd
 
-ose_wildcard: apps
+ose_wildcard: apps{{ guid }}
 subdomain: ose
 domain: techknowledgeshare.net
 nameserver_name: ns1
+guid: 
 
 ravello_user: "{{ lookup('env', 'RAVELLO_USER') }}"
 ravello_password: "{{ lookup('env', 'RAVELLO_PASSWORD') }}"
@@ -17,8 +18,9 @@ ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') }}"
 old_ose_wildcard: apps
 old_subdomain: ose
 old_domain: techknowledgeshare.net
+old_master_app_name: master
 
 app_name:
   kibana: kibana
   metrics: metrics
-  master: master
+  master: master{{ guid }}

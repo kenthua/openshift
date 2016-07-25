@@ -2,38 +2,39 @@
 - name: replace master public url
   replace: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)masterPublicURL: {{ original.master_url }}'
-    replace: '\1masterPublicURL: {{ new.master_url }}'
+    regexp: "masterPublicURL: {{ original.master_url }}"
+    replace: "masterPublicURL: {{ new.master_url }}"
 - name: replace public url
-  replace: 
+  lineinfile: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)publicURL: {{ original.master_url }}'
-    replace: '\1publicURL: {{ new.master_url }}'
+    regexp: '  publicURL: '
+    line: '  publicURL: {{ new.master_url }}'
 - name: asset public url
-  replace: 
+  lineinfile: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)assetPublicURL: {{ original.master_url }}'
-    replace: '\1assetPublicURL: {{ new.master_url }}'   
+    regexp: '  assetPublicURL: '
+    line: '  assetPublicURL: {{ new.master_url }}'   
 - name: logging public url
-  replace: 
+  lineinfile: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)loggingPublicURL: {{ original.logging_url }}'
-    replace: '\1loggingPublicURL: {{ new.logging_url }}'  
+    regexp: '  loggingPublicURL: '
+    line: '  loggingPublicURL: {{ new.logging_url }}'  
 - name: metrics public url
-  replace: 
+  lineinfile: 
     dest: "{{ master_config }}"
-    regexp: '(\s+)metricsPublicURL: {{ original.metrics_url }}'
-    replace: '\1metricsPublicURL: {{ new.metrics_url }}'           
+    regexp: '  metricsPublicURL: '
+    line: '  metricsPublicURL: {{ new.metrics_url }}'    
+           
 - name: replace subdomain
   replace: 
     dest: "{{ master_config }}"
     regexp: '{{ old_wildcard_fqdn }}'
     replace: '{{ new_wildcard_fqdn }}' 
 - name: replace corsAllowedOrigins
-  replace:
+  lineinfile:
     dest: "{{ master_config }}"
-    regexp: '  - master.{{ old_subdomain }}.{{ domain }}'
-    replace: '  - master.{{ subdomain }}.{{ domain }}' 
+    insertafter: "^corsAllowedOrigins:"
+    line: '  - {{ app_name.master }}.{{ subdomain }}.{{ domain }}' 
   
 - name: switch to correct context
   command: "oc config use-context {{ default_context }}"
@@ -59,11 +60,51 @@
 - name: edit dc logging-kibana yaml
   replace:
     dest: /root/dc-logging-kibana.yml
-    regexp: '.{{ old_subdomain }}.'
-    replace: '.{{ subdomain }}.'
+    regexp: '{{ old_master_app_name }}.{{ old_subdomain }}.{{ old_domain }}'
+    replace: '{{ app_name.master }}.{{ subdomain }}.{{ domain }}'
 
 - name: replace dc logging kibana with yaml
   shell: "cat /root/dc-logging-kibana.yml | oc replace -f -"
+
+- name: switch to ci project
+  command: "oc project logging"  
+  when: ci_enabled     
+
+- name: update ci gogs route
+  command: oc patch route gogs -p '{"spec":{"host":"gogs-ci.{{ new_wildcard_fqdn }}"}}'
+  when: ci_enabled     
+
+- name: update ci jenkins route
+  command: oc patch route jenkins -p '{"spec":{"host":"jenkins-ci.{{ new_wildcard_fqdn }}"}}'
+  when: ci_enabled     
+
+- name: update ci nexus route
+  command: oc patch route nexus -p '{"spec":{"host":"nexus-ci.{{ new_wildcard_fqdn }}"}}'
+  when: ci_enabled     
+
+- name: switch to api-app-dev project
+  command: "oc project api-app-dev"  
+  when: ci_enabled
+
+- name: update ose-api-app route
+  command: oc patch route ose-api-app -p '{"spec":{"host":"ose-api-app-api-app-dev.{{ new_wildcard_fqdn }}"}}'
+  when: ci_enabled 
+
+- name: switch to api-app-uat project
+  command: "oc project api-app-uat"  
+  when: ci_enabled
+
+- name: update ose-api-app route
+  command: oc patch route ose-api-app -p '{"spec":{"host":"ose-api-app-api-app-uat.{{ new_wildcard_fqdn }}"}}'
+  when: ci_enabled 
+
+- name: switch to api-app-prod project
+  command: "oc project api-app-prod"  
+  when: ci_enabled
+
+- name: update ose-api-app route
+  command: oc patch route ose-api-app -p '{"spec":{"host":"ose-api-app-api-app-prod.{{ new_wildcard_fqdn }}"}}'
+  when: ci_enabled 
   
 # need to restart because of some issue with atomic and possibly with hostname, other nodes recover    
 - name: restart atomic openshift

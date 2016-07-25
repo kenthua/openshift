@@ -7,9 +7,7 @@ old_wildcard_fqdn: "{{ old_ose_wildcard }}.{{ old_subdomain }}.{{ old_domain }}"
 new_wildcard_fqdn: "{{ ose_wildcard }}.{{ subdomain }}.{{ domain }}"
 
 original:
-  master_url: https://{{ app_name.master }}.{{ old_subdomain }}.{{ old_domain }}
-  logging_url: https://{{ app_name.kibana }}.{{ old_ose_wildcard }}.{{ old_subdomain }}.{{ old_domain }}
-  metrics_url: https://{{ app_name.metrics }}.{{ old_ose_wildcard }}.{{ old_subdomain }}.{{ old_domain }}/hawkular/metrics
+  master_url: https://{{ old_master_app_name }}.{{ old_subdomain }}.{{ old_domain }}
 new: 
   master_url: https://{{ app_name.master }}.{{ subdomain }}.{{ domain }}
   logging_url: https://{{ app_name.kibana }}.{{ ose_wildcard }}.{{ subdomain }}.{{ domain }}
