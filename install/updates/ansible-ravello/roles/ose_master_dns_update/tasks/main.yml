@@ -28,7 +28,7 @@
 - name: replace subdomain
   lineinfile: 
     dest: "{{ master_config }}"
-    inertafter: '^routingConfig: '
+    insertafter: '^routingConfig: '
     line: '{{ new_wildcard_fqdn }}' 
 - name: replace corsAllowedOrigins
   lineinfile:
