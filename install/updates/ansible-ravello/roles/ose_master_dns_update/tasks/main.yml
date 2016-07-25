@@ -9,13 +9,13 @@
   lineinfile: 
     dest: "{{ master_config }}"
     regexp: '  publicURL: '
-    line: '  publicURL: {{ new.master_url }}'
+    line: '  publicURL: {{ new.master_url }}:8443/console/'
     
 - name: asset public url
   lineinfile: 
     dest: "{{ master_config }}"
     regexp: '  assetPublicURL: '
-    line: '  assetPublicURL: {{ new.master_url }}'   
+    line: '  assetPublicURL: {{ new.master_url }}:8443/console/'   
     
 - name: logging public url
   lineinfile: 
