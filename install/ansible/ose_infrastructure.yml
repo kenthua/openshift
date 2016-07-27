@@ -4,11 +4,13 @@
   remote_user: root
   vars:
     folders:
-      - vol1 # logging
-      - vol2 # metrics
-      - vol3 # registry
-      - vol4
-      - vol5
+      - { name: vol1, owner: 1000, group: 0 } # logging
+      - { name: vol2, owner: nfsnobody, group: nfsnobody}  # metrics
+      - { name: vol3, owner: nfsnobody, group: nfsnobody}  # registry
+      - { name: vol4, owner: nfsnobody, group: nfsnobody}  
+      - { name: vol5, owner: nfsnobody, group: nfsnobody}  
+      - { name: vol6, owner: nfsnobody, group: nfsnobody} 
+      
   roles:
     - nfs
     - registry

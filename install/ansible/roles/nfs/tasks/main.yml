@@ -6,9 +6,9 @@
 
 - name: Create directories
   file:
-    path: /var/export/{{ item }}
-    owner: nfsnobody
-    group: nfsnobody
+    path: /var/export/{{ item.name }}
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
     mode: 0777
     state: directory
   with_items: folders
