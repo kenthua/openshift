@@ -1,0 +1,12 @@
+$ORIGIN  .
+$TTL 1  ;  1 seconds (for testing only)
+cloudapps-{{guid}}.oslab.opentlc.com IN SOA master.cloudapps-{{guid}}.oslab.opentlc.com.  root.cloudapps-{{guid}}.oslab.opentlc.com.  (
+  2011112904  ;  serial
+  60  ;  refresh (1 minute)
+  15  ;  retry (15 seconds)
+  1800  ;  expire (30 minutes)
+  10  ; minimum (10 seconds)
+)
+  NS master.cloudapps-{{guid}}.oslab.opentlc.com.
+$ORIGIN cloudapps-{{guid}}.oslab.opentlc.com.
+* A {{infraip}}
