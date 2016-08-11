@@ -1,0 +1,10 @@
+---
+  - hosts: all
+    remote_user: root
+    gather_facts: false
+    
+    tasks:
+      - name: Unregister system from rhsm
+        subscription-manager:
+          state: absent
+   
