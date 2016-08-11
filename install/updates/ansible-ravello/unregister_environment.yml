@@ -5,6 +5,6 @@
     
     tasks:
       - name: Unregister system from rhsm
-        subscription_manager:
+        redhat_subscription:
           state: absent
    
