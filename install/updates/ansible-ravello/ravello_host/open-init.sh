@@ -41,12 +41,6 @@ sed -i "s/^guid: /guid: -$guid/g" vars.yml
 sed -i "s/^ci_enabled: false/ci_enabled: true/g" vars.yml
 echo "[openshift_master]" > hosts
 echo "10.0.0.2" >> hosts
-echo "" >> hosts
-echo "[vms]" >> hosts
-echo "10.0.0.3" >> hosts
-echo "10.0.0.4" >> hosts
-echo "10.0.0.5" >> hosts
-echo "10.0.0.100" >> hosts
 echo "Run playbook" 2>&1 | tee -a $LOGFILE
 ansible-playbook -i hosts ravello_ocp_master.yml 2>&1 | tee -a $LOGFILE
 echo "###############################################################################
