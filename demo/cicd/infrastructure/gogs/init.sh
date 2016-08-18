@@ -9,7 +9,6 @@ OSE_CLI_USER="admin"
 OSE_CLI_PASSWORD="admin"
 OSE_CLI_HOST="https://10.1.2.2:8443"
 
-
 OSE_CI_PROJECT="ci"
 GOGS_ADMIN_USER="gogs"
 GOGS_ADMIN_PASSWORD="osegogs"
@@ -18,7 +17,6 @@ TEMP_DIR=/tmp
 
 SOURCE_APP=kitchensink
 SOURCE_BINARY_APP=kitchensink-binary
-
 
 cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
@@ -30,6 +28,9 @@ cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
 cd $SOURCE_APP
 cp $TEMP_DIR/openshift/demo/cicd/infrastructure/jenkins/source/Jenkinsfile .
+
+# Login to OSE
+oc login -u ${OSE_CLI_USER} -p ${OSE_CLI_PASSWORD} ${OSE_CLI_HOST} --insecure-skip-tls-verify=true >/dev/null 2>&1
 
 GOGS_POD=$(oc get pods -n $OSE_CI_PROJECT -l=deploymentconfig=gogs --no-headers | awk '{ print $1 }')
 GOGS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT gogs --template='{{ .spec.host }}')
