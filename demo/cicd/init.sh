@@ -34,6 +34,7 @@ JENKINS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT jenkins --template='{{ .spec.ho
 echo "JENKINS_ROUTE: $JENKINS_ROUTE"
 
 echo "Clone test apps"
+rm -rf $TEMP_DIR/$SOURCE_APP*
 cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
 mv $SOURCE_APP $SOURCE_BINARY_APP
@@ -42,7 +43,7 @@ cp $OPENSHIFT_PWD/infrastructure/jenkins/binary/Jenkinsfile .
 rm -rf .git
 cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
-sed -i -e 's/^def sourceURL =/#def sourceURL =/' -e '/^#def sourceURL =/a def sourceURL = "'"http://$GOGS_ROUTE/gogs/kitchensink"'"
+sed -i -e 's/^def sourceURL =/\/\/def sourceURL =/' -e '/^/\/\def sourceURL =/a def sourceURL = "'"http://$GOGS_ROUTE/gogs/kitchensink"'"
 ' $OPENSHIFT_PWD/infrastructure/jenkins/source/Jenkinsfile
 cd $SOURCE_APP
 cp $OPENSHIFT_PWD/infrastructure/jenkins/source/Jenkinsfile .
@@ -66,6 +67,9 @@ sudo chown -R $JENKINS_STAT_USER:$JENKINS_STAT_GROUP $JENKINS_NFS_VOLUME_PATH/jo
 
 echo "Reload Jenkins Config"
 curl -X POST -u admin:password http://$JENKINS_ROUTE/reload
+
+echo "Test if gogs is ready"
+curl -s -o /dev/null -w '%{http_code}' --retry 20 --retry-delay 10 http://$GOGS_ROUTE/
 
 echo
 echo "Setting up kitchensink git repository..."
