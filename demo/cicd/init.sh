@@ -33,8 +33,11 @@ echo "GOGS_ROUTE: $GOGS_ROUTE"
 JENKINS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT jenkins --template='{{ .spec.host }}')
 echo "JENKINS_ROUTE: $JENKINS_ROUTE"
 
+echo "Cleanup old app folders"
+rm -rf $TEMP_DIR/$SOURCE_APP
+rm -rf $TEMP_DIR/$SOURCE_BINARY_APP
+
 echo "Clone test apps"
-rm -rf $TEMP_DIR/$SOURCE_APP*
 cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
 mv $SOURCE_APP $SOURCE_BINARY_APP
