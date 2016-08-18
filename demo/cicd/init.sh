@@ -46,8 +46,7 @@ cp $OPENSHIFT_PWD/infrastructure/jenkins/binary/Jenkinsfile .
 rm -rf .git
 cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
-sed -i -e '/^def sourceURL =/def sourceURL = "'"http://$GOGS_ROUTE/gogs/kitchensink"'"
-' $OPENSHIFT_PWD/infrastructure/jenkins/source/Jenkinsfile
+sed -i -e sed -i -e "s/gogs-ci.rhel-cdk.10.1.2.2.xip.io/$GOGS_ROUTE/" $OPENSHIFT_PWD/infrastructure/jenkins/source/Jenkinsfile
 cd $SOURCE_APP
 cp $OPENSHIFT_PWD/infrastructure/jenkins/source/Jenkinsfile .
 rm -rf .git
