@@ -24,12 +24,12 @@ cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
 mv $SOURCE_APP $SOURCE_BINARY_APP
 cd $SOURCE_BINARY_APP
-cp $TEMP_DIR/openshift/demos/cicd/infrastructure/jenkins/binary/Jenkinsfile .
+cp $TEMP_DIR/openshift/demo/cicd/infrastructure/jenkins/binary/Jenkinsfile .
 rm -rf .git
 cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
 cd $SOURCE_APP
-cp $TEMP_DIR/openshift/demos/cicd/infrastructure/jenkins/source/Jenkinsfile .
+cp $TEMP_DIR/openshift/demo/cicd/infrastructure/jenkins/source/Jenkinsfile .
 
 GOGS_POD=$(oc get pods -n $OSE_CI_PROJECT -l=deploymentconfig=gogs --no-headers | awk '{ print $1 }')
 GOGS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT gogs --template='{{ .spec.host }}')
