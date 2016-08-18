@@ -24,3 +24,4 @@
     <scriptPath>Jenkinsfile</scriptPath>
   </definition>
   <triggers/>
+</flow-definition>

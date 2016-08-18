@@ -23,6 +23,14 @@ JENKINS_BINARY_PIPELINE=$SOURCE_BINARY_APP-app-pipeline
 
 OPENSHIFT_PWD=`pwd`
 
+# Login to OSE
+oc login -u ${OSE_CLI_USER} -p ${OSE_CLI_PASSWORD} ${OSE_CLI_HOST} --insecure-skip-tls-verify=true >/dev/null 2>&1
+
+GOGS_POD=$(oc get pods -n $OSE_CI_PROJECT -l=deploymentconfig=gogs --no-headers | awk '{ print $1 }')
+echo "GOGS_POD: $GOGS_POD"
+GOGS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT gogs --template='{{ .spec.host }}')
+echo "GOGS_ROUTE: $GOGS_ROUTE"
+
 cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
 mv $SOURCE_APP $SOURCE_BINARY_APP
@@ -31,12 +39,11 @@ cp $OPENSHIFT_PWD/infrastructure/jenkins/binary/Jenkinsfile .
 rm -rf .git
 cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
+sed -i -e 's/^def sourceURL =/#def sourceURL =/' -e '/^#def sourceURL =/a def sourceURL = "'"http://$GOGS_ROUTE/gogs/kitchensink"'"
+' $OPENSHIFT_PWD/infrastructure/jenkins/source/Jenkinsfile
 cd $SOURCE_APP
 cp $OPENSHIFT_PWD/infrastructure/jenkins/source/Jenkinsfile .
 rm -rf .git
-
-# Login to OSE
-oc login -u ${OSE_CLI_USER} -p ${OSE_CLI_PASSWORD} ${OSE_CLI_HOST} --insecure-skip-tls-verify=true >/dev/null 2>&1
 
 JENKINS_PV=`oc get pvc jenkins -n $OSE_CI_PROJECT --template '{{ .spec.volumeName }}'`
 JENKINS_NFS_VOLUME_PATH=`oc get pv $JENKINS_PV --template '{{ .spec.nfs.path }}'`
@@ -50,11 +57,6 @@ sudo chown -R $JENKINS_STAT_USER:$JENKINS_STAT_GROUP $JENKINS_NFS_VOLUME_PATH/jo
 sudo mkdir -p $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
 sudo cp $OPENSHIFT_PWD/infrastructure/jenkins/binary/config.xml $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
 sudo chown -R $JENKINS_STAT_USER:$JENKINS_STAT_GROUP $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
-
-GOGS_POD=$(oc get pods -n $OSE_CI_PROJECT -l=deploymentconfig=gogs --no-headers | awk '{ print $1 }')
-echo "GOGS_POD: $GOGS_POD"
-GOGS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT gogs --template='{{ .spec.host }}')
-echo "GOGS_ROUTE: $GOGS_ROUTE"
 
 echo
 echo "Setting up kitchensink git repository..."
@@ -72,3 +74,4 @@ oc rsh -n $OSE_CI_PROJECT -t $GOGS_POD bash -c "cd /tmp/$SOURCE_BINARY_APP && gi
 curl -H "Content-Type: application/json" -X POST -d '{"clone_addr": "'"/tmp/$SOURCE_BINARY_APP"'","uid": 1,"repo_name": "'"$SOURCE_BINARY_APP"'"}' --user $GOGS_ADMIN_USER:$GOGS_ADMIN_PASSWORD http://$GOGS_ROUTE/api/v1/repos/migrate >/dev/null 2>&1
 curl -H "Content-Type: application/json" -X POST -d '{"type": "gogs","config": { "url": "'"http://admin:password@jenkins:8080/job/$JENKINS_BINARY_PIPELINE/build?delay=0"'", "content_type": "json" }, "active": true }' --user $GOGS_ADMIN_USER:$GOGS_ADMIN_PASSWORD http://$GOGS_ROUTE/api/v1/repos/gogs/$SOURCE_BINARY_APP/hooks >/dev/null 2>&1
 
+echo "Finished."
