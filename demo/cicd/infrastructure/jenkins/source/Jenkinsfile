@@ -1,0 +1,204 @@
+
+def appName = "kitchensink"
+def devProject = "dev"
+def testProject = "test"
+def prodProject = "prod"
+def sourceURL = "http://gogs-ci.rhel-cdk.10.1.2.2.xip.io/gogs/kitchensink"
+def template = "eap64-basic-s2i"
+def version
+
+node('ose-agent') {
+
+    def WORKSPACE = pwd()
+    def mvnHome = tool 'maven'
+    env.KUBECONFIG = pwd() + "/.kubeconfig"
+
+    stage 'Deploy to Dev'
+        login()
+        sh """
+            set +x
+            
+            # if dc returns an Error, it responds with exit code 1 which marks build as failure.  If this fails it will send a 0 back
+            existingDeployment=\$(oc get dc ${appName} -n ${devProject} || echo "0")
+            
+            if [[ \${existingDeployment} == "0" ]]
+            then
+                oc new-app --template=${template} -p APPLICATION_NAME=${appName},SOURCE_REPOSITORY_URL=${sourceURL},SOURCE_REPOSITORY_REF="",CONTEXT_DIR=""  -l name=${appName} -n ${devProject}
+                sleep 2
+                oc logs -f bc/${appName} -n ${devProject}
+            else
+                oc start-build ${appName} --wait=true -n ${devProject}
+            fi
+        """
+        validateDeployment(appName,devProject)
+        sh "oc tag ${devProject}/${appName}:latest ${devProject}/${appName}:promote -n ${devProject}"
+
+    stage 'Deploy to Test'
+        login()
+        sh """
+            set +x
+            oc tag ${devProject}/${appName}:promote ${testProject}/${appName}:latest -n ${testProject}
+
+            existingDeployment=\$(oc get dc ${appName} -n ${testProject} || echo "0")
+            
+            if [[ \${existingDeployment} == "0" ]]
+            then
+                oc new-app ${testProject}/${appName}:latest -n ${testProject}
+                oc expose service ${appName} -n ${testProject}
+            fi
+        """
+        validateDeployment(appName,testProject)
+        sh "oc tag ${testProject}/${appName}:latest ${testProject}/${appName}:promote -n ${testProject}"
+    
+    stage 'Acceptance Check'
+        acceptanceCheck(appName, testProject)
+    
+    stage 'Deploy to Prod'
+        login()
+        sh """
+            set +x
+            oc tag ${testProject}/${appName}:promote ${prodProject}/${appName}:latest -n ${prodProject}
+
+            existingDeployment=\$(oc get dc ${appName} -n ${prodProject} || echo "0")
+
+            if [[ \${existingDeployment} == "0" ]]
+            then
+                oc new-app ${prodProject}/${appName}:latest -n ${prodProject}
+                oc expose service ${appName} -n ${prodProject}
+            fi
+        """
+        validateDeployment(appName,prodProject)
+
+}
+
+def processStageResult() {
+
+    if (currentBuild.result != null) {
+        sh "exit 1"
+    }
+}
+
+def login() {
+    sh """
+       set +x
+       oc login --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt --token=\$(cat /var/run/secrets/kubernetes.io/serviceaccount/token) https://kubernetes.default.svc.cluster.local >/dev/null 2>&1 || echo 'OpenShift login failed'
+       """
+}
+
+def parseVersion(String filename) {
+  def matcher = readFile(filename) =~ '<version>(.+)</version>'
+  matcher ? matcher[0][1] : null
+}
+
+def deployApp(appName, namespace, version) {
+            sh """
+          set +x
+
+          newDeploymentImageName=${appName}:${version}
+
+          imageReference=\$(oc get is ${appName} -n ${namespace} -o jsonpath="{.status.tags[?(@.tag==\\"${version}\\")].items[*].dockerImageReference}")
+
+          oc patch dc/${appName} -n ${namespace} -p "{\\"spec\\":{\\"template\\":{\\"spec\\":{\\"containers\\":[{\\"name\\":\\"${appName}\\",\\"image\\": \\"\${imageReference}\\" } ]}}, \\"triggers\\": [ { \\"type\\": \\"ImageChange\\", \\"imageChangeParams\\": { \\"containerNames\\": [ \\"${appName}\\" ], \\"from\\": { \\"kind\\": \\"ImageStreamTag\\", \\"name\\": \\"\${newDeploymentImageName}\\" } } } ] }}"
+
+          oc deploy ${appName} -n ${namespace} --latest
+
+          # Sleep for a few moments
+          sleep 5
+        """
+
+
+}
+
+def acceptanceCheck(String appName, String namespace) {
+
+    sh """
+      set +x
+
+      COUNTER=0
+      DELAY=5
+      MAX_COUNTER=30
+
+      echo "Running Acceptance Check of ${appName} in project ${namespace}"
+
+     set +e
+
+      while [ \$COUNTER -lt \$MAX_COUNTER ]
+      do
+
+        RESPONSE=\$(curl -s -o /dev/null -w '%{http_code}\\n' http://${appName}.${namespace}.svc.cluster.local:8080/)
+
+        if [ \$RESPONSE -eq 200 ]; then
+            echo
+            echo "Application Verified"
+            break
+        fi
+
+        if [ \$COUNTER -eq \$MAX_COUNTER ]; then
+          echo "Max Validation Attempts Exceeded. Failed Verifying Application Deployment..."
+          exit 1
+        fi
+
+        sleep \$DELAY
+
+      done
+
+      set -e
+      """
+
+}
+
+def validateDeployment(String dcName, String namespace) {
+
+    sh """
+      set +x
+
+      COUNTER=0
+      DELAY=10
+      MAX_COUNTER=30
+
+      echo "Validating deployment of ${dcName} in project ${namespace}"
+
+      LATEST_DC_VERSION=\$(oc get dc ${dcName} -n ${namespace} --template='{{ .status.latestVersion }}')
+
+      RC_NAME=${dcName}-\${LATEST_DC_VERSION}
+
+      set +e
+
+      while [ \$COUNTER -lt \$MAX_COUNTER ]
+      do
+
+        RC_ANNOTATION_RESPONSE=\$(oc get rc -n ${namespace} \$RC_NAME --template="{{.metadata.annotations}}")
+
+        echo "\$RC_ANNOTATION_RESPONSE" | grep openshift.io/deployment.phase:Complete >/dev/null 2>&1
+
+        if [ \$? -eq 0 ]; then
+          echo "Deployment Succeeded!"
+          break
+        fi
+
+        echo "\$RC_ANNOTATION_RESPONSE" | grep -E 'openshift.io/deployment.phase:Failed|openshift.io/deployment.phase:Cancelled' >/dev/null 2>&1
+        if [ \$? -eq 0 ]; then
+          echo "Deployment Failed"
+          exit 1
+        fi
+
+        if [ \$COUNTER -lt \$MAX_COUNTER ]; then
+
+          echo -n "."
+          COUNTER=\$(( \$COUNTER + 1 ))
+
+        fi
+
+        if [ \$COUNTER -eq \$MAX_COUNTER ]; then
+          echo "Max Validation Attempts Exceeded. Failed Verifying Application Deployment..."
+          exit 1
+        fi
+
+        sleep \$DELAY
+
+      done
+
+      set -e
+
+    """
+}
