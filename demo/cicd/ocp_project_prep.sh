@@ -18,4 +18,3 @@ oc policy add-role-to-user edit system:serviceaccount:ci:default -n dev
 oc policy add-role-to-user edit system:serviceaccount:ci:default -n test
 oc policy add-role-to-user edit system:serviceaccount:ci:default -n prod
 
-`
