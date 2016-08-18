@@ -48,7 +48,7 @@ sudo cp $OPENSHIFT_PWD/infrastructure/jenkins/source/config.xml $JENKINS_NFS_VOL
 sudo chown -R $JENKINS_STAT_USER:$JENKINS_STAT_GROUP $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_SOURCE_PIPELINE
 
 sudo mkdir $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
-sudo cp $OPENSHIFT_PWD/infrastructure/jenkins/source/config.xml $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
+sudo cp $OPENSHIFT_PWD/infrastructure/jenkins/binary/config.xml $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
 sudo chown -R $JENKINS_STAT_USER:$JENKINS_STAT_GROUP $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
 
 GOGS_POD=$(oc get pods -n $OSE_CI_PROJECT -l=deploymentconfig=gogs --no-headers | awk '{ print $1 }')
