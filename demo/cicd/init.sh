@@ -30,7 +30,10 @@ GOGS_POD=$(oc get pods -n $OSE_CI_PROJECT -l=deploymentconfig=gogs --no-headers 
 echo "GOGS_POD: $GOGS_POD"
 GOGS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT gogs --template='{{ .spec.host }}')
 echo "GOGS_ROUTE: $GOGS_ROUTE"
+JENKINS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT jenkins --template='{{ .spec.host }}')
+echo "JENKINS_ROUTE: $JENKINS_ROUTE"
 
+echo "Clone test apps"
 cd $TEMP_DIR
 git clone https://github.com/kenthua/$SOURCE_APP.git
 mv $SOURCE_APP $SOURCE_BINARY_APP
@@ -45,18 +48,24 @@ cd $SOURCE_APP
 cp $OPENSHIFT_PWD/infrastructure/jenkins/source/Jenkinsfile .
 rm -rf .git
 
+echo "Find Jenkins PV Path and Owner"
 JENKINS_PV=`oc get pvc jenkins -n $OSE_CI_PROJECT --template '{{ .spec.volumeName }}'`
 JENKINS_NFS_VOLUME_PATH=`oc get pv $JENKINS_PV --template '{{ .spec.nfs.path }}'`
 JENKINS_STAT_USER=`stat -c "%u" $JENKINS_NFS_VOLUME_PATH/jobs/custom-base-image-pipeline/config.xml`
 JENKINS_STAT_GROUP=`stat -c "%g" $JENKINS_NFS_VOLUME_PATH/jobs/custom-base-image-pipeline/config.xml`
 
+echo "Copy Jenkinsfile Source"
 sudo mkdir -p $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_SOURCE_PIPELINE
 sudo cp $OPENSHIFT_PWD/infrastructure/jenkins/source/config.xml $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_SOURCE_PIPELINE
 sudo chown -R $JENKINS_STAT_USER:$JENKINS_STAT_GROUP $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_SOURCE_PIPELINE
 
+echo "Copy Jenkinsfile Binary"
 sudo mkdir -p $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
 sudo cp $OPENSHIFT_PWD/infrastructure/jenkins/binary/config.xml $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
 sudo chown -R $JENKINS_STAT_USER:$JENKINS_STAT_GROUP $JENKINS_NFS_VOLUME_PATH/jobs/$JENKINS_BINARY_PIPELINE
+
+echo "Reload Jenkins Config"
+curl -X POST -u admin:password http://$JENKINS_ROUTE/reload
 
 echo
 echo "Setting up kitchensink git repository..."
