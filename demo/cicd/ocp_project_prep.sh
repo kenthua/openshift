@@ -16,7 +16,7 @@ PROJECTS="$SRC_PROJECTS $BIN_PROJECTS"
 
 for PROJECT in $PROJECTS;
     do
-        oc delete $PROJECT
+        oc delete project $PROJECT
     done
 
 sleep 20
