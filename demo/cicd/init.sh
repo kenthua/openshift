@@ -91,6 +91,6 @@ curl -H "Content-Type: application/json" -X POST -d '{"type": "gogs","config": {
 
 echo
 echo "Install sonarqube and postgres"
-oc process -f infrastructure/sonarqube/sonarqube-postgres-template.yaml -v POSTGRESQL_USER=sonar,SONAR_POSTGRESQL_PASSWORD=password | oc create -n $OSE_CI_PROJECT -f - 
+oc process -f $OPENSHIFT_PWD/infrastructure/sonarqube/sonarqube-postgres-template.yaml -v POSTGRESQL_USER=sonar,SONAR_POSTGRESQL_PASSWORD=password | oc create -n $OSE_CI_PROJECT -f - 
 
 echo "Finished."
