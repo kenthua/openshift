@@ -69,13 +69,14 @@ node('ose-agent') {
             fi
         """
         validateDeployment(appName,devProject)
-        sh "oc tag ${devProject}/${appName}:latest ${devProject}/${appName}:promote -n ${devProject}"
-   
+        sh "oc tag ${devProject}/${appName}:latest ${devProject}/${appName}:${version} -n ${devProject}"
+        
     stage 'Deploy to Test'
         login()
         sh """
             set +x
-            oc tag ${devProject}/${appName}:promote ${testProject}/${appName}:latest -n ${testProject}
+            oc tag ${devProject}/${appName}:${version} ${testProject}/${appName}:${version} -n ${testProject}
+            oc tag ${testProject}/${appName}:${version} ${testProject}/${appName}:latest -n ${testProject}
 
             existingDeployment=\$(oc get dc ${appName} -n ${testProject} || echo "0")
             
@@ -86,7 +87,6 @@ node('ose-agent') {
             fi            
         """
         validateDeployment(appName,testProject)
-        sh "oc tag ${testProject}/${appName}:latest ${testProject}/${appName}:promote -n ${testProject}"
 
     stage 'Acceptance Check'
         acceptanceCheck(appName, testProject)
@@ -95,8 +95,9 @@ node('ose-agent') {
         login()
         sh """
             set +x
-            oc tag ${testProject}/${appName}:promote ${prodProject}/${appName}:latest -n ${prodProject}
-
+            oc tag ${testProject}/${appName}:${version} ${prodProject}/${appName}:${version} -n ${prodProject}
+            oc tag ${prodProject}/${appName}:${version} ${prodProject}/${appName}:latest -n ${prodProject}
+            
             existingDeployment=\$(oc get dc ${appName} -n ${prodProject} || echo "0")
             if [[ \${existingDeployment} == "0" ]]
             then
@@ -105,7 +106,6 @@ node('ose-agent') {
             fi
         """
         validateDeployment(appName,prodProject)
-
   
 }
 
