@@ -35,6 +35,9 @@ node('ose-agent') {
             processStageResult()
         }    
 
+    stage 'Static Analysis'
+        sh "${mvnHome}/bin/mvn jacoco:report sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -DskipTests=true"
+
     stage "OpenShift Dev Build"
 
         version = parseVersion("${WORKSPACE}/pom.xml")

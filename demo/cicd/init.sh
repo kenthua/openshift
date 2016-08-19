@@ -89,4 +89,8 @@ oc rsh -n $OSE_CI_PROJECT -t $GOGS_POD bash -c "cd /tmp/$SOURCE_BINARY_APP && gi
 curl -H "Content-Type: application/json" -X POST -d '{"clone_addr": "'"/tmp/$SOURCE_BINARY_APP"'","uid": 1,"repo_name": "'"$SOURCE_BINARY_APP"'"}' --user $GOGS_ADMIN_USER:$GOGS_ADMIN_PASSWORD http://$GOGS_ROUTE/api/v1/repos/migrate >/dev/null 2>&1
 curl -H "Content-Type: application/json" -X POST -d '{"type": "gogs","config": { "url": "'"http://admin:password@jenkins:8080/job/$JENKINS_BINARY_PIPELINE/build?delay=0"'", "content_type": "json" }, "active": true }' --user $GOGS_ADMIN_USER:$GOGS_ADMIN_PASSWORD http://$GOGS_ROUTE/api/v1/repos/gogs/$SOURCE_BINARY_APP/hooks >/dev/null 2>&1
 
+echo
+echo "Install sonarqube and postgres"
+oc process -f sonar.yaml -v POSTGRESQL_USER=sonar,SONAR_POSTGRESQL_PASSWORD=password | oc create -f -n $OSE_CI_PROJECT - 
+
 echo "Finished."
