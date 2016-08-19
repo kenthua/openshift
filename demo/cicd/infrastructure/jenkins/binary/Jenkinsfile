@@ -1,8 +1,8 @@
 
 def appName = "kitchensink"
-def devProject = "dev"
-def testProject = "test"
-def prodProject = "prod"
+def devProject = "bin-dev"
+def testProject = "bin-test"
+def prodProject = "bin-prod"
 def warName = "jboss-kitchensink"
 def imageStream = "jboss-eap64-openshift"
 def version

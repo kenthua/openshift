@@ -1,8 +1,8 @@
 
 def appName = "kitchensink"
-def devProject = "dev"
-def testProject = "test"
-def prodProject = "prod"
+def devProject = "src-dev"
+def testProject = "src-test"
+def prodProject = "src-prod"
 def sourceURL = "http://gogs-ci.rhel-cdk.10.1.2.2.xip.io/gogs/kitchensink"
 def template = "eap64-basic-s2i"
 def version
