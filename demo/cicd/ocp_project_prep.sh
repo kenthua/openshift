@@ -35,7 +35,7 @@ for PROJECT in $SRC_PROJECTS;
         oc policy add-role-to-user edit system:serviceaccount:$OSE_CI_PROJECT:default -n $PROJECT
     done
 
-for PROJECT in $SRC_PROJECTS;
+for PROJECT in $BIN_PROJECTS;
     do
         oc policy add-role-to-user edit system:serviceaccount:$PROJECT:default -n $BIN_DEV
         oc policy add-role-to-user edit system:serviceaccount:$OSE_CI_PROJECT:default -n $PROJECT
