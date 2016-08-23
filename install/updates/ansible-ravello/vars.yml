@@ -1,4 +1,4 @@
-ravello_application_name: OCP3.2-installed-v1.04a-ose-cicd
+ravello_application_name: OCP3.2-installed-v1.05-ose-cicd
 
 ose_wildcard: apps{{ guid }}
 subdomain: ose
