@@ -1,0 +1,206 @@
+---
+- hosts: localhost
+  gather_facts: true
+  connection: local
+  vars_files:
+    - vars.yaml
+  tasks:
+    - name: login to openshift
+      command: oc login -u {{ ocp_cli_user }} -p {{ ocp_cli_password }} {{ ocp_host }} --insecure-skip-tls-verify=true
+
+    - name: get gogs pod name
+      shell: oc get pods -n {{ ci_project }} -l=deploymentconfig=gogs --no-headers | awk '{ print $1 }'
+      register: gogs_pod_out
+
+    - name: get gogs route
+      command: "oc get routes -n {{ ci_project }} gogs --template=\\{\\{.spec.host\\}\\}"
+      register: gogs_route_out
+
+    - name: get jenkins pod name
+      shell: oc get pods -n {{ ci_project }} -l=deploymentconfig=jenkins --no-headers | awk '{ print $1 }'
+      register: jenkins_pod_out
+     
+    - name: get jenkins route name
+      command: "oc get routes -n {{ ci_project }} jenkins --template=\\{\\{.spec.host\\}\\}"
+      register: jenkins_route_out
+
+    - name: Find out playbook's path
+      shell: pwd
+      register: playbook_path_out
+              
+    - name: set facts
+      set_fact:
+        gogs_pod: "{{ gogs_pod_out.stdout }}"
+        gogs_route: "{{ gogs_route_out.stdout }}"
+        jenkins_pod: "{{ jenkins_pod_out.stdout }}"
+        jenkins_route: "{{ jenkins_route_out.stdout }}"
+        playbook_path: "{{ playbook_path_out.stdout }}"
+        temp_path: "/tmp"
+        
+    - name: debug
+      debug: 
+        msg: "{{ gogs_pod }} {{ gogs_route }} {{ jenkins_pod }} {{ jenkins_route }}"
+        
+    - name: check if git src repo already exist
+      stat:
+        path: "{{ temp_path }}/{{ source_app }}"
+      register: repo_source_check_out
+      
+    - name: check if git src repo already exist
+      stat:
+        path: "{{ temp_path }}/{{ source_app }}"
+      register: repo_binary_check_out
+    
+    - name: git checkout kitchensink source app
+      git: 
+        repo: git://github.com/kenthua/{{ app_name }}.git
+        dest: "{{ temp_path }}/{{ source_app }}"
+        clone: yes
+      when: not repo_source_check_out.stat.exists
+    
+    - name: git checkout kitchensink binary app
+      git:
+        repo: git://github.com/kenthua/{{ app_name }}.git
+        dest: "{{ temp_path }}/{{ binary_app }}"
+        clone: yes
+      when: not repo_binary_check_out.stat.exists
+        
+    - name: git cleanup source
+      file:
+        name: "{{ temp_path }}/{{ source_app }}/.git"
+        state: absent
+        
+    - name: git cleanup binary
+      file:
+        name: "{{ temp_path }}/{{ binary_app }}/.git"
+        state: absent   
+        
+    - name: Jenkinsfile source
+      copy:
+        src: infrastructure/gogs/{{ source_app }}/Jenkinsfile
+        dest: "{{ temp_path }}/{{ source_app }}/Jenkinsfile"
+        
+    - name: Jenkinsfile source
+      lineinfile:
+        regexp: "def sourceURL = "
+        line: "def sourceURL = \"http://{{ gogs_route }}/gogs/{{ source_app }}.git\""
+        dest: "{{ temp_path }}/{{ source_app }}/Jenkinsfile"
+    
+    - name: Jenkinsfile binary
+      copy:
+        src: infrastructure/gogs/{{ binary_app }}/Jenkinsfile
+        dest: "{{ temp_path }}/{{ binary_app }}/Jenkinsfile"
+        
+    - name: check if source repo is already in gogs
+      uri:
+        url: "http://{{ gogs_route }}/gogs/{{ source_app }}"  
+      register: gogs_source_repo_out
+      ignore_errors: true
+        
+    - name: Copy gogs source repo to pod
+      command: oc rsync -n {{ ci_project }} {{ temp_path }}/{{ source_app }} {{ gogs_pod}}:{{ temp_path }}/
+      when: gogs_source_repo_out.status != 200
+        
+    - name: Initialize gogs source repo
+      shell: oc rsh -n {{ ci_project }} -t {{ gogs_pod }} bash -c "cd {{ temp_path }}/{{ source_app }} && git init && git config --global user.email 'gogs@redhat.com' && git config --global user.name 'gogs' && git add . &&  git commit -m 'initial commit'" 
+      when: gogs_source_repo_out.status != 200
+
+    - name: Prep gogs source repo
+      uri:
+        url: "http://{{ gogs_route }}/api/v1/repos/migrate"
+        HEADER_Content-Type: application/json
+        method: POST
+        user: "{{ gogs_admin_user }}"
+        password: "{{ gogs_admin_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body: >
+          {"clone_addr": "{{ temp_path }}/{{ source_app }}","uid": 1,"repo_name": "{{ source_app }}"}
+        status_code: 201
+      ignore_errors: true
+      when: gogs_source_repo_out.status != 200
+        
+    - name: Set gogs source repo webhook
+      uri:
+        url: "http://{{ gogs_route }}/api/v1/repos/gogs/{{ source_app }}/hooks"
+        HEADER_Content-Type: application/json
+        method: POST
+        user: "{{ gogs_admin_user }}"
+        password: "{{ gogs_admin_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body: >
+          {"type": "gogs","config": { "url": "http://admin:password@jenkins:8080/job/{{ jenkins_source_pipeline }}/build?delay=0", "content_type": "json" }, "active": true }
+        status_code: 201
+      ignore_errors: true        
+      when: gogs_source_repo_out.status != 200
+
+    - name: check if source repo is already in gogs
+      uri:
+        url: "http://{{ gogs_route }}/gogs/{{ binary_app }}"  
+      register: gogs_binary_repo_out
+      ignore_errors: true
+                
+    - name: Copy gogs binary repo to pod
+      command: oc rsync -n {{ ci_project }} {{ temp_path }}/{{ binary_app }} {{ gogs_pod}}:{{ temp_path }}/
+      when: gogs_binary_repo_out.status != 200
+        
+    - name: Initialize gogs binary repo
+      shell: oc rsh -n {{ ci_project }} -t {{ gogs_pod }} bash -c "cd {{ temp_path }}/{{ binary_app }} && git init && git config --global user.email 'gogs@redhat.com' && git config --global user.name 'gogs' && git add . &&  git commit -m 'initial commit'" 
+      when: gogs_binary_repo_out.status != 200
+
+    - name: Prep gogs binary repo
+      uri:
+        url: "http://{{ gogs_route }}/api/v1/repos/migrate"
+        HEADER_Content-Type: application/json
+        method: POST
+        user: "{{ gogs_admin_user }}"
+        password: "{{ gogs_admin_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body: >
+          {"clone_addr": "{{ temp_path }}/{{ binary_app }}","uid": 1,"repo_name": "{{ binary_app }}"}
+        status_code: 201
+      ignore_errors: true
+      when: gogs_binary_repo_out.status != 200
+        
+    - name: Set gogs binary repo webhook
+      uri:
+        url: "http://{{ gogs_route }}/api/v1/repos/gogs/{{ binary_app }}/hooks"
+        HEADER_Content-Type: application/json
+        method: POST
+        user: "{{ gogs_admin_user }}"
+        password: "{{ gogs_admin_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body: >
+          {"type": "gogs","config": { "url": "http://admin:password@jenkins:8080/job/{{ jenkins_binary_pipeline }}/build?delay=0", "content_type": "json" }, "active": true }
+        status_code: 201
+      ignore_errors: true
+      when: gogs_binary_repo_out.status != 200    
+        
+    - name: Copy jenkins config source pipeline
+      command: oc rsync -n {{ ci_project }} {{ playbook_path }}/infrastructure/jenkins/{{ jenkins_source_pipeline }} {{ jenkins_pod }}:/var/lib/jenkins/jobs
+      
+    - name: Copy jenkins config binary pipeline
+      command: oc rsync -n {{ ci_project }} {{ playbook_path }}/infrastructure/jenkins/{{ jenkins_binary_pipeline }} {{ jenkins_pod }}:/var/lib/jenkins/jobs
+    
+    - name: Reload jenkins
+      uri:
+        url: http://{{ jenkins_route }}/reload
+        method: POST
+        user: admin
+        password: password
+        force_basic_auth: yes
+        status_code: 302
+    
+    - name: Check if sonarqube already installed
+      shell: oc get dc sonarqube
+      register: sonarqube_check_out
+      ignore_errors: true
+    
+    - name: Install template sonarqube
+      shell: oc process -f {{ playbook_path }}/infrastructure/sonarqube/sonarqube-postgres-template.yaml -v POSTGRESQL_USER=sonar,SONAR_POSTGRESQL_PASSWORD=password | oc create -n {{ ci_project }} -f - 
+      when: "'Error from server' in sonarqube_check_out.stdout"
+        
+                   
