@@ -32,6 +32,10 @@ GOGS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT gogs --template='{{ .spec.host }}'
 echo "GOGS_ROUTE: $GOGS_ROUTE"
 JENKINS_ROUTE=$(oc get routes -n $OSE_CI_PROJECT jenkins --template='{{ .spec.host }}')
 echo "JENKINS_ROUTE: $JENKINS_ROUTE"
+JENKINS_POD=$(oc get pods -n $OSE_CI_PROJECT -l=deploymentconfig=jenkins --no-headers | awk '{ print $1 }')
+echo "JENKINS_POD: $JENKINS_POD"
+
+#oc rsync -n ci /home/khua-redhat.com/openshift/demo/cicd/infrastructure/jenkins/ks-binary-app-pipeline jenkins-1-rjkte:/var/lib/jenkins/jobs
 
 echo "Cleanup old app folders"
 rm -rf $TEMP_DIR/$SOURCE_APP
@@ -91,6 +95,6 @@ curl -H "Content-Type: application/json" -X POST -d '{"type": "gogs","config": {
 
 echo
 echo "Install sonarqube and postgres"
-oc process -f $OPENSHIFT_PWD/infrastructure/sonarqube/sonarqube-postgres-template.yaml -v POSTGRESQL_USER=sonar,SONAR_POSTGRESQL_PASSWORD=password | oc create -n $OSE_CI_PROJECT -f - 
+#oc process -f $OPENSHIFT_PWD/infrastructure/sonarqube/sonarqube-postgres-template.yaml -v POSTGRESQL_USER=sonar,SONAR_POSTGRESQL_PASSWORD=password | oc create -n $OSE_CI_PROJECT -f - 
 
 echo "Finished."
