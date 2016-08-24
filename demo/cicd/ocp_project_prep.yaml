@@ -1,0 +1,40 @@
+- hosts: localhost
+  gather_facts: true
+  connection: local
+  vars_files:
+    - vars.yaml
+  tasks:
+    - name: login to openshift
+      command: oc login -u {{ ocp_cli_user }} -p {{ ocp_cli_password }} {{ ocp_host }} --insecure-skip-tls-verify=true
+
+    - name: delete project
+      command: oc delete project {{ item }}
+      with_items:
+        - "{{ src }}"
+        - "{{ bin }}"
+      ignore_errors: true
+      
+    - name: pause for 20s
+      pause:
+        seconds: 20
+    
+    - name: create project
+      command: oc new-project {{ item }}
+      with_items:
+        - "{{ src }}"
+        - "{{ bin }}"
+    
+    - name: add src permissions
+      shell: >
+        oc policy add-role-to-user edit system:serviceaccount:{{ item }}:default -n {{ src_dev }}
+        oc policy add-role-to-user edit system:serviceaccount:{{ ci_project }}:default -n {{ item }}
+      with_items:
+        - "{{ src }}"
+
+    - name: add bin permissions
+      shell: >
+        oc policy add-role-to-user edit system:serviceaccount:{{ item }}:default -n {{ bin_dev }}
+        oc policy add-role-to-user edit system:serviceaccount:{{ ci_project }}:default -n {{ item }}
+      with_items:
+        - "{{ bin }}"
+        

@@ -16,3 +16,15 @@ binary_app: "{{ app_name }}-binary"
 jenkins_source_pipeline: "{{ source_app }}-app-pipeline"
 jenkins_binary_pipeline: "{{ binary_app}}-app-pipeline"
 
+src_dev: src-dev
+bin_dev: bin-dev
+
+src: 
+  - src-dev
+  - src-test
+  - src-prod
+bin:
+  - bin-dev
+  - bin-test
+  - bin-prod
+  
