@@ -1,6 +1,6 @@
 rhsm_pool_id: 8a85f981531cbc0401531e8d87734692
-rhsm_user: <<>>
-rhsm_password: <<>>
+rhsm_user: "{{ lookup('env', 'SUB_USERNAME') }}"
+rhsm_password: "{{ lookup('env', 'SUB_PASSWORD') }}"
 preload_images:
 - openshift3/nodejs-010-rhel7:latest
 - openshift3/ose-pod:latest
