@@ -182,11 +182,14 @@
       ignore_errors: true
       when: gogs_binary_repo_out.status != 200    
         
+# there appears to be a bug with --no-perms, it's taking it into account, so we can ignore the error.  the files are still being transferred and the correct permission is set
     - name: Copy jenkins config source pipeline
-      command: oc rsync -n {{ ci_project }} {{ playbook_path }}/infrastructure/jenkins/{{ jenkins_source_pipeline }} {{ jenkins_pod }}:/var/lib/jenkins/jobs
+      command: oc rsync -n {{ ci_project }} --no-perms=true {{ playbook_path }}/infrastructure/jenkins/{{ jenkins_source_pipeline }} {{ jenkins_pod }}:/var/lib/jenkins/jobs
+      ignore_errors: true
       
     - name: Copy jenkins config binary pipeline
-      command: oc rsync -n {{ ci_project }} {{ playbook_path }}/infrastructure/jenkins/{{ jenkins_binary_pipeline }} {{ jenkins_pod }}:/var/lib/jenkins/jobs
+      command: oc rsync -n {{ ci_project }} --no-perms=true {{ playbook_path }}/infrastructure/jenkins/{{ jenkins_binary_pipeline }} {{ jenkins_pod }}:/var/lib/jenkins/jobs
+      ignore_errors: true
     
     - name: Reload jenkins
       uri:
