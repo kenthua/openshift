@@ -1,0 +1,49 @@
+# Create an OSEv3 group that contains the masters and nodes groups
+[OSEv3:children]
+masters
+nodes
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=ec2-user
+
+# If ansible_ssh_user is not root, ansible_sudo must be set to true
+ansible_sudo=true
+
+## 
+# !!
+# otherwise will get error "Could not create fact file: /etc/ansible/facts.d/openshift.fact"
+# need to add to ansible.cfg
+# can also by command line, --sudo-user=root --sudo
+##
+
+deployment_type=openshift-enterprise
+
+openshift_cloudprovider_aws_access_key="{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+openshift_cloudprovider_aws_secret_key="{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
+# AWS
+openshift_cloudprovider_kind=aws
+
+openshift_master_portal_net=192.168.0.0/16
+
+openshift_master_default_subdomain=apps.aws.techknowledgeshare.net
+
+# uncomment the following to enable htpasswd authentication; defaults to DenyAllPasswordIdentityProvider
+#openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+openshift_master_identity_providers=[{'name': 'any_password', 'login': 'true', 'challenge': 'true','kind': 'AllowAllPasswordIdentityProvider'}]
+
+# host group for masters
+[masters]
+ec2-54-183-157-199.us-west-1.compute.amazonaws.com openshift_public_hostname=master.aws.techknowledgeshare.net
+
+# host group for nodes, includes region info
+[nodes]
+ec2-54-183-157-199.us-west-1.compute.amazonaws.com openshift_schedulable=false
+ec2-54-67-22-84.us-west-1.compute.amazonaws.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+ec2-54-183-77-166.us-west-1.compute.amazonaws.com openshift_node_labels="{'region': 'primary', 'zone': 'east'}"
+ec2-54-183-175-191.us-west-1.compute.amazonaws.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}"
+
+
+
+

@@ -1,0 +1,111 @@
+---
+# tasks file for ec2
+- name: create security group
+  ec2_group:
+    name: "{{ ec2_security_group }}"
+    region: "{{ ec2_region }}"
+    description: for "{{ ec2_security_group }}"
+    state: present
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 10250
+        to_port: 10250
+        cidr_ip: 0.0.0.0/0
+      - proto: udp
+        from_port: 4789
+        to_port: 4789
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 443
+        to_port: 443
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 8443
+        to_port: 8443
+        cidr_ip: 0.0.0.0/0
+      - proto: udp
+        from_port: 8053
+        to_port: 8053
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 8053
+        to_port: 8053
+        cidr_ip: 0.0.0.0/0
+    rules_egress:
+      - proto: all
+        cidr_ip: 0.0.0.0/0
+  tags:
+  -  security
+    
+- name: create ec2 images
+  ec2:
+    key_name: "{{ ec2_key_name }}"
+    instance_type: "{{ ec2_instance_type }}"
+    region: "{{ ec2_region }}"
+    image: "{{ ec2_image }}"
+    wait: true
+    count: 1
+    ebs_optimized: true
+    state: present
+    group: "{{ ec2_security_group }}"
+    instance_tags:
+      Name: "{{ item }}"
+  with_items:
+    - "{{ ec2_ocp_instances }}"
+  register: ec2_output
+  tags:
+    - create
+
+- name: Wait for ssh to come up
+  wait_for: 
+    host: "{{ item.instances[0].public_dns_name }}" 
+    port: 22
+    delay: 10
+    timeout: 320
+    state: started
+  with_items: 
+    - "{{ ec2_output.results }}"
+  tags:
+    - ssh
+
+- name: Add route53 dns entry for master
+  route53:
+    command: create
+    type: A
+    zone: "{{ ec2_route53 }}"
+    record: "{{ ocp_master }}.{{ ec2_route53 }}"
+    ttl: 300
+    value: "{{ ec2_output.results[0].instances[0].public_ip }}"
+    overwrite: true 
+  tags:
+    - r53
+    
+- name: Add route53 dns entry for wildcard
+  route53:
+    command: create
+    type: A
+    zone: "{{ ec2_route53 }}"
+    record: "{{ ec2_wildcard_route53 }}.{{ ec2_route53 }}"
+    ttl: 300
+    value: "{{ ec2_output.results[1].instances[0].public_ip }}"
+    overwrite: true
+  tags:
+    - r53
+    
+- name: Output public dns
+  debug:
+    msg: "{{ item[0].instances[0].public_dns_name }} @ {{ item[1] }}"
+  with_together: 
+    - "{{ ec2_output.results }}"
+    - "{{ ec2_ocp_instances }}"
+    
+         
+ 

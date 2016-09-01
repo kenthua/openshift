@@ -1,0 +1,15 @@
+---
+# defaults file for ec2
+ec2_region: us-west-1
+ec2_key_name: westose
+ec2_instance_type: m4.large
+ec2_image: ami-d1315fb1
+ec2_security_group: ocp
+ec2_route53: aws.techknowledgeshare.net
+ec2_wildcard_route53: "*.apps"
+ocp_master: master
+ec2_ocp_instances:
+  - master
+  - infra
+#  - node1
+#  - node2
