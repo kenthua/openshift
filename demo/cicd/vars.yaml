@@ -8,13 +8,13 @@ ci_project: ci
 gogs_admin_user: gogs
 gogs_admin_password: osegogs
 
-git_repo_kitchensink: https://github.com/kenthua/$SOURCE_APP.git
-
 app_name: kitchensink
 source_app: "{{ app_name }}-source"
 binary_app: "{{ app_name }}-binary"
 jenkins_source_pipeline: "{{ source_app }}-app-pipeline"
 jenkins_binary_pipeline: "{{ binary_app}}-app-pipeline"
+
+git_repo_kitchensink: https://github.com/kenthua/{{ app_name }}.git
 
 src_dev: src-dev
 bin_dev: bin-dev
