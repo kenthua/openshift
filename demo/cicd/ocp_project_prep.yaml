@@ -26,14 +26,14 @@
     
     - name: add src permissions
       shell: >
-        oc policy add-role-to-user edit system:serviceaccount:{{ item }}:default -n {{ src_dev }}
+        oc policy add-role-to-user edit system:serviceaccount:{{ item }}:default -n {{ src_dev }};
         oc policy add-role-to-user edit system:serviceaccount:{{ ci_project }}:default -n {{ item }}
       with_items:
         - "{{ src }}"
 
     - name: add bin permissions
       shell: >
-        oc policy add-role-to-user edit system:serviceaccount:{{ item }}:default -n {{ bin_dev }}
+        oc policy add-role-to-user edit system:serviceaccount:{{ item }}:default -n {{ bin_dev }};
         oc policy add-role-to-user edit system:serviceaccount:{{ ci_project }}:default -n {{ item }}
       with_items:
         - "{{ bin }}"
