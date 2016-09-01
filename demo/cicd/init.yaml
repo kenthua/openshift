@@ -186,14 +186,10 @@
     - name: Copy jenkins config source pipeline
       command: oc rsync -n {{ ci_project }} --no-perms=true {{ playbook_path }}/infrastructure/jenkins/{{ jenkins_source_pipeline }} {{ jenkins_pod }}:/var/lib/jenkins/jobs
       ignore_errors: true
-      changed_when: "'kitchensink-source-app-pipeline/config.xml' in rsync_source_out.stdout"
-      register: rsync_source_out
       
     - name: Copy jenkins config binary pipeline
       command: oc rsync -n {{ ci_project }} --no-perms=true {{ playbook_path }}/infrastructure/jenkins/{{ jenkins_binary_pipeline }} {{ jenkins_pod }}:/var/lib/jenkins/jobs
       ignore_errors: true
-      changed_when: "'kitchensink-binary-app-pipeline/config.xml' in rsync_binary_out.stdout"      
-      register: rsync_binary_out
     
     - name: Reload jenkins
       uri:
