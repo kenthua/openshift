@@ -4,7 +4,7 @@
   ec2_group:
     name: "{{ ec2_security_group }}"
     region: "{{ ec2_region }}"
-    description: for "{{ ec2_security_group }}"
+    description: "{{ ec2_security_group }}"
     state: present
     rules:
       - proto: tcp

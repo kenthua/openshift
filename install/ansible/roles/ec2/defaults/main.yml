@@ -11,5 +11,5 @@ ocp_master: master
 ec2_ocp_instances:
   - master
   - infra
-#  - node1
-#  - node2
+  - node1
+  - node2

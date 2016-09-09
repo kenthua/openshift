@@ -35,14 +35,14 @@ openshift_master_identity_providers=[{'name': 'any_password', 'login': 'true', '
 
 # host group for masters
 [masters]
-ec2-54-183-157-199.us-west-1.compute.amazonaws.com openshift_public_hostname=master.aws.techknowledgeshare.net
+ec2-54-183-63-37.us-west-1.compute.amazonaws.com openshift_public_hostname=master.aws.techknowledgeshare.net
 
 # host group for nodes, includes region info
 [nodes]
-ec2-54-183-157-199.us-west-1.compute.amazonaws.com openshift_schedulable=false
-ec2-54-67-22-84.us-west-1.compute.amazonaws.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
-ec2-54-183-77-166.us-west-1.compute.amazonaws.com openshift_node_labels="{'region': 'primary', 'zone': 'east'}"
-ec2-54-183-175-191.us-west-1.compute.amazonaws.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}"
+ec2-54-183-63-37.us-west-1.compute.amazonaws.com openshift_schedulable=false
+ec2-54-183-200-55.us-west-1.compute.amazonaws.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+ec2-54-183-193-133.us-west-1.compute.amazonaws.com openshift_node_labels="{'region': 'primary', 'zone': 'east'}"
+ec2-52-53-227-188.us-west-1.compute.amazonaws.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}"
 
 
 

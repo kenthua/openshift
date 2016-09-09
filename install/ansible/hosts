@@ -1,7 +1,8 @@
 [openshift]
-172.16.118.129
-172.16.118.130
-172.16.118.131
+ec2-54-183-63-37.us-west-1.compute.amazonaws.com
+ec2-54-183-200-55.us-west-1.compute.amazonaws.com
+ec2-54-183-193-133.us-west-1.compute.amazonaws.com
+ec2-52-53-227-188.us-west-1.compute.amazonaws.com
 
 #[openshift_master]
 #172.16.118.129
