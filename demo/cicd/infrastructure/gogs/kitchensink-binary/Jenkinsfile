@@ -13,6 +13,13 @@ node('ose-agent') {
     def mvnHome = tool 'maven'
     env.KUBECONFIG = pwd() + "/.kubeconfig"
 
+// this stage would normally not be here, but is needed for the demo to 
+// allow for approval of the signatures
+// Manage Jenkins - In-Process Script Approval
+    stage 'Init Script approval'
+         step new com.openshift.jenkins.plugins.pipeline.OpenShiftDeploymentVerifier('', 'ose-api-app', 'api-app-dev', '1', '', 'false', 'false')
+         step new com.openshift.jenkins.plugins.pipeline.OpenShiftImageTagger('', '', '', '', '', '', '', '', '', '', '')
+         
     stage 'Checkout'
         checkout scm
     
@@ -71,15 +78,23 @@ node('ose-agent') {
                 oc expose service ${appName} -n ${devProject}
             fi
         """
-        validateDeployment(appName,devProject)
-        sh "oc tag ${devProject}/${appName}:latest ${devProject}/${appName}:${version} -n ${devProject}"
+        //validateDeployment(appName,devProject)
+        //public OpenShiftDeploymentVerifier(String apiURL, String depCfg, String namespace, String replicaCount, String authToken, String verbose, String verifyReplicaCount)
+        // https://github.com/openshift/jenkins-plugin/commit/8a31bd9b89af4f91d27155748278fce9f8505c44#diff-31ac0d36939ce3568810699fdaed05fc
+        step new com.openshift.jenkins.plugins.pipeline.OpenShiftDeploymentVerifier('', appName, devProject, '1', '', 'true', 'true')
+        
+        //sh "oc tag ${devProject}/${appName}:latest ${devProject}/${appName}:${version} -n ${devProject}"
+        step new com.openshift.jenkins.plugins.pipeline.OpenShiftImageTagger('', 'latest', version, devProject, '', 'true', appName, appName, devProject, '', '')
         
     stage 'Deploy to Test'
         login()
+        step new com.openshift.jenkins.plugins.pipeline.OpenShiftImageTagger('', version, version, devProject, '', 'true', appName, appName, testProject, '', '')
+        step new com.openshift.jenkins.plugins.pipeline.OpenShiftImageTagger('', version, 'latest', testProject, '', 'true', appName, appName, testProject, '', '')
+        
         sh """
             set +x
-            oc tag ${devProject}/${appName}:${version} ${testProject}/${appName}:${version} -n ${testProject}
-            oc tag ${testProject}/${appName}:${version} ${testProject}/${appName}:latest -n ${testProject}
+            #oc tag ${devProject}/${appName}:${version} ${testProject}/${appName}:${version} -n ${testProject}
+            #oc tag ${testProject}/${appName}:${version} ${testProject}/${appName}:latest -n ${testProject}
 
             existingDeployment=\$(oc get dc ${appName} -n ${testProject} || echo "0")
             
@@ -89,17 +104,21 @@ node('ose-agent') {
                 oc expose service ${appName} -n ${testProject}
             fi            
         """
-        validateDeployment(appName,testProject)
+        //validateDeployment(appName,testProject)
+        step new com.openshift.jenkins.plugins.pipeline.OpenShiftDeploymentVerifier('', appName, testProject, '1', '', 'true', 'true')        
 
     stage 'Acceptance Check'
         acceptanceCheck(appName, testProject)
 
     stage 'Deploy to Prod'
         login()
+        step new com.openshift.jenkins.plugins.pipeline.OpenShiftImageTagger('', version, version, testProject, '', 'true', appName, appName, prodProject, '', '')
+        step new com.openshift.jenkins.plugins.pipeline.OpenShiftImageTagger('', version, 'latest', prodProject, '', 'true', appName, appName, prodProject, '', '')
+        
         sh """
             set +x
-            oc tag ${testProject}/${appName}:${version} ${prodProject}/${appName}:${version} -n ${prodProject}
-            oc tag ${prodProject}/${appName}:${version} ${prodProject}/${appName}:latest -n ${prodProject}
+            #oc tag ${testProject}/${appName}:${version} ${prodProject}/${appName}:${version} -n ${prodProject}
+            #oc tag ${prodProject}/${appName}:${version} ${prodProject}/${appName}:latest -n ${prodProject}
             
             existingDeployment=\$(oc get dc ${appName} -n ${prodProject} || echo "0")
             if [[ \${existingDeployment} == "0" ]]
@@ -108,7 +127,8 @@ node('ose-agent') {
                 oc expose service ${appName} -n ${prodProject}
             fi
         """
-        validateDeployment(appName,prodProject)
+        //validateDeployment(appName,prodProject)
+        step new com.openshift.jenkins.plugins.pipeline.OpenShiftDeploymentVerifier('', appName, prodProject, '1', '', 'true', 'true')                
   
 }
 
