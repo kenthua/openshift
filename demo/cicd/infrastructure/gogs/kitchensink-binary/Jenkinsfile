@@ -18,7 +18,7 @@ node('ose-agent') {
 // Manage Jenkins - In-Process Script Approval
     stage 'Init Script approval'
          step new com.openshift.jenkins.plugins.pipeline.OpenShiftDeploymentVerifier('', 'ose-api-app', 'api-app-dev', '1', '', 'false', 'false')
-         step new com.openshift.jenkins.plugins.pipeline.OpenShiftImageTagger('', '', '', '', '', '', '', '', '', '', '')
+         step new com.openshift.jenkins.plugins.pipeline.OpenShiftImageTagger('', '1.0.0-5', '1.0.0-TEST', 'api-app-dev', '', 'false', 'ose-api-app', 'ose-api-app', 'api-app-dev', '', '')
          
     stage 'Checkout'
         checkout scm
