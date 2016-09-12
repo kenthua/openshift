@@ -1,7 +1,7 @@
 ---
 ocp_cli_user: cidemo
 ocp_cli_password: password
-ocp_host: master-70cb.oslab.opentlc.com:8443
+ocp_host: master-GUID.oslab.opentlc.com:8443
 
 ci_project: ci
 
