@@ -138,7 +138,7 @@
       ignore_errors: true        
       when: gogs_source_repo_out.status != 200
 
-    - name: check if source repo is already in gogs
+    - name: check if binary repo is already in gogs
       uri:
         url: "http://{{ gogs_route }}/gogs/{{ binary_app }}"  
       register: gogs_binary_repo_out
