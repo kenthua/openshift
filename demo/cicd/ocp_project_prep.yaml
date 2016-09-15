@@ -1,5 +1,5 @@
 - hosts: localhost
-  gather_facts: true
+  gather_facts: false
   connection: local
   vars_files:
     - vars.yaml
@@ -13,10 +13,12 @@
         - "{{ src }}"
         - "{{ bin }}"
       ignore_errors: true
+      register: delete_project
       
     - name: pause for 20s
       pause:
         seconds: 20
+      when: delete_project | succeeded
     
     - name: create project
       command: oc new-project {{ item }}
