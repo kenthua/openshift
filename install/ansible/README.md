@@ -30,4 +30,4 @@ Updated for OSE 3.2
 0. `ansible-playbook -i hosts ec2_setup_instances.yml`
 0. Take the EC2 instance external public DNS names and apply them to the `ec2_ocp-ansible-hosts` file.  Make any other modifications necessary to the install.
 0. From your cloned `openshift-ansible` repository.  
-  * Run `ansible-playbook -i <path>/ec2_ocp-ansible-hosts --sudo --sudo-user=ec2-user playbooks/byo/config.yml`
+  * Run `ansible-playbook -i <path>/ec2_ocp-ansible-hosts --become --become-user=ec2-user playbooks/byo/config.yml`
