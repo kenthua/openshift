@@ -2,15 +2,15 @@ rhsm_pool_id: 8a85f981531cbc0401531e8d87734692
 rhsm_user: "{{ lookup('env', 'SUB_USERNAME') }}"
 rhsm_password: "{{ lookup('env', 'SUB_PASSWORD') }}"
 preload_images:
-- openshift3/nodejs-010-rhel7:latest
 - openshift3/ose-pod:latest
 - openshift3/ose-sti-builder:latest
 - openshift3/ose-docker-builder:latest
 - openshift3/ose-deployer:latest
-- rhscl/mongodb-26-rhel7:latest
-- jboss-eap-6/eap64-openshift:latest
-- kubernetes/guestbook:latest
-- jboss-decisionserver-6/decisionserver62-openshift
-- rhscl/postgresql-94-rhel7:latest
-- rhscl/php-56-rhel7:latest
-- rhscl/mysql-56-rhel7:latest
+#- rhscl/mongodb-26-rhel7:latest
+#- jboss-eap-6/eap64-openshift:latest
+#- kubernetes/guestbook:latest
+#- jboss-decisionserver-6/decisionserver62-openshift
+#- rhscl/postgresql-94-rhel7:latest
+#- rhscl/php-56-rhel7:latest
+#- rhscl/mysql-56-rhel7:latest
+#- openshift3/nodejs-010-rhel7:latest

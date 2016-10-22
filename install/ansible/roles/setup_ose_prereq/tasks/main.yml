@@ -23,12 +23,12 @@
 
 - name: Install docker
   yum: state=present
-    name=docker
+    name=docker-1.10.3
 
 - name: Configure insecure-registry local setting for docker
-  replace: dest=/etc/sysconfig/docker
-    regexp="(\s+)^OPTIONS='--selinux-enabled'"
-    replace="\1OPTIONS='--selinux-enabled --insecure-registry 172.30.0.0/16'"
+  lineinfile: dest=/etc/sysconfig/docker
+    regexp="^OPTIONS="
+    line="OPTIONS='--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3'"
 
 # this is for metrics 
 - name: Enable services

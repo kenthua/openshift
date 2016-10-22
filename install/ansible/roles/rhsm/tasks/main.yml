@@ -1,20 +1,20 @@
 ---
-- name: Subscribe to RHSM
-  command: 'subscription-manager register --username {{ rhsm_user }} --password {{ rhsm_password }} --force'
+#- name: Subscribe to RHSM
+#  command: 'subscription-manager register --username {{ rhsm_user }} --password {{ rhsm_password }} --force'
   
-- name: Attach to pool
-  command: 'subscription-manager attach --pool={{ rhsm_pool_id }}'
+#- name: Attach to pool
+#  command: 'subscription-manager attach --pool={{ rhsm_pool_id }}'
 
 # Stopped using this because it was slow and unreliable  
-#- name: Setup Red Hat Subscription Management
-#  redhat_subscription: 
-#    state: present
-#    pool: "^(60 Day Supported OpenShift Enterprise|OpenShift Enterprise, Standard|OpenShift Enterprise, Premium|Employee)"
-#    username: "{{ rhsm_user }}"
-#    password: "{{ rhsm_password }}"
+- name: Setup Red Hat Subscription Management
+  redhat_subscription: 
+    state: present
+    pool: "Employee"
+    username: "{{ rhsm_user }}"
+    password: "{{ rhsm_password }}"
 
 - name: Setup - disable repos
   command: subscription-manager repos --disable='*'
       
 - name: Setup - enable repos
-  command: subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-ose-3.2-rpms
+  command: subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-ose-3.3-rpms

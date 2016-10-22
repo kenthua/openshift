@@ -1,7 +1,7 @@
-OCP 3.2 ansible scripts
+OCP 3.3 ansible scripts
 ---
 
-Updated for OSE 3.2  
+Updated for OSE 3.3 
 
 # OCP Environment configuration
 0. Modify group_vars content, hosts and ose_ddns_vars.yml (as necessary)
