@@ -22,13 +22,17 @@
     dest: "{{ master_config }}"
     regexp: '  loggingPublicURL: '
     line: '  loggingPublicURL: {{ new.logging_url }}'  
+  tags:
+    - logging    
     
 - name: metrics public url
   lineinfile: 
     dest: "{{ master_config }}"
     regexp: '  metricsPublicURL: '
     line: '  metricsPublicURL: {{ new.metrics_url }}'    
-           
+  tags:
+    - metrics
+               
 - name: replace subdomain
   lineinfile: 
     dest: "{{ master_config }}"
@@ -47,30 +51,46 @@
   
 - name: switch to project openshift-infra
   command: "oc project openshift-infra"        
+  tags:
+    - metrics
 
 - name: update hawkular metrics route
   command: oc patch route hawkular-metrics -p '{"spec":{"host":"{{ app_name.metrics }}.{{ new_wildcard_fqdn }}"}}"'
+  tags:
+    - metrics
 
 - name: switch to logging project
   command: "oc project logging"       
+  tags:
+    - logging
 
 - name: update kibana logging route
   command: oc patch route kibana -p '{"spec":{"host":"kibana.{{ new_wildcard_fqdn }}"}}'
+  tags:
+    - logging
 
 - name: update kibaba-proxy oauth redirects
   command: oc patch oauthclient kibana-proxy -p '{"redirectURIs":["https://{{ app_name.kibana }}.{{ new_wildcard_fqdn }}","https://kibana-ops.example.com"]}'
+  tags:
+    - logging
 
 - name: extract dc logging-kibana to yaml
   shell: oc get dc/logging-kibana -o yaml > /root/dc-logging-kibana.yml
+  tags:
+    - logging
 
 - name: edit dc logging-kibana yaml
   replace:
     dest: /root/dc-logging-kibana.yml
     regexp: '{{ old_master_app_name }}.{{ old_subdomain }}.{{ old_domain }}'
     replace: '{{ app_name.master }}.{{ subdomain }}.{{ domain }}'
+  tags:
+    - logging
 
 - name: replace dc logging kibana with yaml
   shell: "cat /root/dc-logging-kibana.yml | oc replace -f -"
+  tags:
+    - logging
 
 - name: switch to ci project
   command: "oc project ci"  

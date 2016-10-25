@@ -3,7 +3,7 @@ ansible-playbook -i "localhost," get_ravello_hosts.yml
 
 if [ "$1" != "update" ]
 then
-    ansible-playbook -i hosts ose_ddns.yml
+    ansible-playbook -i hosts ose_ddns.yml --skip-tags=logging
 else
-    ansible-playbook -i hosts ose_ddns.yml --tags "update_dns"
+    ansible-playbook -i hosts ose_ddns.yml --tags "update_dns" --skip-tags=logging
 fi 

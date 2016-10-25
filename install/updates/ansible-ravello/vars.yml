@@ -23,5 +23,5 @@ old_master_app_name: master
 
 app_name:
   kibana: kibana
-  metrics: metrics
+  metrics: hawkular-metrics
   master: master{{ guid }}
