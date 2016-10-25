@@ -6,10 +6,10 @@ ip:
     dns: "{{ hostvars[groups['workstation'][0]].inventory_hostname }}"
   internal:
     dns: 10.0.0.100
-    master: 10.0.0.2
-    infra: 10.0.0.3
-    node1: 10.0.0.4
-    node2: 10.0.0.5
+    master: 10.0.0.10
+    infra: 10.0.0.20
+    node1: 10.0.0.30
+    node2: 10.0.0.31
 
 ansible_distribution_major_version: 7
 
