@@ -36,13 +36,12 @@ module: ravello_app
 short_description: Create/delete/start/stop an application in ravellosystems
 description:
      - Create/delete/start/stop an application in ravellosystems and wait for it (optionally) to be 'running'
-	 - list state will return a fqdn list of exist application hosts with their external services
 options:
   state:
     description:
      - Indicate desired state of the target.
     default: present
-    choices: ['present', 'started', 'absent', 'stopped','list']
+    choices: ['present', 'started', 'absent', 'stopped']
   username:
      description:
       - ravello username
@@ -66,9 +65,6 @@ options:
      - create app, based on this blueprint
 
   #publish options
-  cloud:
-    description:
-     - cloud to publish
   region:
     description:
      - region to publish
@@ -112,16 +108,9 @@ EXAMPLES = '''
     name: 'my-application-name'
     description: 'app desc'
     publish_optimization: performance
-    cloud:AMAZON
-    region: Oregon
-    state: present
 
-# List application example
-- local_action:
-    module: ravello_app
-    name: 'my-application-name'
-    service_name: 'ssh'
-    state: list
+    region: 'US Central 1'
+    state: present
 
 # Delete application example
 - local_action:
@@ -166,7 +155,7 @@ def main():
             # for nested babu only
             url=dict(required=False, type='str'),
 
-            state=dict(default='present', choices=['present', 'started', 'absent', 'stopped', 'list', 'blueprint']),
+            state=dict(default='present', choices=['present', 'started', 'absent', 'stopped', 'blueprint']),
 
             username=dict(required=False, type='str'),
             password=dict(required=False, type='str'),
@@ -175,16 +164,15 @@ def main():
             description=dict(required=False, type='str'),
             blueprint_id=dict(required=False, type='str'),
 
-            cloud=dict(required=False, type='str'),
             region=dict(required=False, type='str'),
             publish_optimization=dict(default='cost', choices=['cost', 'performance']),
             application_ttl=dict(default='-1', type='int'),
-			
-			service_name=dict(default='ssh', type='str'),
+
+            service_name=dict(default='ssh', type='str'),
 
             blueprint_description=dict(required=False, type='str'),
             blueprint_name=dict(required=False, type='str'),
-			
+
             wait=dict(type='bool', default=True ,choices=BOOLEANS),
             wait_timeout=dict(default=1200, type='int')
         )
@@ -203,8 +191,6 @@ def main():
           action_on_app(module, client, client.start_application, functools.partial(_wait_for_state,client,'STARTED',module), 'Started')
         elif module.params.get('state') == 'stopped':
           action_on_app(module, client, client.stop_application, functools.partial(_wait_for_state,client,'STOPPED',module), 'Stopped')
-        elif module.params.get('state') == 'list':
-          list_app(client, module)
         elif module.params.get('state') == 'blueprint':
           action_on_blueprint(module, client, client.create_blueprint)
     except Exception, e:
@@ -240,39 +226,6 @@ def _wait_for_state(client, state, module):
     log_capture_string.close()
     module.fail_json(msg = 'Timed out waiting for async operation to complete.',  stdout='%s' % log_contents)
 
-def is_wait_for_external_service(supplied_service,module):
-    return supplied_service['name'].lower() == module.params.get('service_name').lower() and supplied_service['external'] == True
-
-def get_list_app_vm_result(app, vm, module):
-   
-    for supplied_service in vm['suppliedServices']:            
-    	if is_wait_for_external_service(supplied_service, module):
-            for network_connection in vm['networkConnections']:
-                if network_connection['ipConfig']['id'] == supplied_service['ipConfigLuid']:
-                    dest = network_connection['ipConfig'].get('fqdn')
-                    port = int(supplied_service['externalPort'].split(",")[0].split("-")[0])
-                    publicIp = network_connection['ipConfig'].get('publicIp')
-                    return (dest,port,publicIp)
-	            
-def list_app(client, module):
-    try:
-        app_name = module.params.get("name")
-        app = client.get_application_by_name(app_name)
-        
-        results = []
-        
-        for vm in app['deployment']['vms']:
-            if vm['state'] != "STARTED":
-                continue
-            (dest,port,publicIp) = get_list_app_vm_result(app, vm, module)
-            results.append({'host': dest, 'port': port, 'publicIp': publicIp})
-        log_contents = log_capture_string.getvalue()
-        log_capture_string.close()
-        module.exit_json(changed=True, name='%s' % app_name, results='%s' % results,stdout='%s' % log_contents)
-    except Exception, e:
-        log_contents = log_capture_string.getvalue()
-        log_capture_string.close()
-        module.fail_json(msg = '%s' % e,stdout='%s' % log_contents)
 
 def action_on_blueprint(module, client, runner_func):
     try:
@@ -290,7 +243,8 @@ def action_on_blueprint(module, client, runner_func):
         log_contents = log_capture_string.getvalue()
         log_capture_string.close()
         module.fail_json(msg = '%s' % e,stdout='%s' % log_contents)        
-	 
+
+
 def action_on_app(module, client, runner_func, waiter_func, action):
     try:
         app_name = module.params.get("name")
@@ -304,23 +258,22 @@ def action_on_app(module, client, runner_func, waiter_func, action):
         log_contents = log_capture_string.getvalue()
         log_capture_string.close()
         module.fail_json(msg = '%s' % e,stdout='%s' % log_contents)
-    
+
+
 def create_app_and_publish(client, module):
     #validation
     if not module.params.get("blueprint_id"):
             module.fail_json(msg='Must supply a blueprint_id', changed=False)
     if 'performance' == module.params.get("publish_optimization"):
-        if not module.params.get("cloud"):
-            module.fail_json(msg='Must supply a cloud when publish optimization is performance', changed=False)
         if not module.params.get("region"):
             module.fail_json(msg='Must supply a region when publish optimization is performance', changed=False)
         
-    app = {'name': module.params.get("name"), 'description': module.params.get("description",''), 'baseBlueprintId': module.params.get("blueprint_id")}    
+    app = {'name': module.params.get("name"), 'description': module.params.get("description", ''), 'baseBlueprintId': module.params.get("blueprint_id")}
     app = client.create_application(app)
     
     req = {}
     if 'performance' == module.params.get("publish_optimization"):
-        req = {'id': app['id'] ,'preferredCloud': module.params.get("cloud"),'preferredRegion': module.params.get("region"), 'optimizationLevel': 'PERFORMANCE_OPTIMIZED'}
+        req = {'id': app['id'], 'preferredRegion': module.params.get("region"), 'optimizationLevel': 'PERFORMANCE_OPTIMIZED'}
     
     ttl=module.params.get("application_ttl")
     if ttl != -1:
