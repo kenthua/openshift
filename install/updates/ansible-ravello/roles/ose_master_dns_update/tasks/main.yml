@@ -54,11 +54,21 @@
   tags:
     - metrics
 
-- name: update hawkular metrics route
-  command: oc patch route hawkular-metrics -p '{"spec":{"host":"{{ app_name.metrics }}.{{ new_wildcard_fqdn }}"}}"'
+#- name: update hawkular metrics route
+#  command: oc patch route hawkular-metrics -p '{"spec":{"host":"{{ app_name.metrics }}.{{ new_wildcard_fqdn }}"}}"'
+#  tags:
+#    - metrics
+
+- name: delete hawkular metrics route
+  command: oc delete route hawkular-metrics
   tags:
     - metrics
-
+    
+- name: create hawkular metrics route
+  command: oc expose service hawkular-metrics --hostname={{ app_name.metrics }}.{{ new_wildcard_fqdn }}
+  tags:
+    - metrics
+        
 - name: switch to logging project
   command: "oc project logging"       
   tags:
