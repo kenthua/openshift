@@ -1,7 +1,7 @@
-default_context: default/master-ose-techknowledgeshare-net:8443/system:admin
-public_master_url: https://master.ose.techknowledgeshare.net:8443
-sub_domain: apps.ose.techknowledgeshare.net
+default_context: default/master-ocp-techknowledgeshare-net:8443/system:admin
+public_master_url: https://master.ocp.techknowledgeshare.net:8443
+sub_domain: apps.ocp.techknowledgeshare.net
 master_internal_hostname: master.example.com
 registry_image_url: registry.access.redhat.com/openshift3/ose-${component}:${version}
 nfs_internal_hostname: workstation.example.com
-master_external_hostname: master.ose.techknowledgeshare.net
+master_external_hostname: master.ocp.techknowledgeshare.net
