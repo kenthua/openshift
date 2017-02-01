@@ -13,4 +13,4 @@
   vars_files: 
     - vars.yml        
   roles:
-    - ose_master_dns_update
+    - ocp_master_dns_update

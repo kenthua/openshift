@@ -36,7 +36,7 @@ OCP 3.2 ansible ravello scripts
   * `oc sa get-token -n management-infra management-admin` - to extract the token
 0. On CloudForms 4.1, Compute > Containers > Providers > Configuration > Add a new Containers Providers
   * Default endpoint: Use the token from the previous command
-  * Hawkular endpoint: `metrics.<ose_wildcard>.<subdomain>.<domain>`
+  * Hawkular endpoint: `metrics.<ocp_wildcard>.<subdomain>.<domain>`
   * Validate each endpoint to ensure connectivity
 0. Configure the CloudForms Management Engine to allow for all three Capacity & Utilization server roles, which are available under Configure → Configuration → Server → Server Control.[1]  
 

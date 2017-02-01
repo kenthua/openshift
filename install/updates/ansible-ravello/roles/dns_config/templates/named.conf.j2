@@ -22,7 +22,7 @@ zone "{{ subdomain }}.{{ domain }}" IN {
   file "zones/{{ subdomain }}.{{ domain }}.db";
   allow-update { key {{ subdomain }}.{{ domain }} ; } ;
 };
-zone "example.com" IN {
-  type master;
-  file "zones/example.com.db";
-};
+#zone "example.com" IN {
+#  type master;
+#  file "zones/example.com.db";
+#};

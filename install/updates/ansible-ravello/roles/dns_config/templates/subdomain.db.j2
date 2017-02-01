@@ -10,4 +10,4 @@ $TTL 1  ;  1 seconds (for testing only)
   NS {{ nameserver_name }}.{{ domain }}.
 $ORIGIN {{ subdomain }}.{{ domain }}.
 master A {{ ip.external.master }}
-*.{{ ose_wildcard }} A {{ ip.external.infra }}
+*.{{ ocp_wildcard }} A {{ ip.external.infra }}

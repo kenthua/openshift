@@ -1,7 +1,7 @@
 ravello_application_name: OCP3.2-installed-v1.05-ose-cicd
 
-ose_wildcard: apps{{ guid }}
-subdomain: ose
+ocp_wildcard: apps{{ guid }}
+subdomain: ocp
 domain: techknowledgeshare.net
 nameserver_name: ns1
 guid: 
@@ -16,8 +16,8 @@ ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') }}"
 # no need to change anything below here
 #
 
-old_ose_wildcard: apps
-old_subdomain: ose
+old_ocp_wildcard: apps
+old_subdomain: ocp
 old_domain: techknowledgeshare.net
 old_master_app_name: master
 
