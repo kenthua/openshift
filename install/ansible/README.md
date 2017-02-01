@@ -1,7 +1,7 @@
-OCP 3.3 ansible scripts
+OCP 3.4 ansible scripts
 ---
 
-Updated for OSE 3.3 
+Updated for OSE 3.4 
 
 # OCP Environment configuration
 0. Modify group_vars content, hosts and ose_ddns_vars.yml (as necessary)
@@ -11,9 +11,9 @@ Updated for OSE 3.3
 0. Run openshift/install/scripts/`2_ose_install_script.sh`
   * OSE advanced install
   * Modify accordingly
-0. `ose_infrastructure.yml`
+0. `ose_infrastructure.yml` -- To be modified
   * `ose_infrastructure_local.yml` for a local environment
-0. `preload_images.yml`
+0. `preload_images.yml` -- Necessary?
   * To preload docker images into your environment
  
 # OCP Environment Configuration in EC2

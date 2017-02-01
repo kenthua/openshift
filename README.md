@@ -1,4 +1,4 @@
-OpenShift Enterprise 3.0/3.1/3.2/3.3 Content
+OpenShift Enterprise 3.0/3.1/3.2/3.3/3.4 Content
 ===
 
 - Configs - Various configs for different scenarios, to be run by root/sysadmin or user  
