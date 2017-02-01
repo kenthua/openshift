@@ -21,7 +21,9 @@ deployment_type=openshift-enterprise
 #openshift_master_portal_net = 192.168.0.0/16
 
 # set subdomain
-openshift_master_default_subdomain=apps.example.com
+#openshift_master_default_subdomain=apps.example.com
+openshift_master_default_subdomain=apps.ocp.techknowledgeshare.net
+openshift_master_cluster_public_hostname=master.ocp.techknowledgeshare.net
 
 # set default node selector to only deploy apps into region primary
 # when this is set, registry and router cannot deploy because it doesn't know where to go
@@ -48,13 +50,14 @@ openshift_hosted_metrics_storage_volume_size=10Gi
 
 # host group for masters
 [masters]
-ose-master.example.com
+master.example.com
 
 # host group for nodes, includes region info
 [nodes]
-ose-master.example.com openshift_node_labels=\"{'region': 'infra', 'zone': 'default'}\"
-ose-node1.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'east'}\"
-ose-node2.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'west'}\"
+master.example.com openshift_schedulable=false
+infra.example.com openshift_node_labels=\"{'region': 'infra', 'zone': 'default'}\"
+node1.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'east'}\"
+node2.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'west'}\"
 " > /etc/ansible/hosts
 
 ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml

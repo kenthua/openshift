@@ -11,6 +11,8 @@
     - bridge-utils
     - bash-completion
     - deltarpm
+    - atomic-openshift-excluder
+    - atomic-openshift-docker-excluder
     - ntp # this is required for metrics to work, otherwise node times out of sync cause metric issues
 
 - name: Update packages
@@ -21,9 +23,12 @@
   yum: state=present
     name=atomic-openshift-utils
 
+- name: Atomic openshift excluder
+  command: atomic-openshift-excluder unexclude
+
 - name: Install docker
-  yum: state=present
-    name=docker-1.10.3
+  yum: state=latest
+    name=docker
 
 - name: Configure insecure-registry local setting for docker
   lineinfile: dest=/etc/sysconfig/docker
