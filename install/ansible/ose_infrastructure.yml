@@ -14,7 +14,4 @@
       
   roles:
     - nfs
-    - registry
-    - router
     - logging
-    - metrics

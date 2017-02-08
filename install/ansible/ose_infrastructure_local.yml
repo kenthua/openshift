@@ -12,7 +12,4 @@
   roles:
     - nfs
     - ose_no_infra # run this if the master is also the infra_node
-    - registry
-    - router
     - logging
-    - metrics
