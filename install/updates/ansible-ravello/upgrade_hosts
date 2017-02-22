@@ -1,7 +1,0 @@
-[openshift_master]
-master.example.com
-
-[openshift_nodes]
-infra.example.com
-node01.example.com
-node02.example.com
