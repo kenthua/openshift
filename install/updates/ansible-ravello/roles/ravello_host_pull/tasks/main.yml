@@ -5,29 +5,28 @@
   when: ravello_user == '' or ravello_password == ''    
 
 - name: ravello app info pull
-  ravello_app:
+  ravello_facts:
     username: "{{ ravello_user }}"
     password: "{{ ravello_password }}"      
     name: "{{ ravello_application_name }}"
-    state: list
-  register: app_list
+  register: app_info
     
 - name: set master host
   set_fact:
     master_host: "{{ item.publicIp }}"
-  with_items: "{{ app_list.results }}"
+  with_items: "{{ app_info.results }}"
   when: "'master' in item.host"
  
 - name: set infra host
   set_fact:
     infra_host: "{{ item.publicIp }}"
-  with_items: "{{ app_list.results }}"
+  with_items: "{{ app_info.results }}"
   when: "'infra' in item.host"
 
 - name: set workstation host
   set_fact:
     workstation_host: "{{ item.publicIp }}"
-  with_items: "{{ app_list.results }}"
+  with_items: "{{ app_info.results }}"
   when: "'workstation' in item.host"
 
 - name: output ips pulled
