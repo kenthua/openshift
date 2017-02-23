@@ -8,7 +8,7 @@ Updated for OSE 3.4
 0. `ose_pre_req.yml` 
   * Network setup, RHSM, ose prereqs
   * Comment out network_prereq if not needed (this should be run on all vms)
-0. Run openshift/install/scripts/`2_ose_install_script.sh`
+0. Run `ocp_install.sh`
   * OSE advanced install
   * Modify accordingly
 0. `ose_infrastructure.yml` -- To be modified
