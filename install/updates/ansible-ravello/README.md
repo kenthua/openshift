@@ -1,10 +1,10 @@
-OCP 3.2 ansible ravello scripts
+OCP 3.4 ansible ravello scripts
 ---
 
 * Based off Ravello blueprint
 
 ## Setup
-0. Get private key: `sftp root@[workstation_ip]:.ssh/id_rsa ose-ravello.pem`
+0. Get private key: `sftp root@[workstation_ip]:.ssh/id_rsa ocp-ravello.pem`
   * Alternatively, you can add your public key to each VM
 0. You can put your credentials in the `vars.yml` or use environment variables for credentials.
   * `GOOGLE_DDNS_USER`
@@ -23,11 +23,11 @@ OCP 3.2 ansible ravello scripts
 
 ### Manual Method - Initial Run
 0. Modify `hosts` & `vars.yml` accordingly with IPs and configuration
-0. `ansible-playbook --private-key=ose-ravello.pem -i hosts-rav ose_ddns.yml`
+0. `ansible-playbook --private-key=ocp-ravello.pem -i hosts ocp_ddns.yml`
 
 ### Manual Subsequent DDNS updates
 0. Modify `hosts` with IPs
-0. `ansible-playbook --private-key=ose-ravello.pem -i hosts-rav ose_ddns.yml --tags "update_dns"`
+0. `ansible-playbook --private-key=ocp-ravello.pem -i hosts ocp_ddns.yml --tags "update_dns"`
   * This will just run the tasks to update the dns server with the new ips.
   
 ## Connecting CloudForms 4.1 to the OCP environment
