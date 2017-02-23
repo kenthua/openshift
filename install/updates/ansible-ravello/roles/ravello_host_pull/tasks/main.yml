@@ -29,11 +29,18 @@
   with_items: "{{ app_info.results }}"
   when: "'workstation' in item.host"
 
+- name: check that ips were retrieved
+  fail:
+    msg: IPs were not retrieved, is the application started?  Check for the correct application name in vars.yml
+  when: "master_host is undefined and infra_host is undefined and workstation_host is undefined"
+  
 - name: output ips pulled
   debug:
     msg: master_host={{ master_host }} | infra_host={{ infra_host }} | workstation_host={{ workstation_host }}
+  when: "master_host is defined and infra_host is defined and workstation_host is defined"
       
 - name: save new ips to hosts file
   template:
     src: hosts.j2
     dest: ./hosts   
+  when: "master_host is defined and infra_host is defined and workstation_host is defined"
