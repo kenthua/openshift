@@ -5,6 +5,7 @@
   connection: local
   vars_files: 
     - vars.yml
+    - creds.yml
   roles:
     - ravello
     - ravello_host_pull  

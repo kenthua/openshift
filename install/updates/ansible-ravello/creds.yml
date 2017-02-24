@@ -1,0 +1,4 @@
+ravello_user: "{{ lookup('env', 'RAVELLO_USER') }}"
+ravello_password: "{{ lookup('env', 'RAVELLO_PASSWORD') }}"
+ddns_user: "{{ lookup('env', 'GOOGLE_DDNS_USER') }}"
+ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') }}"
