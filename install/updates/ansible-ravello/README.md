@@ -6,7 +6,7 @@ OCP 3.4 ansible ravello scripts
 ## Setup
 0. Get private key: `sftp root@[workstation_ip]:.ssh/id_rsa ocp-ravello.pem`
   * Alternatively, you can add your public key to each VM
-0. You can put your credentials in the `vars.yml` or use environment variables for credentials.
+0. You can put your credentials in the `creds.yml` or use environment variables for credentials.
   * `GOOGLE_DDNS_USER`
   * `GOOGLE_DDNS_PASSWORD`
   * `RAVELLO_USER`
