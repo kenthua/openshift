@@ -1,3 +1,5 @@
+export ANSIBLE_HOST_KEY_CHECKING=False
+
 #ansible-playbook -i "localhost," -c local get_ravello_ips.yml # connection now local defined in the playbook
 ansible-playbook -i "localhost," get_ravello_hosts.yml
 
