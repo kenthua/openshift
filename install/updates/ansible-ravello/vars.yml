@@ -1,4 +1,4 @@
-ravello_application_name: OCP3.4-Installed_v1.0-i
+ravello_application_name: OCP3.4-installed_v1.2-i
 
 ocp_wildcard: apps{{ guid }}
 subdomain: ocp
