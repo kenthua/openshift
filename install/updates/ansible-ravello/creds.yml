@@ -1,4 +1,4 @@
-ravello_user: "{{ lookup('env', 'RAVELLO_USER') }}"
-ravello_password: "{{ lookup('env', 'RAVELLO_PASSWORD') }}"
-ddns_user: "{{ lookup('env', 'GOOGLE_DDNS_USER') }}"
-ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') }}"
+ravello_user: "{{ lookup('env', 'RAVELLO_USER') | default ('',true) }}"
+ravello_password: "{{ lookup('env', 'RAVELLO_PASSWORD') | default ('',true) }}"
+ddns_user: "{{ lookup('env', 'GOOGLE_DDNS_USER') | default ('',true) }}"
+ddns_password: "{{ lookup('env', 'GOOGLE_DDNS_PASSWORD') | default ('',true) }}"
