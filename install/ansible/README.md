@@ -7,7 +7,7 @@ Updated for OCP 3.5
 0. Modify group_vars content, hosts and ose_ddns_vars.yml (as necessary)
 0. `ocp_pre_req.yml` 
   * Network setup, ose prereqs
-  * RHSM credentials: SUB_USERNAME / SUB_PASSWORD
+  * RHSM credentials: `SUB_USERNAME` / `SUB_PASSWORD`
   * Comment out network_prereq if not needed (this should be run on all vms)
 0. `ocp_infrastructure.yml` -- To setup nfs infrastructure
 0. Run `ocp_install.sh`
