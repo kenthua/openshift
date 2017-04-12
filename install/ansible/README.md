@@ -1,7 +1,7 @@
-OCP 3.4 ansible scripts
+OCP 3.5 ansible scripts
 ---
 
-Updated for OSE 3.4 
+Updated for OCP 3.5 
 
 # OCP Environment configuration
 0. Modify group_vars content, hosts and ose_ddns_vars.yml (as necessary)
@@ -15,6 +15,8 @@ Updated for OSE 3.4
   * `ose_infrastructure_local.yml` for a local environment
 0. `preload_images.yml` -- Necessary?
   * To preload docker images into your environment
+
+Updated for OCP 3.3
  
 # OCP Environment Configuration in EC2
 0. Modify variables defined in `roles/ec2/defaults/main.yml` or override them via command line / `ec2_create_instances.yml`

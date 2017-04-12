@@ -48,6 +48,15 @@ openshift_hosted_metrics_storage_nfs_directory=/var/export
 openshift_hosted_metrics_storage_volume_name=metrics
 openshift_hosted_metrics_storage_volume_size=10Gi
 
+# logging
+openshift_hosted_logging_deploy=true
+openshift_hosted_logging_storage_kind=nfs
+openshift_hosted_logging_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_logging_storage_host=workstation.example.com
+openshift_hosted_logging_storage_nfs_directory=/var/export
+openshift_hosted_logging_storage_volume_name=logging
+openshift_hosted_logging_storage_volume_size=10Gi
+
 # host group for masters
 [masters]
 master.example.com
@@ -61,3 +70,10 @@ node2.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'west'}\
 " > /etc/ansible/hosts
 
 ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+
+echo "Verify Installation"
+echo "Run oc get nodes"
+oc get nodes
+echo "Check external browser access: https://master.ocp.techknowledgeshare.net:8443"
+pause
+ehco "Run atomic-openshift-excluder exclude"

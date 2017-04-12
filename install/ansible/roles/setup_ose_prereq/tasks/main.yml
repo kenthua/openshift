@@ -20,7 +20,7 @@
     name='*'
 
 - name: Install atomic-openshift-utils
-  yum: state=present
+  yum: state=latest
     name=atomic-openshift-utils
 
 - name: Atomic openshift excluder
