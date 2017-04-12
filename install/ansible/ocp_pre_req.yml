@@ -3,19 +3,16 @@
   remote_user: root
   vars:
     - config_network: false
-
   roles:
     - network_prereq
 
 - hosts: openshift
   remote_user: root
   serial: 1
-  
   roles:
     - rhsm
     
 - hosts: openshift 
   remote_user: root
-
   roles:
     - setup_ose_prereq
