@@ -81,9 +81,14 @@
   command: "oc project logging"       
   tags:
     - logging
-
-- name: update kibana logging route
-  command: oc patch route kibana -p '{"spec":{"host":"kibana.{{ new_wildcard_fqdn }}"}}'
+    
+- name: delete kibana logging route
+  command: oc delete route logging-kibana
+  tags:
+    - logging
+    
+- name: create kibana logging route
+  command: oc create route passthrough --service=logging-kibana --hostname={{ app_name.kibana }}.{{ new_wildcard_fqdn }}
   tags:
     - logging
 
@@ -108,47 +113,7 @@
 - name: replace dc logging kibana with yaml
   shell: "cat /root/dc-logging-kibana.yml | oc replace -f -"
   tags:
-    - logging
-
-- name: switch to ci project
-  command: "oc project ci"  
-  when: ci_enabled     
-
-- name: update ci gogs route
-  command: oc patch route gogs -p '{"spec":{"host":"gogs-ci.{{ new_wildcard_fqdn }}"}}'
-  when: ci_enabled     
-
-- name: update ci jenkins route
-  command: oc patch route jenkins -p '{"spec":{"host":"jenkins-ci.{{ new_wildcard_fqdn }}"}}'
-  when: ci_enabled     
-
-- name: update ci nexus route
-  command: oc patch route nexus -p '{"spec":{"host":"nexus-ci.{{ new_wildcard_fqdn }}"}}'
-  when: ci_enabled     
-
-- name: switch to api-app-dev project
-  command: "oc project api-app-dev"  
-  when: ci_enabled
-
-- name: update ose-api-app route
-  command: oc patch route ose-api-app -p '{"spec":{"host":"ose-api-app-api-app-dev.{{ new_wildcard_fqdn }}"}}'
-  when: ci_enabled 
-
-- name: switch to api-app-uat project
-  command: "oc project api-app-uat"  
-  when: ci_enabled
-
-- name: update ose-api-app route
-  command: oc patch route ose-api-app -p '{"spec":{"host":"ose-api-app-api-app-uat.{{ new_wildcard_fqdn }}"}}'
-  when: ci_enabled 
-
-- name: switch to api-app-prod project
-  command: "oc project api-app-prod"  
-  when: ci_enabled
-
-- name: update ose-api-app route
-  command: oc patch route ose-api-app -p '{"spec":{"host":"ose-api-app-api-app-prod.{{ new_wildcard_fqdn }}"}}'
-  when: ci_enabled 
+    - logging 
   
 # need to restart because of some issue with atomic and possibly with hostname, other nodes recover    
 - name: restart atomic openshift

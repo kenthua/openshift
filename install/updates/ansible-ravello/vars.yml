@@ -5,7 +5,6 @@ subdomain: ocp
 domain: techknowledgeshare.net
 nameserver_name: ns1
 guid: 
-ci_enabled: false
 
 #
 # no need to change anything below here
