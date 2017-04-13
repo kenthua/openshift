@@ -71,9 +71,7 @@ node2.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'west'}\
 
 ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
 
-echo "Verify Installation"
-echo "Run oc get nodes"
-oc get nodes
-echo "Check external browser access: https://master.ocp.techknowledgeshare.net:8443"
-pause
-ehco "Run atomic-openshift-excluder exclude"
+echo "Verify Installation..."
+echo " - Run oc get nodes"
+echo " - Check external browser access: https://master.ocp.techknowledgeshare.net:8443"
+echo " - Run atomic-openshift-excluder exclude"

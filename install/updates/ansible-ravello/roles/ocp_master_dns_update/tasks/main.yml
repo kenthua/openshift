@@ -44,7 +44,7 @@
   lineinfile:
     dest: "{{ master_config }}"
     insertafter: "^corsAllowedOrigins:"
-    line: '  - {{ app_name.master }}.{{ subdomain }}.{{ domain }}' 
+    line: '- {{ app_name.master }}.{{ subdomain }}.{{ domain }}' 
   
 - name: switch to correct context
   command: "oc config use-context {{ default_context }}"
