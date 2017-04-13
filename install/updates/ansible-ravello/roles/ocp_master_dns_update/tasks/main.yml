@@ -61,6 +61,7 @@
 
 - name: delete hawkular metrics route
   command: oc delete route hawkular-metrics
+  ignore_errors: yes
   tags:
     - metrics
     
@@ -84,6 +85,7 @@
     
 - name: delete kibana logging route
   command: oc delete route logging-kibana
+  ignore_errors: yes
   tags:
     - logging
     
@@ -123,6 +125,7 @@
     
 - name: delete docker-registry route
   command: oc delete route docker-registry
+  ignore_errors: yes
   tags:
     - docker-registry
     
@@ -139,6 +142,7 @@
   
 - name: delete registry-console route
   command: oc delete route registry-console
+  ignore_errors: yes
   tags:
     - registry-console
   
