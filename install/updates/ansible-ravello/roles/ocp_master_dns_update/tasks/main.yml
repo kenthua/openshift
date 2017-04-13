@@ -200,7 +200,7 @@
     - storage
     
 - name: create heketi route
-  command: oc expose service heketi
+  command: oc expose service heketi --hostname={{ app_name.heketi }}-storage-project.{{ new_wildcard_fqdn }}
   when: storage_enabled
   tags:
     - storage
