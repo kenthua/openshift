@@ -161,21 +161,24 @@
   tags:
     - registry-console
  
-- name: edit dc registry-console master yaml
+- name: edit dc registry-console contents yaml
   replace:
     dest: /root/dc-registry-console.yml
-    regexp: '{{ old_master_app_name }}.{{ old_subdomain }}.{{ old_domain }}'
-    replace: '{{ app_name.master }}.{{ subdomain }}.{{ domain }}'
+    regexp: "{{ item.exp }}"
+    replace: "{{ item.rep }}"
+  with_items:
+    - { exp: "{{ old_master_app_name }}.{{ old_subdomain }}.{{ old_domain }}", rep: "{{ app_name.master }}.{{ subdomain }}.{{ domain }}" }
+    - { exp: "{{ app_name.docker_registry }}-default.{{ old_wildcard_fqdn }}", rep: "{{ app_name.docker_registry }}-default.{{ new_wildcard_fqdn }}" }
   tags:
     - registry-console
 
-- name: edit dc registry-console docker-registry host yaml
-  replace:
-    dest: /root/dc-registry-console.yml
-    regexp: '{{ app_name.docker_registry }}-default.{{ old_wildcard_fqdn }}'
-    replace: '{{ app_name.docker_registry }}-default.{{ new_wildcard_fqdn }}'
-  tags:
-    - registry-console
+#- name: edit dc registry-console docker-registry host yaml
+#  replace:
+#    dest: /root/dc-registry-console.yml
+#    regexp: '{{ app_name.docker_registry }}-default.{{ old_wildcard_fqdn }}'
+#    replace: ''
+#  tags:
+#    - registry-console
 
 - name: replace dc registry-console with yaml
   shell: "cat /root/dc-registry-console.yml | oc replace -f -"
