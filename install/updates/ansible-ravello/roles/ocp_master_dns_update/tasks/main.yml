@@ -127,7 +127,7 @@
     - docker-registry
     
 - name: create docker-registry route
-  command: oc create route passthrough --service=docker-registry --hostname={{ app_name.docker-registry }}-default.{{ new_wildcard_fqdn }}
+  command: oc create route passthrough --service=docker-registry --hostname={{ app_name.docker_registry }}-default.{{ new_wildcard_fqdn }}
   tags:
     - docker-registry
 
@@ -143,12 +143,12 @@
     - registry-console
   
 - name: create registry-console route
-  command: oc create route passthrough --service=registry-console --hostname={{ app_name.registry-console }}-default.{{ new_wildcard_fqdn }}
+  command: oc create route passthrough --service=registry-console --hostname={{ app_name.registry_console }}-default.{{ new_wildcard_fqdn }}
   tags:
     - registry-console
 
 - name: update registry-console cockpit oauth redirects
-  command: oc patch oauthclient cockpit-oauth-client -p '{"redirectURIs":["https://{{ app_name.registry-console }}-default.{{ new_wildcard_fqdn }}"]}'
+  command: oc patch oauthclient cockpit-oauth-client -p '{"redirectURIs":["https://{{ app_name.registry_console }}-default.{{ new_wildcard_fqdn }}"]}'
   tags:
     - registry-console
 
@@ -168,8 +168,8 @@
 - name: edit dc registry-console docker-registry host yaml
   replace:
     dest: /root/dc-registry-console.yml
-    regexp: '{{ app_name.docker-registry }}-default.{{ old_wildcard_fqdn }}'
-    replace: '{{ app_name.docker-registry }}-default.{{ new_wildcard_fqdn }}'
+    regexp: '{{ app_name.docker_registry }}-default.{{ old_wildcard_fqdn }}'
+    replace: '{{ app_name.docker_registry }}-default.{{ new_wildcard_fqdn }}'
   tags:
     - registry-console
 
