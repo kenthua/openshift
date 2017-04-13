@@ -74,4 +74,4 @@ ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
 echo "Verify Installation..."
 echo " - Run oc get nodes"
 echo " - Check external browser access: https://master.ocp.techknowledgeshare.net:8443"
-echo " - Run atomic-openshift-excluder exclude"
+echo " - Run atomic-openshift-excluder exclude on each node or the ocp_post.yml playbook"
