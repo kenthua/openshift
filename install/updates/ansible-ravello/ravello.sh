@@ -5,7 +5,6 @@ ansible-playbook -i "localhost," get_ravello_hosts.yml
 
 if [ "$1" != "update" ]
 then
-    ansible-playbook -i hosts ocp_ddns.yml --skip-tags=logging
+    ansible-playbook -i hosts ocp_ddns.yml 
 else
-    ansible-playbook -i hosts ocp_ddns.yml --tags "update_dns" --skip-tags=logging
-fi 
+    ansible-playbook -i hosts ocp_ddns.yml --tags "update_dns" 

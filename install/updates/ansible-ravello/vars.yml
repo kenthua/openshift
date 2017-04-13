@@ -19,3 +19,5 @@ app_name:
   kibana: kibana
   metrics: hawkular-metrics
   master: master{{ guid }}
+  docker-registry: docker-registry
+  registry-console: registry-console
