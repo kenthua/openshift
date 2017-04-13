@@ -15,4 +15,4 @@
 - hosts: openshift 
   remote_user: root
   roles:
-    - setup_ose_prereq
+    - setup_ocp_prereq

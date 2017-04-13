@@ -14,6 +14,8 @@ Updated for OCP 3.5
 * Run `ocp_install.sh`
   * OSE advanced install
   * Modify accordingly
+* After verifying the installation, run the playbook
+  * `ocp_post.yml`
 * `preload_images.yml` -- 
   * To preload docker images into your environment
 
