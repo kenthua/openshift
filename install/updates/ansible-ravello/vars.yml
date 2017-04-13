@@ -5,7 +5,7 @@ subdomain: ocp
 domain: techknowledgeshare.net
 nameserver_name: ns1
 guid:
-storage: 
+storage_enabled: 
 
 #
 # no need to change anything below here
