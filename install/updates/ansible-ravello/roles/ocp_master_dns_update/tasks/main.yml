@@ -185,6 +185,70 @@
   tags:
     - registry-console
 
+## gluster 
+- name: switch to storage project
+  command: "oc project storage-project"       
+  when: storage_enabled
+  tags:
+    - storage
+    
+- name: delete heketi route
+  command: oc delete route heketi
+  ignore_errors: yes
+  when: storage_enabled
+  tags:
+    - storage
+    
+- name: create heketi route
+  command: oc expose service heketi
+  when: storage_enabled
+  tags:
+    - storage
+
+- name: extract sc gluster-heketi to yaml
+  shell: oc get storageclass/gluster-heketi -o yaml > /root/sc-gluster-heketi.yml
+  when: storage_enabled
+  tags:
+    - storage
+
+- name: edit sc gluster-heketi yaml
+  replace:
+    dest: /root/sc-gluster-heketi.yml
+    regexp: '{{ app_name.heketi }}-default.{{ old_wildcard_fqdn }}'
+    replace: '{{ app_name.heketi }}-default.{{ new_wildcard_fqdn }}'
+  when: storage_enabled
+  tags:
+    - storage
+
+- name: replace dc heketi with yaml
+  shell: "cat /root/dc-heketi.yml | oc replace -f -"
+  when: storage_enabled
+  tags:
+    - storage
+
+- name: extract dc heketi to yaml
+  shell: oc get dc/heketi -o yaml > /root/dc-heketi.yml
+  when: storage_enabled
+  tags:
+    - storage
+
+- name: edit dc heketi yaml
+  replace:
+    dest: /root/dc-heketi.yml
+    regexp: '{{ old_master_app_name }}.{{ old_subdomain }}.{{ old_domain }}'
+    replace: '{{ app_name.master }}.{{ subdomain }}.{{ domain }}'
+  when: storage_enabled
+  tags:
+    - storage
+
+- name: replace dc heketi with yaml
+  shell: "cat /root/dc-heketi.yml | oc replace -f -"
+  when: storage_enabled
+  tags:
+    - storage
+
+
+
 # need to restart because of some issue with atomic and possibly with hostname, other nodes recover    
 - name: restart atomic openshift
   service:

@@ -4,7 +4,8 @@ ocp_wildcard: apps{{ guid }}
 subdomain: ocp
 domain: techknowledgeshare.net
 nameserver_name: ns1
-guid: 
+guid:
+storage: 
 
 #
 # no need to change anything below here
@@ -21,3 +22,4 @@ app_name:
   master: master{{ guid }}
   docker_registry: docker-registry
   registry_console: registry-console
+  heketi: heketi-storage-project
