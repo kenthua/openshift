@@ -22,4 +22,4 @@ app_name:
   master: master{{ guid }}
   docker_registry: docker-registry
   registry_console: registry-console
-  heketi: heketi-storage-project
+  heketi: heketi

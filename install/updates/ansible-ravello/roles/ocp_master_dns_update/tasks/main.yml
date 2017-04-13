@@ -214,8 +214,8 @@
 - name: edit sc gluster-heketi yaml
   replace:
     dest: /root/sc-gluster-heketi.yml
-    regexp: '{{ app_name.heketi }}-default.{{ old_wildcard_fqdn }}'
-    replace: '{{ app_name.heketi }}-default.{{ new_wildcard_fqdn }}'
+    regexp: '{{ app_name.heketi }}-storage-project.{{ old_wildcard_fqdn }}'
+    replace: '{{ app_name.heketi }}-storage-project.{{ new_wildcard_fqdn }}'
   when: storage_enabled
   tags:
     - storage
