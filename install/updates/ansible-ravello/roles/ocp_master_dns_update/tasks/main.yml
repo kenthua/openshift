@@ -220,8 +220,11 @@
   tags:
     - storage
 
-- name: replace dc heketi with yaml
-  shell: "cat /root/dc-heketi.yml | oc replace -f -"
+- name: delete sc gluster-heketi
+  command: oc delete storageclass/gluster-heketi
+
+- name: create sc gluster-heketi with yaml
+  shell: "cat /root/sc-gluster-heketi.yml | oc create -f -"
   when: storage_enabled
   tags:
     - storage
