@@ -8,3 +8,4 @@ then
     ansible-playbook -i hosts ocp_ddns.yml 
 else
     ansible-playbook -i hosts ocp_ddns.yml --tags "update_dns" 
+fi
