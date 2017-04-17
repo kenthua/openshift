@@ -1,0 +1,12 @@
+---
+- hosts: openshift
+  remote_user: root
+  roles:
+    - cns_node_preqreq
+    
+- hosts: gluster_client
+  remote_user: root
+  roles:
+    - cns_client
+
+#https://access.redhat.com/documentation/en-us/red_hat_gluster_storage/3.1/html/container-native_storage_for_openshift_container_platform_3.4/chap-documentation-red_hat_gluster_storage_container_native_with_openshift_platform-setting_the_environment#chap-Documentation-Red_Hat_Gluster_Storage_Container_Native_with_OpenShift_Platform-Setting_the_environment-Preparing_RHOE

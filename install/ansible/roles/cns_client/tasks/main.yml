@@ -1,0 +1,31 @@
+---
+- name: subscription enable repos
+  command: "subscription-manager repos --enable=rhel-7-server-ose-3.4-rpms --enable=rhel-7-server-rpms --enable=rh-gluster-3-for-rhel-7-server-rpms"
+
+- name: install cns components
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - cns-deploy
+    - heketi-client
+    - atomic-openshift-clients
+    - atomic-openshift
+
+# remainder commands
+#oc login
+#oc new-project storage-project
+#oc adm policy add-scc-to-user privileged -z default
+
+
+#/etc/dnsmasq.conf/
+#address=/.cloudapps.mystorage.com/<Router_IP_Address>
+
+#/etc/resolv.conf
+#nameserver 127.0.0.1
+
+#cns-deploy -n <namespace> -g topology.json
+
+# get the heketi rest url
+#export HEKETI_CLI_SERVER=$(oc describe svc/heketi | grep "Endpoints:" | awk '{print "http://"$2}')
+# test heketi instance for gluster info
+#heketi-cli topology info
