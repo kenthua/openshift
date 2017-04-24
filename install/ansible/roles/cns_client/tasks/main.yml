@@ -1,6 +1,6 @@
 ---
 - name: subscription enable repos
-  command: "subscription-manager repos --enable=rhel-7-server-ose-3.4-rpms --enable=rhel-7-server-rpms --enable=rh-gluster-3-for-rhel-7-server-rpms"
+  command: "subscription-manager repos --enable=rhel-7-server-ose-3.5-rpms --enable=rhel-7-server-rpms --enable=rh-gluster-3-for-rhel-7-server-rpms"
 
 - name: install cns components
   yum:
