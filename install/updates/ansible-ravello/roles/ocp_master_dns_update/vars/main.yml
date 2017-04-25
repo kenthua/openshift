@@ -12,3 +12,5 @@ new:
   master_url: https://{{ app_name.master }}.{{ subdomain }}.{{ domain }}
   logging_url: https://{{ app_name.kibana }}.{{ ocp_wildcard }}.{{ subdomain }}.{{ domain }}
   metrics_url: https://{{ app_name.metrics }}.{{ ocp_wildcard }}.{{ subdomain }}.{{ domain }}/hawkular/metrics 
+
+aos_restart_delay: 60
