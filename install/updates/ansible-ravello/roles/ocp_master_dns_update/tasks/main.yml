@@ -250,11 +250,13 @@
   tags:
     - storage
 
+# only run this when guid is filled, i.e. rhpds
 - name: let redeploys settle
   pause:
     seconds: "{{ aos_restart_delay }}"
+  when: guid|default(None) != None
 
-# need to restart because of some issue with atomic and possibly with hostname, other nodes recover    
+# need to restart for some of the url changes  
 - name: restart atomic openshift
   service:
     name: "{{ item }}"
