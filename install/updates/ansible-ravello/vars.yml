@@ -6,6 +6,7 @@ domain: techknowledgeshare.net
 nameserver_name: ns1
 guid:
 storage_enabled: false
+aos_restart_delay: 60
 
 #
 # no need to change anything below here

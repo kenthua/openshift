@@ -250,7 +250,9 @@
   tags:
     - storage
 
-
+- name: let redeploys settle
+  pause:
+    seconds: "{{ aos_restart_delay }}"
 
 # need to restart because of some issue with atomic and possibly with hostname, other nodes recover    
 - name: restart atomic openshift
