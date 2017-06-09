@@ -1,5 +1,5 @@
-rhsm_user: "{{ lookup('env', 'SUB_USERNAME') }}"
-rhsm_password: "{{ lookup('env', 'SUB_PASSWORD') }}"
+rhsm_user: "{{ lookup('env', 'RHSM_USERNAME') }}"
+rhsm_password: "{{ lookup('env', 'RHSM_PASSWORD') }}"
 preload_images:
 - openshift3/ose-pod:latest
 - openshift3/ose-sti-builder:latest

@@ -2,22 +2,26 @@ OCP ansible scripts
 ---
 
 
-# OCP Environment configuration
+# OCP Environment configuration / installation
 Updated for OCP 3.5 
 
-* Modify group_vars content, hosts and ose_ddns_vars.yml (as necessary)
-* `ocp_pre_req.yml` 
-  * Network setup, ose prereqs
-  * RHSM credentials: `SUB_USERNAME` / `SUB_PASSWORD`
-  * Comment out network_prereq if not needed (this should be run on all vms)
-* `ocp_infrastructure.yml` -- To setup nfs infrastructure
-* Run `ocp_install.sh`
-  * OSE advanced install
-  * Modify accordingly
+* Set your RHSM credentials: `RHSM_USERNAME` / `RHSM_PASSWORD`
+* Modify group_vars variables, openshift & custom_vms (if necessary)
+* Update the `hosts` file to reflect your environment
+* To setup/configure the OCP pre-reqs
+  * Modify `ocp_pre_req.yml` (if necessary)
+    * Set `config_network: true` - if networking configuration is needed
+  * Run `ansible-playbook -i hosts ocp_pre_req.yml`
+* To setup the nfs server (if necessary)
+  * Run `ansible-playbook -i hosts ocp_infrastructure.yml` - to setup NFS server (if necessary)
+* To install OCP (advanced install)
+  * Modify `ocp_install.sh` accordingly
+  * Run `./ocp_install.sh`
 * After verifying the installation, run the playbook
-  * `ocp_post.yml`
-* `preload_images.yml` -- 
-  * To preload docker images into your environment
+  * `ansible-playbook -i hosts ocp_post.yml`
+* To preload docker images into your environment (if necessary)
+  * Modify `group_vars/openshift`
+  * `ansible-playbook -i hosts preload_images.yml`
 
  
 # OCP Environment Configuration in EC2
