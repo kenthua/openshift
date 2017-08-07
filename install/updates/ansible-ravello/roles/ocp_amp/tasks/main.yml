@@ -1,6 +1,6 @@
 ---
 - name: login as developer
-  command: "oc login -u {{ ocp_user }} -p {{ ocp_developer }}"
+  command: "oc login -u {{ ocp_user }} -p {{ ocp_password }}"
 
 - name: create a new project
   command: "oc new-project 3scale-amp"
