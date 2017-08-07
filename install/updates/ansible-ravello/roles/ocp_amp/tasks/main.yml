@@ -6,7 +6,10 @@
   command: "oc new-project 3scale-amp"
 
 - name: get the amp template
-  command: "wget {{ amp_template_url }}"
+  get_url:
+    url: "{{ amp_template_url }}"
+    dest: /root/amp.yml
+    mode: 0644
 
 - name: create new ocp-app
   command: oc new-app --file amp.yml --param WILDCARD_DOMAIN={{ amp_wildcard }} --param ADMIN_PASSWORD={{ amp_password }}
