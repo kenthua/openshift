@@ -1,1 +1,15 @@
 ---
+- name: login as developer
+  command: "oc login -u {{ ocp_user }} -p {{ ocp_developer }}"
+
+- name: create a new project
+  command: "oc new-project 3scale-amp"
+
+- name: get the amp template
+  command: "wget {{ amp_template_url }}"
+
+- name: create new ocp-app
+  command: oc new-app --file amp.yml --param WILDCARD_DOMAIN={{ amp_wildcard }} --param ADMIN_PASSWORD={{ amp_password }}
+
+- name: switch to correct context
+  command: "oc config use-context {{ default_context }}"
