@@ -267,11 +267,6 @@
   tags:
     - update_dns
 
-- name: let restart settle
-  pause:
-    seconds: "{{ aos_restart_delay }}"
-  when: guid|default(None) != None
-
 #  handlers:
 #    - name: restart atomic-openshift-master
 #      service:
