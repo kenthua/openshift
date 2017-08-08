@@ -1,7 +1,7 @@
 ---
 amp_password: passw0rd
 amp_wildcard: amp.{{ new_wildcard_fqdn }}
-amp_template_url: https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.0.0.GA-redhat-2/amp/amp.yml
+amp_template_url: https://raw.githubusercontent.com/kenthua/3scale-amp-openshift-templates/2.0.0.GA-redhat-2-rhpds/amp/amp.yml
 default_context: default/master-example-com:8443/system:admin
 new_wildcard_fqdn: "{{ ocp_wildcard }}.{{ subdomain }}.{{ domain }}"
 ocp_user: developer
