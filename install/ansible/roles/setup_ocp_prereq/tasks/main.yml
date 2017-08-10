@@ -11,9 +11,14 @@
     - bridge-utils
     - bash-completion
     - deltarpm
-    - atomic-openshift-excluder
-    - atomic-openshift-docker-excluder
+    - kexec-tools
+    - sos
+    - psacct
+    - glusterfs-fuse # for gluster
+    - atomic # for image signature support
     - ntp # this is required for metrics to work, otherwise node times out of sync cause metric issues
+#    - atomic-openshift-excluder
+#    - atomic-openshift-docker-excluder
 
 - name: Update packages
   yum: state=latest
@@ -23,12 +28,12 @@
   yum: state=latest
     name=atomic-openshift-utils
 
-- name: Atomic openshift excluder
-  command: atomic-openshift-excluder unexclude
+#- name: Atomic openshift excluder
+#  command: atomic-openshift-excluder unexclude
 
 - name: Install docker
   yum: state=latest
-    name=docker
+    name=docker-1.12.6
 
 - name: Configure insecure-registry local setting for docker
   lineinfile: dest=/etc/sysconfig/docker
