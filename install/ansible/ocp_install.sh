@@ -97,6 +97,11 @@ node3.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'central
 10.0.0.31
 10.0.0.32
 
+[glusterfs]
+10.0.0.30 glusterfs_ip=10.0.0.30 glusterfs_devices='[ \"/dev/vdb\" ]'
+10.0.0.31 glusterfs_ip=10.0.0.31 glusterfs_devices='[ \"/dev/vdb\" ]'
+10.0.0.32 glusterfs_ip=10.0.0.32 glusterfs_devices='[ \"/dev/vdb\" ]'
+
 [glusterfs_registry]
 10.0.0.30 glusterfs_ip=10.0.0.30 glusterfs_devices='[ \"/dev/vdb\" ]'
 10.0.0.31 glusterfs_ip=10.0.0.31 glusterfs_devices='[ \"/dev/vdb\" ]'
