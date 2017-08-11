@@ -82,8 +82,8 @@ openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
 
 openshift_template_service_broker_namespaces=['openshift','myproject']
 
-# docker storage setup check because of gluster enablement
-#openshift_disable_check=docker_storage
+# docker storage loopback check
+openshift_disable_check=docker_storage
 
 # host group for masters
 [masters]
