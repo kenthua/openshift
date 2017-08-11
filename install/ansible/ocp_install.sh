@@ -3,6 +3,9 @@ echo "
 [OSEv3:children]
 masters
 nodes
+glusterfs
+glusterfs_registry
+nfs
 
 # Set variables common for all OSEv3 hosts
 [OSEv3:vars]
@@ -41,21 +44,43 @@ openshift_master_identity_providers=[{'name': 'any_password', 'login': 'true', '
 
 # nfs
 openshift_hosted_metrics_deploy=true
-openshift_hosted_metrics_storage_kind=nfs
-openshift_hosted_metrics_storage_access_modes=['ReadWriteOnce']
-openshift_hosted_metrics_storage_host=workstation.example.com
-openshift_hosted_metrics_storage_nfs_directory=/var/export
-openshift_hosted_metrics_storage_volume_name=metrics
-openshift_hosted_metrics_storage_volume_size=10Gi
+#openshift_hosted_metrics_storage_kind=nfs
+#openshift_hosted_metrics_storage_access_modes=['ReadWriteOnce']
+#openshift_hosted_metrics_storage_host=workstation.example.com
+#openshift_hosted_metrics_storage_nfs_directory=/var/export
+#openshift_hosted_metrics_storage_volume_name=metrics
+#openshift_hosted_metrics_storage_volume_size=10Gi
+openshift_hosted_logging_deploy=true
 
 # logging
 openshift_hosted_logging_deploy=true
-openshift_hosted_logging_storage_kind=nfs
-openshift_hosted_logging_storage_access_modes=['ReadWriteOnce']
-openshift_hosted_logging_storage_host=workstation.example.com
-openshift_hosted_logging_storage_nfs_directory=/var/export
-openshift_hosted_logging_storage_volume_name=logging
-openshift_hosted_logging_storage_volume_size=10Gi
+#openshift_hosted_logging_storage_kind=nfs
+#openshift_hosted_logging_storage_access_modes=['ReadWriteOnce']
+#openshift_hosted_logging_storage_host=workstation.example.com
+#openshift_hosted_logging_storage_nfs_directory=/var/export
+#openshift_hosted_logging_storage_volume_name=logging
+#openshift_hosted_logging_storage_volume_size=10Gi
+openshift_hosted_logging_storage_kind=dynamic
+
+# gluster
+openshift_storage_glusterfs_namespace=glusterfs 
+openshift_storage_glusterfs_name=storage
+
+# enable gluster registry 
+openshift_hosted_registry_storage_kind=glusterfs 
+openshift_hosted_registry_replicas=3
+
+# service catalog
+openshift_enable_service_catalog=true
+openshift_hosted_etcd_storage_kind=nfs
+openshift_hosted_etcd_storage_nfs_options="*(rw,root_squash,sync,no_wdelay)"
+openshift_hosted_etcd_storage_nfs_directory=/opt/osev3-etcd 
+openshift_hosted_etcd_storage_volume_name=etcd-vol2 
+openshift_hosted_etcd_storage_access_modes=["ReadWriteOnce"]
+openshift_hosted_etcd_storage_volume_size=1G
+openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
+
+openshift_template_service_broker_namespaces=['openshift','myproject']
 
 # host group for masters
 [masters]
@@ -67,6 +92,19 @@ master.example.com openshift_schedulable=false
 infra.example.com openshift_node_labels=\"{'region': 'infra', 'zone': 'default'}\"
 node1.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'east'}\"
 node2.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'west'}\"
+node3.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'central'}\"
+10.0.0.30
+10.0.0.31
+10.0.0.32
+
+[glusterfs_registry]
+10.0.0.30 glusterfs_ip=10.0.0.30 glusterfs_devices='[ \"/dev/vdb\" ]'
+10.0.0.31 glusterfs_ip=10.0.0.31 glusterfs_devices='[ \"/dev/vdb\" ]'
+10.0.0.32 glusterfs_ip=10.0.0.32 glusterfs_devices='[ \"/dev/vdb\" ]'
+
+[nfs]
+master.example.com
+
 " > /etc/ansible/hosts
 
 ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
