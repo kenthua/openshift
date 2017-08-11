@@ -47,5 +47,6 @@
     enabled: yes
     state: started
   with_items:
-    - ntpd    
+    - ntpd
+    - docker    
 

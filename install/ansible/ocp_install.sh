@@ -3,8 +3,8 @@ echo "
 [OSEv3:children]
 masters
 nodes
-glusterfs
-glusterfs_registry
+#glusterfs
+#glusterfs_registry
 nfs
 
 # Set variables common for all OSEv3 hosts
@@ -44,31 +44,31 @@ openshift_master_identity_providers=[{'name': 'any_password', 'login': 'true', '
 
 # nfs
 openshift_hosted_metrics_deploy=true
-#openshift_hosted_metrics_storage_kind=nfs
-#openshift_hosted_metrics_storage_access_modes=['ReadWriteOnce']
-#openshift_hosted_metrics_storage_host=workstation.example.com
-#openshift_hosted_metrics_storage_nfs_directory=/var/export
-#openshift_hosted_metrics_storage_volume_name=metrics
-#openshift_hosted_metrics_storage_volume_size=10Gi
-openshift_hosted_logging_deploy=true
+openshift_hosted_metrics_storage_kind=nfs
+openshift_hosted_metrics_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_metrics_storage_host=workstation.example.com
+openshift_hosted_metrics_storage_nfs_directory=/var/export
+openshift_hosted_metrics_storage_volume_name=metrics
+openshift_hosted_metrics_storage_volume_size=10Gi
+#openshift_hosted_metrics_storage_kind=dynamic
 
 # logging
 openshift_hosted_logging_deploy=true
-#openshift_hosted_logging_storage_kind=nfs
-#openshift_hosted_logging_storage_access_modes=['ReadWriteOnce']
-#openshift_hosted_logging_storage_host=workstation.example.com
-#openshift_hosted_logging_storage_nfs_directory=/var/export
-#openshift_hosted_logging_storage_volume_name=logging
-#openshift_hosted_logging_storage_volume_size=10Gi
-openshift_hosted_logging_storage_kind=dynamic
+openshift_hosted_logging_storage_kind=nfs
+openshift_hosted_logging_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_logging_storage_host=workstation.example.com
+openshift_hosted_logging_storage_nfs_directory=/var/export
+openshift_hosted_logging_storage_volume_name=logging
+openshift_hosted_logging_storage_volume_size=10Gi
+#openshift_hosted_logging_storage_kind=dynamic
 
 # gluster
-openshift_storage_glusterfs_namespace=glusterfs 
-openshift_storage_glusterfs_name=storage
+#openshift_storage_glusterfs_namespace=glusterfs 
+#openshift_storage_glusterfs_name=storage
 
 # enable gluster registry 
-openshift_hosted_registry_storage_kind=glusterfs 
-openshift_hosted_registry_replicas=3
+#openshift_hosted_registry_storage_kind=glusterfs 
+#openshift_hosted_registry_replicas=3
 
 # service catalog
 openshift_enable_service_catalog=true
@@ -82,6 +82,9 @@ openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
 
 openshift_template_service_broker_namespaces=['openshift','myproject']
 
+# docker storage setup check because of gluster enablement
+#openshift_disable_check=docker_storage
+
 # host group for masters
 [masters]
 master.example.com
@@ -93,19 +96,19 @@ infra.example.com openshift_node_labels=\"{'region': 'infra', 'zone': 'default'}
 node1.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'east'}\"
 node2.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'west'}\"
 node3.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'central'}\"
-10.0.0.30
-10.0.0.31
-10.0.0.32
+#10.0.0.30
+#10.0.0.31
+#10.0.0.32
 
-[glusterfs]
-10.0.0.30 glusterfs_ip=10.0.0.30 glusterfs_devices='[ \"/dev/vdb\" ]'
-10.0.0.31 glusterfs_ip=10.0.0.31 glusterfs_devices='[ \"/dev/vdb\" ]'
-10.0.0.32 glusterfs_ip=10.0.0.32 glusterfs_devices='[ \"/dev/vdb\" ]'
+#[glusterfs]
+#10.0.0.30 glusterfs_ip=10.0.0.30 glusterfs_devices='[ \"/dev/vdb\" ]'
+#10.0.0.31 glusterfs_ip=10.0.0.31 glusterfs_devices='[ \"/dev/vdb\" ]'
+#10.0.0.32 glusterfs_ip=10.0.0.32 glusterfs_devices='[ \"/dev/vdb\" ]'
 
-[glusterfs_registry]
-10.0.0.30 glusterfs_ip=10.0.0.30 glusterfs_devices='[ \"/dev/vdb\" ]'
-10.0.0.31 glusterfs_ip=10.0.0.31 glusterfs_devices='[ \"/dev/vdb\" ]'
-10.0.0.32 glusterfs_ip=10.0.0.32 glusterfs_devices='[ \"/dev/vdb\" ]'
+#[glusterfs_registry]
+#10.0.0.30 glusterfs_ip=10.0.0.30 glusterfs_devices='[ \"/dev/vdb\" ]'
+#10.0.0.31 glusterfs_ip=10.0.0.31 glusterfs_devices='[ \"/dev/vdb\" ]'
+#10.0.0.32 glusterfs_ip=10.0.0.32 glusterfs_devices='[ \"/dev/vdb\" ]'
 
 [nfs]
 master.example.com
