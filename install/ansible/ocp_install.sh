@@ -42,7 +42,7 @@ openshift_master_session_encryption_secrets=['DONT+USE+THIS+SECRET+b4NV+pmZNSO']
 #openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/openshift-passwd'}]
 openshift_master_identity_providers=[{'name': 'any_password', 'login': 'true', 'challenge': 'true','kind': 'AllowAllPasswordIdentityProvider'}]
 
-# nfs
+# metrics
 openshift_hosted_metrics_deploy=true
 openshift_hosted_metrics_storage_kind=nfs
 openshift_hosted_metrics_storage_access_modes=['ReadWriteOnce']
@@ -72,15 +72,17 @@ openshift_hosted_logging_storage_volume_size=10Gi
 
 # service catalog
 openshift_enable_service_catalog=true
+
+# ansible service broker storage
 openshift_hosted_etcd_storage_kind=nfs
 openshift_hosted_etcd_storage_nfs_options="*(rw,root_squash,sync,no_wdelay)"
 openshift_hosted_etcd_storage_nfs_directory=/opt/osev3-etcd 
 openshift_hosted_etcd_storage_volume_name=etcd-vol2 
 openshift_hosted_etcd_storage_access_modes=['ReadWriteOnce']
-openshift_hosted_etcd_storage_volume_size=1G
+openshift_hosted_etcd_storage_volume_size=1Gi
 openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
 
-openshift_template_service_broker_namespaces=['openshift','myproject']
+openshift_template_service_broker_namespaces=['openshift']
 
 # docker storage loopback check
 openshift_disable_check=docker_storage
@@ -95,7 +97,6 @@ master.example.com openshift_schedulable=false
 infra.example.com openshift_node_labels=\"{'region': 'infra', 'zone': 'default'}\"
 node1.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'east'}\"
 node2.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'west'}\"
-node3.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'central'}\"
 #10.0.0.30
 #10.0.0.31
 #10.0.0.32
@@ -120,4 +121,3 @@ ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
 echo "Verify Installation..."
 echo " - Run oc get nodes"
 echo " - Check external browser access: https://master.ocp.techknowledgeshare.net:8443"
-echo " - Run atomic-openshift-excluder exclude on each node or the ocp_post.yml playbook"
