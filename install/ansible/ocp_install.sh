@@ -32,6 +32,10 @@ openshift_master_cluster_public_hostname=master.ocp.techknowledgeshare.net
 # when this is set, registry and router cannot deploy because it doesn't know where to go
 osm_default_node_selector='region=primary'
 
+# default selectors for router and registry services, it is already region=infra by default
+openshift_router_selector='region=infra'
+openshift_registry_selector='region=infra'
+
 # session options
 openshift_master_session_name=ssn
 openshift_master_session_max_seconds=3600
@@ -75,9 +79,9 @@ openshift_enable_service_catalog=true
 
 # ansible service broker storage
 openshift_hosted_etcd_storage_kind=nfs
-openshift_hosted_etcd_storage_nfs_options="*(rw,root_squash,sync,no_wdelay)"
-openshift_hosted_etcd_storage_nfs_directory=/opt/osev3-etcd 
-openshift_hosted_etcd_storage_volume_name=etcd-vol2 
+openshift_hosted_etcd_storage_nfs_directory=/var/export
+openshift_hosted_etcd_storage_host=workstation.example.com 
+openshift_hosted_etcd_storage_volume_name=etcd
 openshift_hosted_etcd_storage_access_modes=['ReadWriteOnce']
 openshift_hosted_etcd_storage_volume_size=1Gi
 openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
