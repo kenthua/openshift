@@ -5,7 +5,7 @@ masters
 nodes
 #glusterfs
 #glusterfs_registry
-nfs
+#nfs
 
 # Set variables common for all OSEv3 hosts
 [OSEv3:vars]
@@ -22,6 +22,9 @@ deployment_type=openshift-enterprise
 
 # if you want the kube network to be on a different IP network range - (Services normally 172.30.0.0)
 #openshift_master_portal_net = 192.168.0.0/16
+
+# ntp for master/nodes
+openshift_clock_enabled=true
 
 # set subdomain
 #openshift_master_default_subdomain=apps.example.com
@@ -115,8 +118,8 @@ node2.example.com openshift_node_labels=\"{'region': 'primary', 'zone': 'west'}\
 #10.0.0.31 glusterfs_ip=10.0.0.31 glusterfs_devices='[ \"/dev/vdb\" ]'
 #10.0.0.32 glusterfs_ip=10.0.0.32 glusterfs_devices='[ \"/dev/vdb\" ]'
 
-[nfs]
-master.example.com
+#[nfs]
+#master.example.com
 
 " > /etc/ansible/hosts
 
