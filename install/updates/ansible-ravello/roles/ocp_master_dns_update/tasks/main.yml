@@ -235,6 +235,9 @@
 
 - name: delete sc gluster-heketi
   command: oc delete storageclass/gluster-heketi
+  when: storage_enabled
+  tags:
+    - storage
 
 - name: create sc gluster-heketi with yaml
   shell: "cat /root/sc-gluster-heketi.yml | oc create -f -"
