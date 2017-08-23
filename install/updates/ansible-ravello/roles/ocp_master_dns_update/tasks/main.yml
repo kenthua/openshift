@@ -235,6 +235,7 @@
 
 - name: delete sc gluster-heketi
   command: oc delete storageclass/gluster-heketi
+  ignore_errors: yes
   when: storage_enabled
   tags:
     - storage
