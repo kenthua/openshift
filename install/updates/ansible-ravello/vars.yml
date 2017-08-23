@@ -24,3 +24,4 @@ app_name:
   docker_registry: docker-registry
   registry_console: registry-console
   heketi: heketi
+  api: apiserver

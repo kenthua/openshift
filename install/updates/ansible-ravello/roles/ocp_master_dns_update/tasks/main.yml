@@ -117,6 +117,40 @@
   tags:
     - logging
 
+## service-catalog
+- name: switch to service-catalog project
+  command: "oc project kube-service-catalog"       
+  tags:
+    - servicecatalog
+
+- name: delete apiserver route
+  command: oc delete route apiserver
+  ignore_errors: yes
+  tags:
+    - servicecatalog
+    
+- name: create apiserver route
+  command: oc create route passthrough --service=apiserver --hostname={{ app_name.apiserver }}-kube-service-catalog.{{ new_wildcard_fqdn }}
+  tags:
+    - servicecatalog
+
+## asb
+- name: switch to asb project
+  command: "oc project openshift-ansible-service-broker"       
+  tags:
+    - asb
+
+- name: delete asb route
+  command: oc delete route asb-1338
+  ignore_errors: yes
+  tags:
+    - asb
+    
+- name: create apiserver route
+  command: oc expose service asb --name=asb-1338 --port=1338
+  tags:
+    - asb
+
 ## docker-registry
 - name: switch to default project
   command: "oc project default"       
