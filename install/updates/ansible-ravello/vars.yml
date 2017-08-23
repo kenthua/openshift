@@ -25,3 +25,4 @@ app_name:
   registry_console: registry-console
   heketi: heketi
   apiserver: apiserver
+  asb: asb-1338
