@@ -134,7 +134,7 @@
     - asb
     
 - name: create asb route
-  command: oc expose service asb --name=asb-1338 --port=1338 --hostname={{ asb }}-openshift-ansible-service-broker.{{ new_wildcard_fqdn }}
+  command: oc expose service asb --name=asb-1338 --port=1338 --hostname={{ app_name.asb }}-openshift-ansible-service-broker.{{ new_wildcard_fqdn }}
   tags:
     - asb
 
