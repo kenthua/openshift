@@ -3,7 +3,7 @@ OCP ansible scripts
 
 
 # OCP Environment configuration / installation
-Updated for OCP 3.5 
+Updated for OCP 3.6
 
 * Set your RHSM credentials: `RHSM_USERNAME` / `RHSM_PASSWORD`
 * Modify group_vars variables, openshift & custom_vms (if necessary)
@@ -17,11 +17,6 @@ Updated for OCP 3.5
 * To install OCP (advanced install)
   * Modify `ocp_install.sh` accordingly
   * Run `./ocp_install.sh`
-* After verifying the installation, run the playbook
-  * `ansible-playbook -i hosts ocp_post.yml`
-* To preload docker images into your environment (if necessary)
-  * Modify `group_vars/openshift`
-  * `ansible-playbook -i hosts preload_images.yml`
 
  
 # OCP Environment Configuration in EC2

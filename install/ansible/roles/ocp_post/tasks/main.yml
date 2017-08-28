@@ -1,3 +1,0 @@
----  
-- name: add atomic-openshift packages back to the list of yum excludes
-  command: atomic-openshift-excluder exclude

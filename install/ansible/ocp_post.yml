@@ -1,5 +1,0 @@
----
-- hosts: openshift
-  remote_user: root
-  roles:
-    - ocp_post
