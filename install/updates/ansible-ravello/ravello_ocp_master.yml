@@ -6,4 +6,4 @@
     - vars.yml        
   roles:
     - ocp_master_dns_update
-    - ocp_amp
+#    - ocp_amp
